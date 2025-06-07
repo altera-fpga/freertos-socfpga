@@ -1,0 +1,10 @@
+interrupt
+loadfile <APPNAME>
+set $PC = $ENTRYPOINT
+thbreak SwitchToEL1
+continue
+wait 10s
+stepi 30
+add-symbol-file <APPNAME>
+thbreak main
+continue

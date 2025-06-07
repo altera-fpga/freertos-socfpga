@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: MIT-0
+# Copyright (C) 2025 Altera
+
+cmake_minimum_required(VERSION 3.24)
+project(FCS
+        VERSION 1.0
+        LANGUAGES ASM C CXX
+        DESCRIPTION "Library for FPGA Crypto Services for Altera SoCFPGAs")
+
+include(CMakePackageConfigHelpers)
+
+include(cmake/arch.cmake)
+include(cmake/coverage.cmake)
+include(cmake/checkGit.cmake)
+
+get_git_commit()
+
+message("-- PROJECT NAME      : ${PROJECT_NAME}")
+message("-- PROJECT VERSION   : ${PROJECT_VERSION}")
+message("-- PROJECT GIT SHA1  : ${GIT_HASH}")
+
+include(cmake/doxygen.cmake)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+option(UNIT_TEST "Enable Unit testing of libfcs" OFF)
+option(NEED_STATIC_LIB "Override building of library as static" OFF)
+
+if(SHARED_LIB AND NOT NEED_STATIC_LIB)
+  set(LIBRARY_TYPE SHARED)
+else()
+  set(LIBRARY_TYPE STATIC)
+endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif ()
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 11)
+
+add_library(FCS ${LIBRARY_TYPE} "")
+
+set_target_properties(FCS PROPERTIES
+                      VERSION ${PROJECT_VERSION_MAJOR}
+                      SOVERSION ${PROJECT_VERSION_MAJOR})
+
+write_basic_package_version_file(FCS.cmake
+                                  VERSION ${PROJECT_VERSION}
+                                  COMPATIBILITY SameMajorVersion)
+
+add_subdirectory(third_party)
+add_subdirectory(include)
+add_subdirectory(lib)
+
+if(${ARCH} STREQUAL linux_aarch64)
+
+add_subdirectory(app)
+
+endif()
+
+add_subdirectory(toolchain)
+target_link_options(FCS PRIVATE -pg)
+
+
+

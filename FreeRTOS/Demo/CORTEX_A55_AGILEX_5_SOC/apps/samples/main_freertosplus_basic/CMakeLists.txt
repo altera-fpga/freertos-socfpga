@@ -1,0 +1,11 @@
+file(GLOB ENET_SAMPLE_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
+
+target_include_directories(RTOSEnetApp.elf
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set(MAIN_SOURCE_SRCS_PLUS
+    ${MAIN_SOURCE_SRCS}
+    ${ENET_SAMPLE_SRCS}
+    PARENT_SCOPE
+    )

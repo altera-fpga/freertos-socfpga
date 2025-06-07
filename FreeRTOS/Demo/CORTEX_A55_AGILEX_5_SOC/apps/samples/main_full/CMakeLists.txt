@@ -1,0 +1,11 @@
+file(GLOB MAIN_FULL_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
+
+target_include_directories(RTOSFullApp.elf
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set(MAIN_SOURCE_SRCS_FULL
+    ${MAIN_SOURCE_SRCS}
+    ${MAIN_FULL_SRCS}
+    PARENT_SCOPE
+)

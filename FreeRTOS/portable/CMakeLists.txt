@@ -1,0 +1,7 @@
+add_subdirectory(GCC/ARM_CA55_64_BIT)
+
+set(MAIN_SOURCE_SRCS
+    ${MAIN_SOURCE_SRCS}
+    PARENT_SCOPE
+)
+

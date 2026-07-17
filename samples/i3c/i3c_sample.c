@@ -29,36 +29,49 @@
  * @details
  * @section i3c_desc Description
  * This is a sample application to demonstrate the usage of I3C driver.
- * It uses two devices for the data transfer. The first is an I3C temperature sensor.
- * And the second is a legacy I2C EEPROM.
- * The sample uses LPS27HHW temperature sensor as the I3C slave. The application reads
- * temperature from the sensor for 10 iterations.
- * It performs writes and reads to the legacy I2C EEPROM device.
+ * It communicates with an NXP P3T1755 (LM75-style) temperature sensor on the
+ * I3C bus, either as a native I3C device (enumerated by dynamic address
+ * assignment) or as a legacy I2C device, selected by @c SENSOR_MODE_I3C_NATIVE.
+ * It programs the THIGH/TLOW limit registers, reads them back to confirm, then
+ * reads the ambient temperature a few times.
  *
  * @section i3c_pre Prerequisites
- * - A serial EEPROM with I2C interface may be connected to the I3C bus.
- * - If the I2C device is connected, the slave address shall be updated in this file.
- * - A LPS27HHW temperature sensor shall be connected to the I3C bus.
+ * - A P3T1755 (or compatible) sensor connected to the I3C bus. In legacy I2C
+ *   mode, the slave address shall be updated in this file if different.
  *
  * @section i3c_param Configurable Parameters
  * - The connected_devices structure shall be initialized with the correct device properties
- * - The memory address to write and read back can be configured in @c EEPROM_START_ADDRESS macro.
- * - The number of bytes to transfer can be configured in @c NUM_TEST_BYTES macro.
+ * - The sensor transport can be selected with @c SENSOR_MODE_I3C_NATIVE.
+ * - The sensor slave address can be configured in @c SENSOR_ADDRESS macro.
  * - The I2C test can be disabled or enabled with macro @c ENABLE_I2C_I3C_TEST .
  *
  * @section i3c_how_to How to Run
  * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board with the EEPROM connected.
+ * 2. Run the application on the board with the sensor connected.
  * 3. Observe the UART terminal for status messages.
  *
  * @section i3c_result Expected Results
- * - The write and read data to EEPROM are verified, and a success message is printed.
- * - Temperature in degree Celsius from the LPS27HHW sensor is printed 10 times.
+ * - THIGH 80 C and TLOW 75 C are written, confirmed, and a plausible ambient
+ *   temperature is printed.
  */
 
 /* I2C test macro */
 #define ENABLE_I2C_I3C_TEST    1
 #define ENABLE_I3C_IBI_SAMPLE 0
+
+/* Native LPS27HHW I3C sensor test (kept for reference, disabled by default) */
+#define ENABLE_I3C_NATIVE_SENSOR_TEST 0
+
+/* Access the P3T1755 as a native I3C device (1) or a legacy I2C device (0) */
+#define SENSOR_MODE_I3C_NATIVE  1
+
+/*
+ * P3T1755 48-bit I3C Provisional ID. Manufacturer 0x011B, device 0x152A; the
+ * low bits depend on the address-pin strapping. Only used in native I3C mode;
+ * the value only needs to be non-zero and consistent for dynamic-address
+ * lookup (DAA assigns the address; the driver matches this device_id).
+ */
+#define SENSOR_I3C_PID   0x0236152A0098ULL
 
 #define I3C_INSTANCE      1
 #define DEV_ADDRESS       0
@@ -82,15 +95,23 @@
 
 #define IBI_PAYLOAD_MAX            32U
 
-/* EEPROM I2C Slave address */
-#define EEPROM_ADDRESS       0x50
-#define EEPROM_START_ADDR    0x00
+/* P3T1755 sensor I2C slave address */
+#define SENSOR_ADDRESS       0x4C
 
-/* EEPROM write buffer*/
-uint8_t wr_buf[NUM_TEST_BYTES + 5];
+/* P3T1755 pointer register values */
+#define REG_TEMP      0x00
+#define REG_CONFIG    0x01
+#define REG_TLOW      0x02
+#define REG_THIGH     0x03
 
-/* EEPROM read buffer*/
-uint8_t rd_buf[NUM_TEST_BYTES + 5];
+/* limit defaults: 80 C and 75 C (12-bit left-justified, 0.0625 C/LSB) */
+#define THIGH_MSB    0x50
+#define THIGH_LSB    0x00
+#define TLOW_MSB     0x4B
+#define TLOW_LSB     0x00
+
+/* number of temperature samples to print */
+#define NUM_READINGS    10U
 
 #if ENABLE_I3C_IBI_SAMPLE
 static volatile bool ibi_pending;
@@ -104,6 +125,10 @@ static osal_semaphore_t ibi_event_sem;
 
 static i3c_handle_t g_i3c_handle;
 
+/* sensor transport, set up in i3c_task(): static I2C address or dynamic I3C */
+static uint16_t g_sensor_addr;
+static bool g_sensor_is_i2c;
+
 /* Structure to describe the devices connected to the I3C bus. I3C controller supports both
  * I3C devices and legacy I2C devices. For I3C devices both the static address and
  * preferred dynamic address is set as zero and  device_id is set with the PID of the slave device.
@@ -112,49 +137,43 @@ static i3c_handle_t g_i3c_handle;
  */
 struct i3c_device connected_devices[] =
 {
+#if SENSOR_MODE_I3C_NATIVE
     {
-        .static_address = DEV_ADDRESS,
-        .device_id = 0x0000020800B30,    /*LPS27HHTW MEMS pressure sensor PID*/
+        .static_address = 0,
+        .device_id = SENSOR_I3C_PID,    /*native I3C device, enumerated by DAA*/
         .preferred_dynamic_address = 0
     },
-
+#else
     {
-        .static_address = EEPROM_ADDRESS,
+        .static_address = SENSOR_ADDRESS,
         .device_id = 0x0,               /*PID as zero for legacy I2C devices*/
         .preferred_dynamic_address = 0
     },
+#endif
 };
 
-/*
- * @brief Fill the buffer with a sequential pattern starting at start_num
+/**
+ * @brief Decode and print a temperature register value.
+ *
+ * Interprets @p b as a 12-bit left-justified two's-complement value with a
+ * resolution of 0.0625 C per LSB.
+ *
+ * @param[in] label Text label for the printed line.
+ * @param[in] b     Two register bytes, most significant first.
  */
-static void fill_buffer(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
+static void print_temp(const char *label, const uint8_t *b)
 {
-    uint32_t i;
-    for (i = 0; i < nbytes; i++)
-    {
-        *(buf + i) = start_num++;
-    }
-}
+    int16_t raw = (int16_t)(((uint16_t)b[0] << 8) | (uint16_t)b[1]);
+    int32_t u = (int32_t)(raw >> 4) * 625;   /* tenths of a milli-degree */
+    const char *sign = "";
 
-/*
- * @brief Verify buffer for the expected pattern
- */
-static int verify_buffer(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
-{
-    int ret = 0;
-    uint32_t i;
-    for (i = 0; i < nbytes; i++, start_num++)
+    if (u < 0)
     {
-        if ((*(buf + i)) != start_num)
-        {
-            ERROR("mismatch at index %d: expected 0x%2.2X got 0x%2.2X", i,
-                    start_num, (*(buf + i)));
-            ret = -1;
-            break;
-        }
+        u = -u;
+        sign = "-";
     }
-    return ret;
+    PRINT("%s = %s%ld.%04ld C", label, sign, (long)(u / 10000),
+            (long)(u % 10000));
 }
 
 #if ENABLE_I3C_IBI_SAMPLE
@@ -181,30 +200,29 @@ static void i3c_ibi_callback(uint8_t ibi_id_cb, uint8_t ibi_status_cb,
 }
 #endif
 
-/*
- * @brief Read from legacy I2C EEPROM.
+/**
+ * @brief Read a sensor register over the legacy I2C path.
  *
- *    For EEPROM read two transfer requests are to be sent. The first request is
- *    to write the desired offset. The second is the read transfer request.
- *    The first transfer request is a write operation which is indicated to the
- *    driver by setting 'read' flag of the request as false. The second transfer
- *    request is a read operation which is indicated to the driver by setting the
- *    'read' flag as true To indicate that this is a legacy I2C device the
- *    'is_i2c' flag is set.
+ *    Two transfer requests are sent. The first writes the 1-byte pointer
+ *    (register address), the second reads the register content. The 'is_i2c'
+ *    flag marks this as a legacy I2C device on the I3C bus.
+ *
+ * @param[in]  reg_address Pointer register value.
+ * @param[out] data        Destination buffer.
+ * @param[in]  num_bytes   Number of bytes to read.
+ * @return 0 on success, negative error code otherwise.
  */
-int eeprom_i3c_i2c_read(uint8_t reg_address, uint8_t *data, uint32_t num_bytes)
+int sensor_i3c_i2c_read(uint8_t reg_address, uint8_t *data, uint32_t num_bytes)
 {
 
     int retval = 0;
     struct i3c_xfer_request xfer_request[2];
-    uint8_t xfer_cmd[2];
-    bool is_i2c = true;
+    uint8_t xfer_cmd;
 
-    xfer_cmd[0] = (reg_address >> 8) & 0xFF;
-    xfer_cmd[1] = reg_address & 0xFF;
+    xfer_cmd = reg_address;
 
-    xfer_request[0].buffer = xfer_cmd;
-    xfer_request[0].length = 2;
+    xfer_request[0].buffer = &xfer_cmd;
+    xfer_request[0].length = 1;
     xfer_request[0].read = false;
 
     memset(data, 0, num_bytes);
@@ -212,46 +230,47 @@ int eeprom_i3c_i2c_read(uint8_t reg_address, uint8_t *data, uint32_t num_bytes)
     xfer_request[1].length = num_bytes;
     xfer_request[1].read = true;
 
-    /* The I2C transfer function */
-    retval = i3c_transfer_sync(g_i3c_handle, EEPROM_ADDRESS, xfer_request, 2,
-            is_i2c);
+    retval = i3c_transfer_sync(g_i3c_handle, g_sensor_addr, xfer_request, 2,
+            g_sensor_is_i2c);
 
     return retval;
 }
 
 /*
- * @brief Write to legacy I2C EEPROM.
+ * @brief Write to a sensor register over the legacy I2C path.
  *
- *    For EEPROM write one transfer request is sufficient. The first
- *    two bytes of the transfer is used to indicate the offset and the rest
- *    is the data. For write operation the 'read' flag of the transfer is
- *    set as false. To indicate that this is a legacy I2C device 'is_i2c'
- *    flag is set.
+ *    One transfer request carries the 1-byte pointer (register address)
+ *    followed by the data bytes. The 'is_i2c' flag marks this as a legacy
+ *    I2C device on the I3C bus.
+ *
+ * @param[in] reg_address Pointer register value.
+ * @param[in] data        Data bytes to write.
+ * @param[in] num_bytes   Number of data bytes.
+ * @return 0 on success, negative error code otherwise.
  */
-int eeprom_i3c_i2c_write(uint8_t reg_address, uint8_t *data, uint8_t num_bytes)
+int sensor_i3c_i2c_write(uint8_t reg_address, uint8_t *data, uint8_t num_bytes)
 {
     int32_t retval = 0;
-    uint8_t xfer_data[num_bytes + 2], i;
-    bool is_i2c = true;
+    uint8_t xfer_data[num_bytes + 1], i;
 
     struct i3c_xfer_request xfer_request;
 
-    xfer_data[0] = (reg_address >> 8) & 0xFF;
-    xfer_data[1] = reg_address & 0xFF;
+    xfer_data[0] = reg_address;
 
     for (i = 0; i < num_bytes; i++)
     {
-        xfer_data[2 + i] = data[i];
+        xfer_data[1 + i] = data[i];
     }
     xfer_request.buffer = xfer_data;
-    xfer_request.length = num_bytes + 2;
+    xfer_request.length = num_bytes + 1;
     xfer_request.read = false;
 
-    retval = i3c_transfer_sync(g_i3c_handle, EEPROM_ADDRESS, &xfer_request, 1,
-            is_i2c);
+    retval = i3c_transfer_sync(g_i3c_handle, g_sensor_addr, &xfer_request, 1,
+            g_sensor_is_i2c);
     return retval;
 }
 
+#if ENABLE_I3C_NATIVE_SENSOR_TEST
 /*
  *  @brief Read lps27hhw device register.
  *
@@ -319,21 +338,24 @@ int lps27hhw_write_register(uint8_t reg_address, uint8_t *data,
 
     return retval;
 }
+#endif /* ENABLE_I3C_NATIVE_SENSOR_TEST */
 
 void i3c_task(void)
 {
     PRINT("Starting I3C sample application.");
     struct i3c_dev_list dev_list =
     {
-        .num_devices = 2, .list =
+        .num_devices = 1, .list =
                 connected_devices,
     };
 
     int32_t retval;
     i3c_handle_t hi3c;
+#if ENABLE_I3C_NATIVE_SENSOR_TEST
     uint8_t reg_address = 0x0F;
     uint8_t whoam_i = 0, data[4];
     uint32_t itr = 0;
+#endif
 
     /*
      * Configure and initialize the i3c controller instances
@@ -368,59 +390,107 @@ void i3c_task(void)
     }
     PRINT("Done.");
 #ifdef ENABLE_I2C_I3C_TEST
-    PRINT("Starting I2C test.");
-    /*Perform Test for the I2C device*/
-    PRINT("Checking if I2C device is valid ...");
-    retval = i3c_ioctl(hi3c, I2C_IOCTL_ADDRESS_VALID,
-            &connected_devices[1]);
-    if (retval != 0)
     {
-        PRINT("Invalid I2C device address");
-    }
-    else
-    {
-        PRINT("Done.");
-        fill_buffer(wr_buf, NUM_TEST_BYTES, 0x30);
-        PRINT("Write data :");
-        for (int i = 0; i < NUM_TEST_BYTES; i++)
-        {
-            PRINT("0x%02X", wr_buf[i]);
-        }
-        PRINT("Writing %d bytes to the offset 0x%x in EEPROM ...",
-                NUM_TEST_BYTES, EEPROM_START_ADDR);
-        retval = eeprom_i3c_i2c_write(EEPROM_START_ADDR, wr_buf,
-		        NUM_TEST_BYTES);
+        bool sensor_ready = false;
+        uint8_t buf[2];
+        uint32_t i;
+
+        PRINT("Starting sensor test.");
+#if SENSOR_MODE_I3C_NATIVE
+        PRINT("Getting I3C dynamic address ...");
+        retval = i3c_ioctl(hi3c, I3C_IOCTL_GET_DYNADDRESS,
+                &connected_devices[0]);
         if (retval != 0)
         {
-            ERROR("Failed to write data to the EEPROM");
-        }
-        PRINT("Done.");
-        osal_task_delay(100);
-        PRINT("Reading %d bytes from the offset 0x%x in EEPROM ...",
-                NUM_TEST_BYTES, EEPROM_START_ADDR);
-        retval = eeprom_i3c_i2c_read(EEPROM_START_ADDR, rd_buf, NUM_TEST_BYTES);
-        PRINT("Read data :");
-        for (int i = 0; i < NUM_TEST_BYTES; i++)
-        {
-            PRINT("0x%02X", rd_buf[i]);
-        }
-        if (retval != 0)
-        {
-            PRINT("Failed to read  data from the EEPROM");
-        }
-        PRINT("Done.");
-        retval = verify_buffer(rd_buf, NUM_TEST_BYTES, 0x30);
-        if (retval == 0)
-        {
-            PRINT("EEPROM read and write successful");
+            PRINT("Dynamic address not assigned");
         }
         else
         {
-            PRINT("EEPROM read and write mismatch");
+            g_sensor_addr = connected_devices[0].dynamic_address;
+            g_sensor_is_i2c = false;
+            PRINT("Done. I3C dynamic address = 0x%02X", g_sensor_addr);
+            sensor_ready = true;
+        }
+#else
+        PRINT("Checking if I2C device is valid ...");
+        retval = i3c_ioctl(hi3c, I2C_IOCTL_ADDRESS_VALID,
+                &connected_devices[0]);
+        if (retval != 0)
+        {
+            PRINT("Invalid I2C device address");
+        }
+        else
+        {
+            g_sensor_addr = SENSOR_ADDRESS;
+            g_sensor_is_i2c = true;
+            PRINT("Done.");
+            sensor_ready = true;
+        }
+#endif
+
+        if (sensor_ready)
+        {
+        /* continuous conversion mode */
+        buf[0] = 0x00;
+        retval = sensor_i3c_i2c_write(REG_CONFIG, buf, 1);
+        if (retval != 0)
+        {
+            ERROR("Config write failed");
+        }
+
+        /* program THIGH = 80 C and read back to confirm */
+        buf[0] = THIGH_MSB;
+        buf[1] = THIGH_LSB;
+        retval = sensor_i3c_i2c_write(REG_THIGH, buf, 2);
+        if ((retval == 0) &&
+                (sensor_i3c_i2c_read(REG_THIGH, buf, 2) == 0))
+        {
+            print_temp("THIGH", buf);
+            if ((buf[0] == THIGH_MSB) && (buf[1] == THIGH_LSB))
+            {
+                PRINT("THIGH write confirmed");
+            }
+            else
+            {
+                ERROR("THIGH write mismatch");
+            }
+        }
+
+        /* program TLOW = 75 C and read back to confirm */
+        buf[0] = TLOW_MSB;
+        buf[1] = TLOW_LSB;
+        retval = sensor_i3c_i2c_write(REG_TLOW, buf, 2);
+        if ((retval == 0) &&
+                (sensor_i3c_i2c_read(REG_TLOW, buf, 2) == 0))
+        {
+            print_temp("TLOW ", buf);
+            if ((buf[0] == TLOW_MSB) && (buf[1] == TLOW_LSB))
+            {
+                PRINT("TLOW write confirmed");
+            }
+            else
+            {
+                ERROR("TLOW write mismatch");
+            }
+        }
+
+        PRINT("Reading temperature for %d iterations ...", NUM_READINGS);
+        for (i = 0; i < NUM_READINGS; i++)
+        {
+            retval = sensor_i3c_i2c_read(REG_TEMP, buf, 2);
+            if (retval != 0)
+            {
+                ERROR("Temperature read failed");
+                break;
+            }
+            print_temp("Temperature", buf);
+            osal_task_delay(500);
+        }
         }
     }
-    PRINT("I2C test completed.");
+    PRINT("Sensor test completed.");
 #endif
+#if ENABLE_I3C_NATIVE_SENSOR_TEST
     PRINT("Starting I3C test");
     /*Get the assigned dynamic address of the I3C device*/
     PRINT("Getting I3C slave dynamic address ...");
@@ -623,6 +693,7 @@ void i3c_task(void)
 #endif
         PRINT("I3C test completed");
     }
+#endif /* ENABLE_I3C_NATIVE_SENSOR_TEST */
     (void)i3c_close(hi3c);
     PRINT("I3C sample completed.");
 }

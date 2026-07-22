@@ -20,4 +20,4 @@
 	url = https://github.com/altera-innersource/libraries.fpga.libfcs-dev.git
 [submodule "rsu/librsu"]
 	path = rsu/librsu
-	url = https://github.com/altera-innersource/libraries.fpga.lib-rsu.git
+	url = https://github.com/altera-innersource/libraries.fpga.unified-librsu-dev.git

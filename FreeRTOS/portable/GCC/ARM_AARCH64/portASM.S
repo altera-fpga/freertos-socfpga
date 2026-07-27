@@ -45,10 +45,14 @@
     .extern ullICCIAR
     .extern ulCoreMpidrList
     .extern _freertos_vector_table
+    .extern vApplicationSErrorHandler
+    .extern vApplicationSyncAbortHandler
 
     .global _freertos_vector_table
     .global FreeRTOS_IRQ_Handler
     .global FreeRTOS_SWI_Handler
+    .global FreeRTOS_SError_Handler
+    .global FreeRTOS_Sync_Abort_Handler
     .global vPortRestoreTaskContext
     .global _vector_table
     .global _boot
@@ -64,7 +68,7 @@ _vector_table:
     .org (VBAR + 0x100)
         b .
     .org (VBAR + 0x180)
-        b .
+        b  FreeRTOS_SError_Handler
     .org (VBAR + 0x200)
         b .
     .org (VBAR + 0x280)
@@ -72,7 +76,7 @@ _vector_table:
     .org (VBAR + 0x300)
         b .
     .org (VBAR + 0x380)
-        b .
+        b  FreeRTOS_SError_Handler
     .org (VBAR + 0x400)
         b  EnableFPU
     .org (VBAR + 0x480)
@@ -80,7 +84,7 @@ _vector_table:
     .org (VBAR + 0x500)
         b .
     .org (VBAR + 0x580)
-        b .
+        b  FreeRTOS_SError_Handler
     .org (VBAR + 0x600)
         b .
     .org (VBAR + 0x680)
@@ -99,7 +103,7 @@ _freertos_vector_table:
     .org (FREERTOS_VBAR + 0x100)
         b .
     .org (FREERTOS_VBAR + 0x180)
-        b .
+        b   FreeRTOS_SError_Handler
     .org (FREERTOS_VBAR + 0x200)
         b   FreeRTOS_SWI_Handler
     .org (FREERTOS_VBAR + 0x280)
@@ -107,7 +111,7 @@ _freertos_vector_table:
     .org (FREERTOS_VBAR + 0x300)
         b .
     .org (FREERTOS_VBAR + 0x380)
-        b .
+        b   FreeRTOS_SError_Handler
     .org (FREERTOS_VBAR + 0x400)
         b  EnableFPU
     .org (FREERTOS_VBAR + 0x480)
@@ -115,7 +119,7 @@ _freertos_vector_table:
     .org (FREERTOS_VBAR + 0x500)
         b .
     .org (FREERTOS_VBAR + 0x580)
-        b .
+        b   FreeRTOS_SError_Handler
     .org (FREERTOS_VBAR + 0x600)
         b .
     .org (FREERTOS_VBAR + 0x680)
@@ -310,23 +314,31 @@ _freertos_vector_table:
 .align 8
 .type FreeRTOS_SWI_Handler, %function
 FreeRTOS_SWI_Handler:
+    /* A synchronous exception taken from the current EL is either a FreeRTOS
+     * task yield (SVC) or a genuine CPU fault.
+     *
+     * We classify the exception first, only take the
+     * context-switch path for an actual SVC. Anything else is handed to the
+     * synchronous fault handler instead of spinning forever. */
+    STP     X0, X1, [SP, #-0x10]!
+    MRS     X0, ESR_EL1
+    LSR     X1, X0, #26
+    CMP     X1, #0x15   /* 0x15 = SVC => FreeRTOS task yield. */
+    B.NE    FreeRTOS_Sync_Abort
+    LDP     X0, X1, [SP], #0x10
+
     /* Save the context of the current task and select a new task to run. */
     portSAVE_CONTEXT
-    MRS     X0, ESR_EL1
-
-    LSR     X1, X0, #26
-
-    CMP     X1, #0x15   /* 0x15 = SVC instruction. */
-    B.NE    FreeRTOS_Abort
     GET_CORE_ID X10
     MOV X0, X10
     BL      vTaskSwitchContext
 
     portRESTORE_CONTEXT
 
-FreeRTOS_Abort:
-    /* Full ESR is in X0, exception class code is in X1. */
-    B       .
+FreeRTOS_Sync_Abort:
+    /* Not a yield, hand the synchronous fault to the dedicated handler. */
+    LDP     X0, X1, [SP], #0x10
+    B       FreeRTOS_Sync_Abort_Handler
 
 /******************************************************************************
  * vPortRestoreTaskContext is used to start the scheduler.
@@ -562,6 +574,232 @@ EnableFPU:
     ADD SP, SP, #16
 
     ERET
+
+/******************************************************************************
+ * FreeRTOS_SError_Handler handles SError (asynchronous external abort)
+ * exceptions.
+ *
+ * An out-of-order core (e.g. Cortex-A76) that consumes uncorrectable / poisoned
+ * data (for example, when the IOSSM ECC sample reads back a location that has a
+ * deliberately injected double-bit error) reports it as an asynchronous
+ * external abort, i.e. an SError. Previously every SError vector slot contained
+ * a "b ." self branch, so the core span forever. This handler instead captures
+ * the fault syndrome, hands it to a C handler for reporting, and returns so the
+ * interrupted context can continue.
+ *
+ * SError is asynchronous: ELR_ELx holds the preferred return address (a point at
+ * or after the instruction that produced the error, not the faulting load
+ * itself), so returning with ERET resumes normal execution. The offending load
+ * has already retired and its (discarded) value is not needed, which makes
+ * returning safe for this consumed-error scenario.
+ *****************************************************************************/
+.align 8
+.type FreeRTOS_SError_Handler, %function
+FreeRTOS_SError_Handler:
+    /* Save the caller-saved (AAPCS volatile) general purpose registers. The C
+     * handler preserves the callee-saved set (X19-X28), so only these need to be
+     * saved to keep the interrupted context intact. */
+    STP     X0, X1, [SP, #-0x10]!
+    STP     X2, X3, [SP, #-0x10]!
+    STP     X4, X5, [SP, #-0x10]!
+    STP     X6, X7, [SP, #-0x10]!
+    STP     X8, X9, [SP, #-0x10]!
+    STP     X10, X11, [SP, #-0x10]!
+    STP     X12, X13, [SP, #-0x10]!
+    STP     X14, X15, [SP, #-0x10]!
+    STP     X16, X17, [SP, #-0x10]!
+    STP     X18, X29, [SP, #-0x10]!
+    STP     X30, XZR, [SP, #-0x10]!
+
+    /* Ensure FP/SIMD access is enabled before touching the Q registers, so the
+     * saves below can never themselves trap and recurse into this handler.
+     * X0 has already been saved above, so it is free to use here. */
+    MRS     X0, CPACR_EL1
+    ORR     X0, X0, #(0x3 << 20)
+    MSR     CPACR_EL1, X0
+    ISB
+
+    /* Save the caller-saved FP/SIMD registers and FP status, in case the C
+     * handler touches the FPU. */
+    STP     Q0, Q1, [SP, #-0x20]!
+    STP     Q2, Q3, [SP, #-0x20]!
+    STP     Q4, Q5, [SP, #-0x20]!
+    STP     Q6, Q7, [SP, #-0x20]!
+    STP     Q16, Q17, [SP, #-0x20]!
+    STP     Q18, Q19, [SP, #-0x20]!
+    STP     Q20, Q21, [SP, #-0x20]!
+    STP     Q22, Q23, [SP, #-0x20]!
+    STP     Q24, Q25, [SP, #-0x20]!
+    STP     Q26, Q27, [SP, #-0x20]!
+    STP     Q28, Q29, [SP, #-0x20]!
+    STP     Q30, Q31, [SP, #-0x20]!
+    MRS     X0, FPSR
+    MRS     X1, FPCR
+    STP     X0, X1, [SP, #-0x10]!
+
+    /* Pass the fault syndrome to the C handler:
+     *   X0 = ESR_EL1, X1 = FAR_EL1, X2 = ELR_EL1, X3 = SPSR_EL1 */
+    MRS     X0, ESR_EL1
+    MRS     X1, FAR_EL1
+    MRS     X2, ELR_EL1
+    MRS     X3, SPSR_EL1
+    BL      vApplicationSErrorHandler
+
+    /* Barrier so any in-flight error side effects are settled before we
+     * return to the interrupted context. */
+    DSB     SY
+    ISB     SY
+
+    /* Restore FP/SIMD status and registers. */
+    LDP     X0, X1, [SP], #0x10
+    MSR     FPSR, X0
+    MSR     FPCR, X1
+    LDP     Q30, Q31, [SP], #0x20
+    LDP     Q28, Q29, [SP], #0x20
+    LDP     Q26, Q27, [SP], #0x20
+    LDP     Q24, Q25, [SP], #0x20
+    LDP     Q22, Q23, [SP], #0x20
+    LDP     Q20, Q21, [SP], #0x20
+    LDP     Q18, Q19, [SP], #0x20
+    LDP     Q16, Q17, [SP], #0x20
+    LDP     Q6, Q7, [SP], #0x20
+    LDP     Q4, Q5, [SP], #0x20
+    LDP     Q2, Q3, [SP], #0x20
+    LDP     Q0, Q1, [SP], #0x20
+
+    /* Restore general purpose registers. */
+    LDP     X30, XZR, [SP], #0x10
+    LDP     X18, X29, [SP], #0x10
+    LDP     X16, X17, [SP], #0x10
+    LDP     X14, X15, [SP], #0x10
+    LDP     X12, X13, [SP], #0x10
+    LDP     X10, X11, [SP], #0x10
+    LDP     X8, X9, [SP], #0x10
+    LDP     X6, X7, [SP], #0x10
+    LDP     X4, X5, [SP], #0x10
+    LDP     X2, X3, [SP], #0x10
+    LDP     X0, X1, [SP], #0x10
+
+    ERET
+
+/******************************************************************************
+ * FreeRTOS_Sync_Abort_Handler handles synchronous CPU faults that are not a
+ * task yield (SVC).
+ *
+ * The motivating case: on an out-of-order core (e.g. Cortex-A76) reading
+ * uncorrectable / poisoned data from non-cacheable memory raises a *synchronous*
+ * external abort (Data Abort), not an SError. The IOSSM ECC sample does exactly
+ * this when it reads back a buffer that has an injected double-bit error. That
+ * abort used to fall into "FreeRTOS_Abort: B ." - an infinite spin with
+ * interrupts masked, which additionally stalled the (buffered) console flush
+ * task, so no FreeRTOS output ever appeared.
+ *
+ * This handler captures the fault syndrome, calls a C policy routine, and:
+ *   - if that routine returns non-zero (recoverable, e.g. an external / ECC
+ *     abort) it advances ELR past the faulting instruction and returns, so
+ *     execution - and the console output - resumes;
+ *   - otherwise (a genuine software fault) it stops in a defined loop.
+ *
+ * For a synchronous abort ELR_ELx points AT the faulting instruction, so it must
+ * be advanced by one instruction (4 bytes) before ERET to avoid re-taking the
+ * same fault immediately.
+ *****************************************************************************/
+.align 8
+.type FreeRTOS_Sync_Abort_Handler, %function
+FreeRTOS_Sync_Abort_Handler:
+    /* Save the caller-saved (AAPCS volatile) general purpose registers. */
+    STP     X0, X1, [SP, #-0x10]!
+    STP     X2, X3, [SP, #-0x10]!
+    STP     X4, X5, [SP, #-0x10]!
+    STP     X6, X7, [SP, #-0x10]!
+    STP     X8, X9, [SP, #-0x10]!
+    STP     X10, X11, [SP, #-0x10]!
+    STP     X12, X13, [SP, #-0x10]!
+    STP     X14, X15, [SP, #-0x10]!
+    STP     X16, X17, [SP, #-0x10]!
+    STP     X18, X29, [SP, #-0x10]!
+    STP     X30, XZR, [SP, #-0x10]!
+
+    /* Ensure FP/SIMD access is enabled before touching the Q registers, so the
+     * saves below can never themselves trap and recurse into this handler.
+     * X0 has already been saved above, so it is free to use here. */
+    MRS     X0, CPACR_EL1
+    ORR     X0, X0, #(0x3 << 20)
+    MSR     CPACR_EL1, X0
+    ISB
+
+    /* Save the caller-saved FP/SIMD registers and FP status, in case the C
+     * handler touches the FPU. */
+    STP     Q0, Q1, [SP, #-0x20]!
+    STP     Q2, Q3, [SP, #-0x20]!
+    STP     Q4, Q5, [SP, #-0x20]!
+    STP     Q6, Q7, [SP, #-0x20]!
+    STP     Q16, Q17, [SP, #-0x20]!
+    STP     Q18, Q19, [SP, #-0x20]!
+    STP     Q20, Q21, [SP, #-0x20]!
+    STP     Q22, Q23, [SP, #-0x20]!
+    STP     Q24, Q25, [SP, #-0x20]!
+    STP     Q26, Q27, [SP, #-0x20]!
+    STP     Q28, Q29, [SP, #-0x20]!
+    STP     Q30, Q31, [SP, #-0x20]!
+    MRS     X0, FPSR
+    MRS     X1, FPCR
+    STP     X0, X1, [SP, #-0x10]!
+
+    /* Pass the fault syndrome to the C handler:
+     *   X0 = ESR_EL1, X1 = FAR_EL1, X2 = ELR_EL1, X3 = SPSR_EL1
+     * The C handler returns non-zero if the fault is recoverable. */
+    MRS     X0, ESR_EL1
+    MRS     X1, FAR_EL1
+    MRS     X2, ELR_EL1
+    MRS     X3, SPSR_EL1
+    BL      vApplicationSyncAbortHandler
+    CBZ     W0, FreeRTOS_Sync_Abort_Fatal
+
+    /* Recoverable: skip the faulting instruction so we do not immediately
+     * re-take the same synchronous abort on return. */
+    MRS     X0, ELR_EL1
+    ADD     X0, X0, #4
+    MSR     ELR_EL1, X0
+    DSB     SY
+    ISB     SY
+
+    /* Restore FP/SIMD status and registers. */
+    LDP     X0, X1, [SP], #0x10
+    MSR     FPSR, X0
+    MSR     FPCR, X1
+    LDP     Q30, Q31, [SP], #0x20
+    LDP     Q28, Q29, [SP], #0x20
+    LDP     Q26, Q27, [SP], #0x20
+    LDP     Q24, Q25, [SP], #0x20
+    LDP     Q22, Q23, [SP], #0x20
+    LDP     Q20, Q21, [SP], #0x20
+    LDP     Q18, Q19, [SP], #0x20
+    LDP     Q16, Q17, [SP], #0x20
+    LDP     Q6, Q7, [SP], #0x20
+    LDP     Q4, Q5, [SP], #0x20
+    LDP     Q2, Q3, [SP], #0x20
+    LDP     Q0, Q1, [SP], #0x20
+
+    /* Restore general purpose registers. */
+    LDP     X30, XZR, [SP], #0x10
+    LDP     X18, X29, [SP], #0x10
+    LDP     X16, X17, [SP], #0x10
+    LDP     X14, X15, [SP], #0x10
+    LDP     X12, X13, [SP], #0x10
+    LDP     X10, X11, [SP], #0x10
+    LDP     X8, X9, [SP], #0x10
+    LDP     X6, X7, [SP], #0x10
+    LDP     X4, X5, [SP], #0x10
+    LDP     X2, X3, [SP], #0x10
+    LDP     X0, X1, [SP], #0x10
+
+    ERET
+
+FreeRTOS_Sync_Abort_Fatal:
+    /* Unrecoverable synchronous fault (likely a genuine software bug). The
+     * syndrome has already been reported by the C handler. Stop here. */
+    B       FreeRTOS_Sync_Abort_Fatal
 
 .align 8
 #if configNUMBER_OF_CORES > 1

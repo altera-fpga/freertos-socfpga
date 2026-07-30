@@ -54,6 +54,9 @@ SMP ?= OFF
 #Stack core count
 CORE_COUNT ?= 4
 
+#Common cmake configure arguments
+CMAKE_ARGS := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT) -DSMP=$(SMP)
+
 #demo path for hello world and demo applications
 DEMO_PATH := FreeRTOS/Demo/SOCFPGA/apps
 SAMPLES_PATH := samples/
@@ -107,7 +110,7 @@ prepare-tools : venv
 
 hello_world:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/hello_world -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/hello_world -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@
 	@echo "hello world build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : hello_world
@@ -115,7 +118,7 @@ hello_world:
 
 cli_app:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/$@ -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/$@ -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "cli app build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : cli_app
@@ -123,7 +126,7 @@ cli_app:
 
 main_full:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/$@ -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/$@ -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "os tests build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : main_full
@@ -131,7 +134,7 @@ main_full:
 
 main_blinky:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/$@ -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/$@ -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "blinky app build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : main_blinky
@@ -139,7 +142,7 @@ main_blinky:
 
 enet_demo:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/main_freertosplus_basic -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/main_freertosplus_basic -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@  -j${nproc}
 	@echo "enet app build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : enet_demo
@@ -150,7 +153,7 @@ samples: dma_sample bridge_sample fatfs_sample fpga_manager_sample gpio_sample i
 
 dma_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/dma -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/dma -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : dma_sample
@@ -158,7 +161,7 @@ dma_sample:
 
 ecc_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/ecc -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/ecc -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : ecc_sample
@@ -166,7 +169,7 @@ ecc_sample:
 
 bridge_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/bridge -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/bridge -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : bridge_sample
@@ -174,7 +177,7 @@ bridge_sample:
 
 fatfs_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/fatfs -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/fatfs -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : fatfs_sample
@@ -182,7 +185,7 @@ fatfs_sample:
 
 fpga_manager_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/fpga_manager -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/fpga_manager -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : fpga_manager_sample
@@ -190,7 +193,7 @@ fpga_manager_sample:
 
 gpio_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/gpio -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/gpio -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : gpio_sample
@@ -198,7 +201,7 @@ gpio_sample:
 
 i2c_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/i2c -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/i2c -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : i2c_sample
@@ -206,7 +209,7 @@ i2c_sample:
 
 i3c_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/i3c -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/i3c -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : i3c_sample
@@ -214,7 +217,7 @@ i3c_sample:
 
 iossm_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/iossm -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/iossm -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : iossm_sample
@@ -222,7 +225,7 @@ iossm_sample:
 
 qspi_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/qspi -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/qspi -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : qspi_sample
@@ -230,7 +233,7 @@ qspi_sample:
 
 reboot_manager_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/reboot_mngr -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/reboot_mngr -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : reboot_manager_sample
@@ -238,7 +241,7 @@ reboot_manager_sample:
 
 sdm_mailbox_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/sdm_mailbox -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/sdm_mailbox -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : sdm_mailbox_sample
@@ -246,7 +249,7 @@ sdm_mailbox_sample:
 
 sdmmc_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/sdmmc -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/sdmmc -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : sdmmc_sample
@@ -254,7 +257,7 @@ sdmmc_sample:
 
 seu_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/seu -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/seu -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : seu_sample
@@ -262,7 +265,7 @@ seu_sample:
 
 spi_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/spi -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/spi -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : spi_sample
@@ -270,7 +273,7 @@ spi_sample:
 
 timer_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/timer -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/timer -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : timer_sample
@@ -278,7 +281,7 @@ timer_sample:
 
 uart_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/uart -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/uart -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : uart_sample
@@ -286,7 +289,7 @@ uart_sample:
 
 fcs_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/fcs -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/fcs -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : fcs_sample
@@ -294,7 +297,7 @@ fcs_sample:
 
 rsu_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/rsu -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/rsu -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : rsu_sample
@@ -302,7 +305,7 @@ rsu_sample:
 
 usb3_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/usb3 -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/usb3 -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : usb3_sample
@@ -310,7 +313,7 @@ usb3_sample:
 
 wdt_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/wdt -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/wdt -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : wdt_sample
@@ -318,7 +321,7 @@ wdt_sample:
 
 multi_thread_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/multithread_samples -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/multithread_samples -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed successfully.\nOutput directory: build/$@"
 .PHONY : multi_thread_sample
@@ -326,7 +329,7 @@ multi_thread_sample:
 
 usb_otg_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/usb_otg -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/usb_otg -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : usb3_sample

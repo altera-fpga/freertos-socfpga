@@ -10,15 +10,46 @@
 #define FREERTOS_CONFIG_SMP_H
 
 #define configMAX_NUM_CORES     4
-/* SMP core enable controls. */
-#define configSMP_CORE0_ENABLE  1
-#define configSMP_CORE1_ENABLE  0
-#define configSMP_CORE2_ENABLE  0
-#define configSMP_CORE3_ENABLE  0
 
+/* Provided by the build system:
+ *   SMP=On             -> configSMP_BUILD = 1
+ *   CORE=A55 (default) -> configBOOT_CORE = 0  (A55 cluster: cores 0,1)
+ *   CORE=A76           -> configBOOT_CORE = 2  (A76 cluster: cores 2,3)
+ */
+#ifndef configSMP_BUILD
+    #define configSMP_BUILD 0
+#endif
+#ifndef configBOOT_CORE
+    #define configBOOT_CORE 0
+#endif
+
+/* SMP core enable controls.
+ * SMP on : enable both cores of the boot core's cluster.
+ * SMP off: enable only the boot core.
+ */
+#if ( configSMP_BUILD != 0 )
+    #if ( configBOOT_CORE >= 2 )
+        #define configSMP_CORE0_ENABLE  0
+        #define configSMP_CORE1_ENABLE  0
+        #define configSMP_CORE2_ENABLE  1
+        #define configSMP_CORE3_ENABLE  1
+    #else
+        #define configSMP_CORE0_ENABLE  1
+        #define configSMP_CORE1_ENABLE  1
+        #define configSMP_CORE2_ENABLE  0
+        #define configSMP_CORE3_ENABLE  0
+    #endif
+#else
+    #define configSMP_CORE0_ENABLE  ( configBOOT_CORE == 0 )
+    #define configSMP_CORE1_ENABLE  ( configBOOT_CORE == 1 )
+    #define configSMP_CORE2_ENABLE  ( configBOOT_CORE == 2 )
+    #define configSMP_CORE3_ENABLE  ( configBOOT_CORE == 3 )
+#endif
+
+/* Agilex3 has no A76 cluster; never enable cores 2/3. */
 #if defined( AGILEX3 )
-    #undef configSMP_CORE2_ENABLE
-    #undef configSMP_CORE3_ENABLE
+    #undef  configSMP_CORE2_ENABLE
+    #undef  configSMP_CORE3_ENABLE
     #define configSMP_CORE2_ENABLE 0
     #define configSMP_CORE3_ENABLE 0
 #endif

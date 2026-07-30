@@ -184,6 +184,22 @@ The following parameters can be specified during the CMake configuration stage:
   -DCORE=A76
   ```
 
+- **SMP (multi-core)**<br>
+  By default the build is single-core (`SMP=OFF`). Set `SMP=On` to run FreeRTOS SMP across both cores of the boot core's cluster. The pair is selected automatically from `-DCORE`:
+  - `CORE=A55` (default) enables cores **0 and 1** (the two A55 cores).
+  - `CORE=A76` enables cores **2 and 3** (the two A76 cores).
+  ```bash
+  -DSMP=On
+  ```
+  Using the Makefile:
+  ```bash
+  make SMP=On <app>            # A55 pair (cores 0,1)
+  make SMP=On CORE=A76 <app>   # A76 pair (cores 2,3)
+  ```
+  `configNUMBER_OF_CORES` is derived automatically from the enabled cores, so no manual edit of `FreeRTOSConfigSmp.h` is required. On Agilex3, cores 2/3 are always disabled.
+
+  > **Note:** A76 SMP requires ATF to hand FreeRTOS off to an A76 core (MPIDR `0x200`) as the primary boot core. If ATF boots on the A55 (MPIDR `0x0`), an A76 SMP build will not come up correctly.
+
 - **Stack core count (linker)**<br>
   Override the number of core stacks reserved by the linker. This only affects `_NUM_CORE` stack allocation, not which cores are enabled.
   ```bash
@@ -229,19 +245,23 @@ These settings are present at `FreeRTOS/Demo/SOCFPGA/FreeRTOSConfig.h` and `Free
 
 #### Core configuration (SMP)
 
-Core enable/MPIDR configuration is controlled in `FreeRTOS/Demo/SOCFPGA/FreeRTOSConfigSmp.h`.
+For the common case, use the **SMP** build option above (`-DSMP=On` / `make SMP=On`). It enables the correct cluster pair for the selected `-DCORE` automatically, so no manual editing is needed.
 
-- Set `configSMP_CORE0_ENABLE` .. `configSMP_CORE3_ENABLE` to 0/1.
-- Set MPIDR values via `configSMP_CORE*_MPIDR` if needed.
-- Agilex3 supports core 0 and 1 only; core 2/3 are forced off when `AGILEX3` is defined.
+The underlying controls live in `FreeRTOS/Demo/SOCFPGA/FreeRTOSConfigSmp.h`:
 
-Example (SMP, cores 0-1 enabled):
-```c
-#define configSMP_CORE0_ENABLE 1
-#define configSMP_CORE1_ENABLE 1
-#define configSMP_CORE2_ENABLE 0
-#define configSMP_CORE3_ENABLE 0
-```
+- `configSMP_BUILD` (from `-DSMP`) turns SMP on/off.
+- `configBOOT_CORE` (from `-DCORE`: A55 -> 0, A76 -> 2) selects which cluster is paired.
+- `configSMP_CORE0_ENABLE` .. `configSMP_CORE3_ENABLE` are then derived from the two values above. Edit this logic only for custom (non-cluster) core combinations.
+- MPIDR values can be adjusted via `configSMP_CORE*_MPIDR` if needed.
+- Agilex3 supports cores 0 and 1 only; cores 2/3 are forced off when `AGILEX3` is defined.
+
+Resulting enables:
+
+| Build                    | Enabled cores | configNUMBER_OF_CORES |
+|--------------------------|---------------|-----------------------|
+| default (SMP off)        | boot core only| 1                     |
+| `SMP=On`                 | 0, 1 (A55)    | 2                     |
+| `SMP=On CORE=A76`        | 2, 3 (A76)    | 2                     |
 
 The following applications exist in the repository. Build the application of your choice.
 * Hello world application <br>

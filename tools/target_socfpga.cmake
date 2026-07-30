@@ -70,6 +70,17 @@ message(STATUS "${BoldWhite}C COMPILER      :  ${CMAKE_C_COMPILER}${ColourReset}
 set(CORE_COUNT 4 CACHE STRING "Number of cores to allocate stacks for")
 set(NUM_CORES ${CORE_COUNT})
 
+# SMP build: On pairs both cores of the boot core's cluster
+# (A55 -> cores 0,1 ; A76 -> cores 2,3). See FreeRTOSConfigSmp.h.
+string(TOUPPER "${SMP}" SMP_ENABLED)
+if(SMP_ENABLED STREQUAL "ON" OR SMP_ENABLED STREQUAL "1" OR SMP_ENABLED STREQUAL "TRUE" OR SMP_ENABLED STREQUAL "YES")
+    add_compile_definitions(configSMP_BUILD=1)
+    message(STATUS "${BoldGreen}SMP build       :  ON  (pairing ${CORE} cluster)${ColourReset}")
+else()
+    add_compile_definitions(configSMP_BUILD=0)
+    message(STATUS "${BoldWhite}SMP build       :  OFF${ColourReset}")
+endif()
+
 add_link_options( -Wl,--defsym,_NUM_CORE=${NUM_CORES} )
 
 add_link_options(

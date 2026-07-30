@@ -42,6 +42,10 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_CXX_FLAGS_RELEASE "" CACHE STRING "Release flags" FORCE)
     set(CMAKE_ASM_FLAGS_RELEASE "" CACHE STRING "Release flags" FORCE)
     set(CMAKE_C_FLAGS_RELEASE "" CACHE STRING "Release flags" FORCE)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Debug builds bring up the secondary SMP cores before main() so a debugger
+    # can attach to them at main. No effect on single core.
+    add_compile_definitions(configSMP_EARLY_CORE_BRINGUP=1)
 endif()
 
 message(STATUS "SOC : ${SOC}")

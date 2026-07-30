@@ -79,4 +79,11 @@
     ( configSMP_CORE2_ENABLE ) + \
     ( configSMP_CORE3_ENABLE ) )
 
+/* Bring up the secondary cores before main. Auto-enabled by 
+ * Debug builds (BUILD_TYPE=Debug); can also be forced with 
+ * -DconfigSMP_EARLY_CORE_BRINGUP=1. */
+#ifndef configSMP_EARLY_CORE_BRINGUP
+    #define configSMP_EARLY_CORE_BRINGUP 0
+#endif
+
 #endif /* FREERTOS_CONFIG_SMP_H */

@@ -179,6 +179,9 @@ static BaseType_t xSchedulerStarted = pdFALSE;
 /* Variable to store the boot core affinity. */
 static uint32_t ulBootCoreId = 0U;
 
+/* Ensures secondary cores are released from the PSCI holding pen only once */
+static BaseType_t xSecondaryCoresStarted = pdFALSE;
+
 /* Initializing the MPIDR array based on the number of cores
    the user has enabled */
 __attribute__( ( used ) ) const uint32_t ulCoreMpidrList[ configNUMBER_OF_CORES ] =
@@ -209,6 +212,7 @@ BaseType_t xPortStartSchedulerOnCore( void );
 
 static void vCoreInit( uint32_t ulCoreId, void *pvEntryPoint );
 void vCoreYield( void *pvParam );
+void vPortStartSecondaryCores( void );
 
 uint32_t ulRawReadICC_RPR_EL1( void )
 {
@@ -368,13 +372,63 @@ StackType_t * pxPortInitialiseStack( StackType_t * pxTopOfStack,
 }
 /*-----------------------------------------------------------*/
 
+void vPortStartSecondaryCores( void )
+{
+uint32_t ulCoreIndex = 0U;
+uint32_t ulCoreId = 0U;
+volatile uint32_t ulDelayIndex = 0U;
+
+    if( xSecondaryCoresStarted == pdTRUE )
+    {
+        return;
+    }
+
+    ulBootCoreId = ulGetCoreId();
+
+    for( ulCoreIndex = 0U; ulCoreIndex < configNUMBER_OF_CORES; ulCoreIndex++ )
+    {
+        if( ulCoreIndex == ulBootCoreId )
+        {
+            continue;
+        }
+        /* If the boot core is 2 and the number
+         * of cores is 2, cores will start the scheduler in 2->3 order.
+         */
+        ulCoreId = ( uint32_t ) ulCoreMpidrList[ ulCoreIndex ];
+        vCoreInit( ulCoreId, _secondary_boot );
+
+        /* Once the core is up, it uses FreeRTOS indexing */
+        while( xCoreReady[ ulCoreIndex ] != pdTRUE )
+        {
+            /* Wait for the core to set the corresponding index as ready */
+            for( ulDelayIndex = 0U; ulDelayIndex < 1000U; ulDelayIndex++ )
+            {
+                __asm__ volatile( "nop" );
+            }
+            __asm__ volatile( "dmb sy" ::: "memory" );
+        }
+    }
+
+    xSecondaryCoresStarted = pdTRUE;
+}
+/*-----------------------------------------------------------*/
+
+#if ( configSMP_EARLY_CORE_BRINGUP == 1 ) && ( configNUMBER_OF_CORES > 1 )
+
+/* Runs before main() via the C runtime init array so a debugger can attach to
+ * the secondary cores at a breakpoint on main entry. */
+__attribute__( ( constructor ) ) static void vPortSmpEarlyCoreBringup( void )
+{
+    vPortStartSecondaryCores();
+}
+
+#endif /* configSMP_EARLY_CORE_BRINGUP */
+/*-----------------------------------------------------------*/
+
 BaseType_t xPortStartScheduler( void )
 {
-uint32_t ulCoreId = 0U;
 uint32_t ulAPSR = 0U;
-uint32_t ulCoreIndex = 0U;
 uint32_t ulSpinLockIndex = 0U;
-volatile uint32_t ulDelayIndex = 0U;
 
     #if ( configASSERT_DEFINED == 1 )
     {
@@ -402,31 +456,10 @@ volatile uint32_t ulDelayIndex = 0U;
      * more information. */
     configASSERT( ( ulRawReadICC_BPR1_EL1() & portBINARY_POINT_BITS ) <= portMAX_BINARY_POINT_VALUE );
 
-    /* Initialize the secondary cores */
-    for( ulCoreIndex = 0U; ulCoreIndex < configNUMBER_OF_CORES; ulCoreIndex++ )
-    {
-        if( ulCoreIndex == ulBootCoreId )
-        {
-            continue;
-        }
-        /* Core ids are in multiples of 256, we start initialising cores
-         * that are after the boot core. If the boot core is 2 and the number
-         * of cores is 2, cores will start the scheduler in 2->3 order.
-         */
-        ulCoreId = ( uint32_t ) ulCoreMpidrList[ ulCoreIndex ];
-        vCoreInit( ulCoreId, _secondary_boot );
+    /* Release the secondary cores from the PSCI holding pen. This is a no-op
+     * if they were already brought up early (pre-main) for debugging. */
+    vPortStartSecondaryCores();
 
-        /* Once the core is up, it uses FreeRTOS indexing */
-        while( xCoreReady[ ulCoreIndex ] != pdTRUE )
-        {
-            /* Wait for the core to set the corresponding index as ready */
-            for( ulDelayIndex = 0U; ulDelayIndex < 1000U; ulDelayIndex++ )
-            {
-                __asm__ volatile( "nop" );
-            }
-            __asm__ volatile( "dmb sy" ::: "memory" );
-        }
-    }
     xPortStartSchedulerOnCore();
 
     /* Should never reach here */
@@ -459,10 +492,6 @@ volatile uint32_t ulDelayIndex = 0U;
 
     xCoreReady[ ulGetCoreId() ] = pdTRUE;
 
-    /* GIC is initialized before the scheduler starts. Here we enable the
-       redistributor of the current core. */
-    interrupt_enable_core_redis();
-
     while( xSchedulerStarted != pdTRUE )
     {
         /* Wait for the boot core to start the scheduler. */
@@ -472,6 +501,12 @@ volatile uint32_t ulDelayIndex = 0U;
         }
         __asm__ volatile( "dmb sy" ::: "memory" );
     }
+
+    /* Enable core's GIC redistributor only after the boot core has
+       initialized the GIC and started the scheduler. Allows the core to
+       be brought up early without touching an uninitialized GIC. */
+    interrupt_enable_core_redis();
+
     /* Start the scheduler on the core */
     xPortStartSchedulerOnCore();
 }

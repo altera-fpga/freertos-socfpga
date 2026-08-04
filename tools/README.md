@@ -13,7 +13,7 @@ The instructions are based on the GHRD design.
 - Host PC with
 	- Linux OS installed. All the mentioned documentation are based on Ubuntu 20.04.6 LTS.
 	- Serial terminal ( minicom/picocom/GtkTerm )
-	- Intel Quartus Prime Pro Edition Version 25.3. ( Used to compile hardware design and generate programming files ).
+	- Intel Quartus Prime Pro Edition Version 26.1. ( Used to compile hardware design and generate programming files ).
 	- TFTP server. (Used to download eMMC binaries). See Section 8 to setup TFTP server.
 - Internet access for downloading the files.
 
@@ -59,7 +59,7 @@ Download the compiler toolchain. Define environment variables and append the too
 ## 2.3 Enable Quartus tools to be called from command line
 Download and install [Quartus]
 ```bash
-  export QUARTUS_ROOTDIR=~/altera_pro/25.3/quartus/
+  export QUARTUS_ROOTDIR=~/altera_pro/26.1/quartus/
   export PATH=$QUARTUS_ROOTDIR/bin:$QUARTUS_ROOTDIR/linux64:$QUARTUS_ROOTDIR/../qsys/bin:$PATH
 ```
 ## 2.4 Clone the ATF
@@ -70,8 +70,8 @@ Download and install [Quartus]
 ## 2.5 Clone the SoC FPGA FreeRTOS SDK repo
 ```bash
   cd $TOP_FOLDER
-  git clone git@github.com:Ignitarium-Technology/freertos-socfpga.git
-  cd freertos-socfpga/
+  git clone https://github.com/altera-innersource/os.rtos.socfpga.freertos
+  cd os.rtos.socfpga.freertos/
   git submodule update --init --recursive
 ```
 ## 2.6 Copy SOF file
@@ -89,7 +89,7 @@ The following FreeRTOS sample applications are available to test:
 
 To get the list of all available applications, run the following command:
 ```bash
-  cd $TOP_FOLDER/freertos-socfpga/
+  cd $TOP_FOLDER/os.rtos.socfpga.freertos/
   make help
 ```
 Here, we will focus on building the **hello_world** application. All the other applications can be built in the same manner.
@@ -103,7 +103,7 @@ Make supports following configuration
 
 Default config will be A55, Release and AGILEX5
 ```bash
-  cd $TOP_FOLDER/freertos-socfpga/
+  cd $TOP_FOLDER/os.rtos.socfpga.freertos/
   make hello_world CORE=A55 BUILD_TYPE=Release SOC=AGILEX5
 ```
 The output(bin file) is:
@@ -133,7 +133,7 @@ The output(bin file) is:
   rm -rf qspi_bin && mkdir qspi_bin && cd qspi_bin
   cp $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl2.bin $TOP_FOLDER/qspi_bin
   aarch64-none-elf-objcopy -v -I binary -O ihex --change-addresses 0x0 bl2.bin  bl2.hex
-  $TOP_FOLDER/fiptool create --soc-fw $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl31.bin  --nt-fw $TOP_FOLDER/freertos-socfpga/build/hello_world/freertos_hello_world.bin fip.bin
+  $TOP_FOLDER/fiptool create --soc-fw $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl31.bin  --nt-fw $TOP_FOLDER/os.rtos.socfpga.freertos/build/hello_world/freertos_hello_world.bin fip.bin
 ```
 - Build qspi jic image<br>
 You need to have the SOF file for your design for the next step, We assume that the SOF is in the **$TOP_FOLDER** with name "**ghrd_a5ed065bb32ae6sr0.sof**"<br>
@@ -167,7 +167,7 @@ The following output files are generated from the above steps:
   rm -rf sd_bin && mkdir sd_bin && cd sd_bin
   cp $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl2.bin $TOP_FOLDER/sd_bin
   aarch64-none-elf-objcopy -v -I binary -O ihex --change-addresses 0x0 bl2.bin  bl2.hex
-  $TOP_FOLDER/fiptool create --soc-fw $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl31.bin  --nt-fw $TOP_FOLDER/freertos-socfpga/build/hello_world/freertos_hello_world.bin fip.bin
+  $TOP_FOLDER/fiptool create --soc-fw $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl31.bin  --nt-fw $TOP_FOLDER/os.rtos.socfpga.freertos/build/hello_world/freertos_hello_world.bin fip.bin
 ```
 - Create qspi jic to boot from SD card
 ```bash
@@ -192,7 +192,7 @@ This will generate **qspi_image.jic** and **ghrd.core.rbf**
 - Build SD image<br>
 ```bash
   cd $TOP_FOLDER/sd_bin
-  cp $TOP_FOLDER/freertos-socfpga/tools/make_sdimage.sh .
+  cp $TOP_FOLDER/os.rtos.socfpga.freertos/tools/make_sdimage.sh .
   mkdir fatfs &&  cd fatfs
   cp ghrd.core.rbf fatfs/core.rbf
   ./make_sdimage.sh -s 128 -o sd.img -p "a2:2:64:fip.bin" -p "c:1::fatfs/core.rbf"
@@ -219,7 +219,7 @@ The following output files are generated from the above steps:
   rm -rf emmc_bin && mkdir emmc_bin && cd emmc_bin
   cp $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl2.bin $TOP_FOLDER/emmc_bin
   aarch64-none-elf-objcopy -v -I binary -O ihex --change-addresses 0x0 bl2.bin  bl2.hex
-  $TOP_FOLDER/fiptool create --soc-fw $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl31.bin  --nt-fw $TOP_FOLDER/freertos-socfpga/build/hello_world/freertos_hello_world.bin fip.bin
+  $TOP_FOLDER/fiptool create --soc-fw $TOP_FOLDER/arm-trusted-firmware/build/agilex5/release/bl31.bin  --nt-fw $TOP_FOLDER/os.rtos.socfpga.freertos/build/hello_world/freertos_hello_world.bin fip.bin
 ```
 - Create qspi jic to boot from eMMC
 ```bash
@@ -243,7 +243,7 @@ This will create **qspi_image.jic** and **ghrd.core.rbf**
 - Build eMMC image<br>
 ```bash
   cd $TOP_FOLDER/emmc_bin
-  cp $TOP_FOLDER/freertos-socfpga/tools/make_sdimage.sh .
+  cp $TOP_FOLDER/os.rtos.socfpga.freertos/tools/make_sdimage.sh .
   mkdir fatfs &&  cd fatfs
   cp ghrd.core.rbf fatfs/core.rbf
   ./make_sdimage.sh -s 128 -o sd_emmc.img -p "a2:2:64:fip.bin" -p "c:1::fatfs/core.rbf"

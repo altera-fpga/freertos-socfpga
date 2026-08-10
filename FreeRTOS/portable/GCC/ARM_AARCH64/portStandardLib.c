@@ -30,11 +30,34 @@ extern struct __lock __lock___malloc_recursive_mutex;
 struct __lock stdio_lock_data[ STDIO_LOCK_COUNT ];
 static int lock_init_idx = 0;
 
+/*
+ * Stdio FILE locks are backed by recursive mutexes.
+ * A task-owned mutex lets printf hold one lock without disabling
+ * interrupts or releasing mid-flush, which is required for SMP correctness.
+ */
+static SemaphoreHandle_t xStdioMutex[ STDIO_LOCK_COUNT + 1 ];
+
+static int stdio_use_mutex(int lock_id)
+{
+    return ( lock_id > 0 )
+        && ( lock_id <= STDIO_LOCK_COUNT )
+        && ( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
+        && ( xPortIsInsideInterrupt() == pdFALSE )
+        && ( xStdioMutex[ lock_id ] != NULL );
+}
+
 static void get_spin_lock(int lock_id)
 {
     uint32_t core_id = ulGetCoreId();
     configASSERT( lock_id >= 0 );
     configASSERT( lock_id < PORT_SPIN_LOCK_COUNT );
+
+    if( stdio_use_mutex(lock_id) )
+    {
+        (void)xSemaphoreTakeRecursive( xStdioMutex[ lock_id ], portMAX_DELAY );
+        return;
+    }
+
     portDISABLE_INTERRUPTS();
     portGET_STDLIB_LOCK(lock_id, core_id);
 }
@@ -42,7 +65,15 @@ static void get_spin_lock(int lock_id)
 static int give_spin_lock(int lock_id)
 {
     uint32_t core_id = ulGetCoreId();
-    int ret = portRELEASE_STDLIB_LOCK(lock_id, core_id);
+    int ret;
+
+    if( stdio_use_mutex(lock_id) )
+    {
+        (void)xSemaphoreGiveRecursive( xStdioMutex[ lock_id ] );
+        return 0;
+    }
+
+    ret = portRELEASE_STDLIB_LOCK(lock_id, core_id);
     if( ret <= 0 )
     {
         portENABLE_INTERRUPTS();
@@ -62,6 +93,7 @@ void __wrap___retarget_lock_init(_LOCK_T *lock)
 void __wrap___retarget_lock_init_recursive(_LOCK_T *lock)
 {
     uint32_t core_id = ulGetCoreId();
+    int new_id = 0;
     if( lock == NULL )
     {
         return;
@@ -79,10 +111,17 @@ void __wrap___retarget_lock_init_recursive(_LOCK_T *lock)
     {
         stdio_lock_data[lock_init_idx].spinlock_id  = lock_init_idx + 1;
         *lock = &stdio_lock_data[lock_init_idx];
+        new_id = lock_init_idx + 1;
         lock_init_idx++;
     }
 
     (void)vReleaseLock( PORT_STDLIB_SPIN_LOCK_SETUP, core_id );
+
+    /* Create the backing recursive mutex outside the spinlock. */
+    if( ( new_id > 0 ) && ( xStdioMutex[ new_id ] == NULL ) )
+    {
+        xStdioMutex[ new_id ] = xSemaphoreCreateRecursiveMutex();
+    }
 }
 
 void __wrap___retarget_lock_close(_LOCK_T lock)
@@ -196,19 +235,8 @@ int _read( int file,
 {
     ( void ) file;
     ( void ) len;
-    int lock_recur_cnt = 0;
-
-    do
-    {
-        lock_recur_cnt++;
-    } while(give_spin_lock(STDIO_LOCK_ID(PORT_STDLIB_SPIN_LOCK_STDIN)));
 
     console_read( ( unsigned char * const ) ptr, 1 );
-
-    for(;lock_recur_cnt > 0; lock_recur_cnt--)
-    {
-        get_spin_lock(STDIO_LOCK_ID(PORT_STDLIB_SPIN_LOCK_STDIN));
-    }
 
     return 1;
 }
@@ -219,20 +247,10 @@ int _write( int file,
             int len )
 {
     ( void ) file;
-    int lock_recur_cnt = 0;
+
     int written = console_fill_buffer( ( unsigned char * const ) ptr, len );
 
-    do
-    {
-        lock_recur_cnt++;
-    } while(give_spin_lock(STDIO_LOCK_ID(PORT_STDLIB_SPIN_LOCK_STDOUT)));
-
     console_signal_fill();
-
-    for(;lock_recur_cnt > 0; lock_recur_cnt--)
-    {
-        get_spin_lock(STDIO_LOCK_ID(PORT_STDLIB_SPIN_LOCK_STDOUT));
-    }
 
     return written;
 }

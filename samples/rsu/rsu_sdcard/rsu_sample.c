@@ -11,6 +11,7 @@
 
 #include <libRSU.h>
 #include <libRSU_OSAL.h>
+#include "rsu_helper.h"
 
 /**
  * @defgroup rsu_sample RSU
@@ -168,7 +169,7 @@ static int rsu_client_add_app_image(char *image_name, int slot_num,
         return rsu_slot_program_file_raw(slot_num, image_name);
     }
 
-    return rsu_slot_program_file(slot_num, image_name);
+    return rsu_slot_program_file_priority(slot_num, image_name,1);
 }
 
 /*
@@ -293,6 +294,7 @@ void rsu_task(void)
     PRINT("Done.");
 
     PRINT("Loading %dst slot ...", RSU_SLOT);
+// Comment out the line below to test the priority-based load APIs 
     ret = rsu_client_request_slot_be_loaded(RSU_SLOT);
     if (ret != 0)
     {

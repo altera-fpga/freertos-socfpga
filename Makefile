@@ -44,6 +44,7 @@ BUILD_TYPE ?= Release
 
 #Specify boot core
 CORE ?= A55
+RSU_TYPE ?= rsu_sdcard
 
 #Specify SOC
 SOC ?= AGILEX5
@@ -291,10 +292,11 @@ fcs_sample:
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : fcs_sample
 
+RSU_PFG := $(abspath $(SAMPLES_PATH)/rsu/$(RSU_TYPE)/initial_image.pfg)
 
 rsu_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/rsu -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/rsu -B build/$@ -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DPFG_QSPI=$(RSU_PFG) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT) -DRSU_TYPE=$(RSU_TYPE)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : rsu_sample

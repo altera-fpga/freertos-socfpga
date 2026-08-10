@@ -11,6 +11,7 @@
 #include "socfpga_flash.h"
 #include <libRSU.h>
 #include <libRSU_OSAL.h>
+#include "rsu_helper.h"
 
 /**
  * @defgroup rsu_sample RSU
@@ -213,7 +214,8 @@ static int rsu_client_add_app_image_from_ddr(void *image_buf, int slot_num,
         return rsu_slot_program_buf_raw(slot_num, image_buf, size);
     }
 
-    return rsu_slot_program_buf(slot_num, image_buf, size);
+    return rsu_slot_program_buf_priority(slot_num, image_buf, size,1);
+
 }
 
 /*
@@ -404,6 +406,7 @@ void rsu_task(void)
     PRINT("Done.");
 
     PRINT("Loading %dst slot ...", RSU_SLOT);
+// Comment out the line below to test the priority-based load APIs 
     ret = rsu_client_request_slot_be_loaded(RSU_SLOT);
     if (ret != 0)
     {

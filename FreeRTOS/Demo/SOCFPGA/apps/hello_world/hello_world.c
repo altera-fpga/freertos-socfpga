@@ -25,14 +25,22 @@ static void setup_hardware( void )
 }
 /*-----------------------------------------------------------*/
 
+/* Same MPIDR slice as ulGetCoreId() / configSMP_COREn_MPIDR (Aff1 in bits 8:15). */
+static uint32_t ulGetPhysicalCoreMpidr( void )
+{
+    uint64_t ullMpidr;
+
+    __asm__ volatile ( "mrs %0, MPIDR_EL1" : "=r" ( ullMpidr ) );
+    return ( uint32_t ) ( ullMpidr & 0xFF00U );
+}
+
 void run_hello_world( void *param )
 {
 uint32_t task_id = ( uint32_t ) ( uintptr_t ) param;
-uint32_t core_id = ulGetCoreId();
 
     do
     {
-        printf( "\n\rhello world %d, core_id: %d", task_id, core_id );
+        printf( "\n\rhello world %d, physical_core_id: 0x%03X", task_id, ulGetPhysicalCoreMpidr() );
         vTaskDelay( pdMS_TO_TICKS( 500 ) );
     }while( 1 );
 }

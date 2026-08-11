@@ -13,7 +13,7 @@ The instructions are based on the GHRD design.
 - Host PC with
 	- Linux OS installed. All the mentioned documentation are based on Ubuntu 20.04.6 LTS.
 	- Serial terminal ( minicom/picocom/GtkTerm )
-	- Intel Quartus Prime Pro Edition Version 25.3. ( Used to compile hardware design and generate programming files ).
+	- Intel Quartus Prime Pro Edition Version 26.1. ( Used to compile hardware design and generate programming files ).
 	- TFTP server. (Used to download eMMC binaries). See Section 8 to setup TFTP server.
 - Internet access for downloading the files.
 
@@ -59,7 +59,7 @@ Download the compiler toolchain. Define environment variables and append the too
 ## 2.3 Enable Quartus tools to be called from command line
 Download and install [Quartus]
 ```bash
-  export QUARTUS_ROOTDIR=~/altera_pro/25.3/quartus/
+  export QUARTUS_ROOTDIR=~/altera_pro/26.1/quartus/
   export PATH=$QUARTUS_ROOTDIR/bin:$QUARTUS_ROOTDIR/linux64:$QUARTUS_ROOTDIR/../qsys/bin:$PATH
 ```
 ## 2.4 Clone the ATF
@@ -70,7 +70,7 @@ Download and install [Quartus]
 ## 2.5 Clone the SoC FPGA FreeRTOS SDK repo
 ```bash
   cd $TOP_FOLDER
-  git clone git@github.com:Ignitarium-Technology/freertos-socfpga.git
+  git clone https://github.com/altera-fpga/freertos-socfpga
   cd freertos-socfpga/
   git submodule update --init --recursive
 ```

@@ -21,13 +21,13 @@ This repository includes a few other repositories as submodules.
    This is the bootloader used for booting FreeRTOS on SoC FPGA.
 
 4. **FCS Library**
-   [https://github.com/Ignitarium-Technology/libfcs.git](https://github.com/Ignitarium-Technology/libfcs.git)
+   [https://github.com/altera-fpga/libfcs.git](https://github.com/altera-fpga/libfcs.git)
    This is a fork of the FCS library repository.
    The fork includes updates to support FreeRTOS.
    The FCS library provides routines for cryptographic operations in SoC FPGA.
 
 5. **RSU Library**
-   [https://github.com/Ignitarium-Technology/librsu.git](https://github.com/Ignitarium-Technology/librsu.git)
+   [https://github.com/altera-fpga/librsu.git](https://github.com/altera-fpga/librsu.git)
    This is a fork of the Unified Remote System Update (RSU) library.
    The fork includes updates to support FreeRTOS.
    The porting layer is maintained in this SDK repository.
@@ -144,7 +144,7 @@ The following steps will generate a qspi image which can be flashed into the PDK
 ### Set up the repository
 
 ```bash
-git clone git@github.com:Ignitarium-Technology/freertos-socfpga.git
+git clone https://github.com/altera-fpga/freertos-socfpga
 cd freertos-socfpga
 git submodule update --init --recursive
 ```
@@ -152,7 +152,7 @@ git submodule update --init --recursive
 ### Set up the toolchain and Quartus
 - Export Quartus path required to build jic file. **Note** Quartus needs to be exported only if you are planning to build qspi image.
 ```bash
-export QUARTUS_ROOTDIR=~/altera_pro/25.3/quartus/
+export QUARTUS_ROOTDIR=~/altera_pro/26.1/quartus/
 export PATH=$QUARTUS_ROOTDIR/bin:$QUARTUS_ROOTDIR/linux64:$QUARTUS_ROOTDIR/../qsys/bin:$PATH
 ```
 - Export the toolchain path.

@@ -19,8 +19,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(freertos)
 FetchContent_GetProperties(freertos)
 
+# Build the P3T1755 temperature sensor variant when requested
+option(I2C_TEMP_SAMPLE "Build the P3T1755 temperature sensor variant" OFF)
+
 # project
-project(i2c_sample C CXX ASM)
+if(I2C_TEMP_SAMPLE)
+    project(i2c_temp_sample C CXX ASM)
+else()
+    project(i2c_sample C CXX ASM)
+endif()
 
 set(LINKER_SCRIPT "${freertos_SOURCE_DIR}/lscript.ld")
 include(${freertos_SOURCE_DIR}/tools/target_socfpga.cmake)
@@ -45,6 +52,14 @@ target_sources(${PROJECT_NAME}.elf
     PRIVATE main.c ${SAMPLE_SRCS}
     ${freertos_SOURCE_DIR}/samples/common/socfpga_mmc.c
 )
+
+# Select the temperature sensor task instead of the EEPROM task
+if(I2C_TEMP_SAMPLE)
+    target_compile_definitions(${PROJECT_NAME}.elf PRIVATE
+        I2C_SAMPLE_ENABLE_TEMP=1
+        I2C_SAMPLE_ENABLE_PIO=0
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME}.elf
     PRIVATE

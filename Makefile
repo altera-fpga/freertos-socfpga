@@ -54,6 +54,9 @@ SMP ?= OFF
 #Stack core count
 CORE_COUNT ?= 4
 
+#Common cmake configure arguments
+CMAKE_ARGS := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT) -DSMP=$(SMP)
+
 #demo path for hello world and demo applications
 DEMO_PATH := FreeRTOS/Demo/SOCFPGA/apps
 SAMPLES_PATH := samples/
@@ -144,7 +147,7 @@ enet_demo:
 	@echo "enet app build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : enet_demo
 
-samples: dma_sample bridge_sample fatfs_sample fpga_manager_sample gpio_sample i2c_sample i3c_sample iossm_sample qspi_sample sdmmc_sample reboot_manager_sample seu_sample spi_sample timer_sample uart_sample fcs_sample rsu_sample sdm_mailbox_sample usb3_sample wdt_sample multi_thread_sample ecc_sample usb_otg_sample
+samples: dma_sample bridge_sample fatfs_sample fpga_manager_sample gpio_sample i2c_sample i2c_temp_sample i3c_sample iossm_sample qspi_sample sdmmc_sample reboot_manager_sample seu_sample spi_sample timer_sample uart_sample fcs_sample rsu_sample sdm_mailbox_sample usb3_sample wdt_sample multi_thread_sample ecc_sample usb_otg_sample
 .PHONY : samples
 
 
@@ -202,6 +205,14 @@ i2c_sample:
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : i2c_sample
+
+
+i2c_temp_sample:
+	rm -rf build/$@
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/i2c -B build/$@ $(CMAKE_ARGS) -DI2C_TEMP_SAMPLE=ON
+	@make -C build/$@ -j${nproc}
+	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
+.PHONY : i2c_temp_sample
 
 
 i3c_sample:
@@ -350,6 +361,7 @@ help:
 	@echo "... fpga_manager_sample"
 	@echo "... gpio_sample"
 	@echo "... i2c_sample"
+	@echo "... i2c_temp_sample"
 	@echo "... i3c_sample"
 	@echo "... iossm_sample"
 	@echo "... qspi_sample"

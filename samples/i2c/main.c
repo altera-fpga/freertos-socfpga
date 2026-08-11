@@ -14,8 +14,16 @@
 #include "socfpga_console.h"
 #include "socfpga_smmu.h"
 
-/* Select which I2C sample task(s) to run. */
+/* Select which I2C sample task(s) to run. These may be overridden from the
+ * build targets:
+ * --> i2c_sample target for the EEPROM test
+ * --> i2c_temp_sample target for the temperature sensor test */
+#ifndef I2C_SAMPLE_ENABLE_PIO
 #define I2C_SAMPLE_ENABLE_PIO       1
+#endif
+#ifndef I2C_SAMPLE_ENABLE_TEMP
+#define I2C_SAMPLE_ENABLE_TEMP      0
+#endif
 #define I2C_SAMPLE_ENABLE_DMA       0
 #define I2C_SAMPLE_ENABLE_SLAVE     0
 #define I2C_SAMPLE_ENABLE_SLAVE_DMA 0
@@ -24,6 +32,7 @@
 
 void run_samples( void *arg );
 void i2c_task( void );
+void i2c_temp_task( void );
 void i2c_dma_task( void );
 void i2c_slave_task( void );
 void i2c_slave_dma_task( void );
@@ -73,6 +82,9 @@ void run_samples( void *arg )
 
 #if I2C_SAMPLE_ENABLE_PIO
     i2c_task();
+#endif
+#if I2C_SAMPLE_ENABLE_TEMP
+    i2c_temp_task();
 #endif
 #if I2C_SAMPLE_ENABLE_DMA
     i2c_dma_task();

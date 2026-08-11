@@ -19,173 +19,108 @@
  *
  * @details
  * @section i2c_desc Description
- * This sample reads temperature from an NXP P3T1755 (LM75-style) sensor over
- * the I2C bus. It sets continuous conversion, writes the THIGH/TLOW limit
- * registers to 80/75 C and reads them back to confirm, then prints the
- * ambient temperature a few times.
+ * This sample application demonstrates the use of the I2C driver to
+ * communicate with an EEPROM device over the I2C bus. It writes a block
+ * of N bytes to a specific memory address in the EEPROM and then reads
+ * back the same.
  *
  * @section i2c_pre Prerequisites
- * - A P3T1755 (or LM75-compatible) sensor on the I2C bus.
+ * - The NAND daughter card shall be used.
+ * - An EEPROM device must be connected to the I2C bus.
  *
  * @section i2c_param Configurable Parameters
- * - I2C bus instance: @c I2CBUS
- * - Sensor slave address: @c DEV_ADDR
- * - Number of readings: @c NUM_READINGS
+ * - The I2C bus instance can be configured in @c I2CBUS macro.
+ * - The I2C slave address can be configured in @c DEV_ADDR macro.
+ * - The memory address in EEPROM can be configured in @c MEM_ADDR macro.
+ * - The number of bytes to write and read back can be configured in @c NUM_TEST_BYTES macro.
  *
  * @section i2c_how_to How to Run
  * 1. Follow the common README instructions to build and flash the application.
  * 2. Run the application on the board.
- * 3. Observe the results in the console.
+ * 3. Observe the results in the console
  *
  * @section i2c_result Expected Results
- * - THIGH 80 C and TLOW 75 C are written, confirmed, and a plausible ambient
- *   temperature is printed.
+ * - The write and read data are verified and a success message is displayed.
  */
 
-/* I2C controller instance */
+/* Test configuration parameters */
+
+/* The I2C controller instances used in this app */
 #define I2CBUS    0
 
-/* P3T1755 slave address */
-#define DEV_ADDR    0x4C
+/* The I2C devices slave address */
+#define DEV_ADDR    0x50
 
-/* pointer register values */
-#define REG_TEMP      0x00
-#define REG_CONFIG    0x01
-#define REG_TLOW      0x02
-#define REG_THIGH     0x03
+/* The EEPROM memory address used */
+#define MEM_ADDR    0x0000
 
-/* limit defaults: 80 C and 75 C (12-bit left-justified, 0.0625 C/LSB) */
-#define THIGH_MSB    0x50
-#define THIGH_LSB    0x00
-#define TLOW_MSB     0x4B
-#define TLOW_LSB     0x00
+/* Memory address size */
+#define MEM_ADDR_SZ    2U
 
-/* number of temperature samples to print */
-#define NUM_READINGS    10U
+/* Bytes used in one transfer */
+#define NUM_TEST_BYTES  32U
 
-/* delay between samples in ms */
-#define READ_DELAY_MS   500U
+/* Buffers */
+static uint8_t wbuf[MEM_ADDR_SZ + NUM_TEST_BYTES];
+static uint8_t rbuf[NUM_TEST_BYTES];
 
 /**
- * @brief Read a sensor register.
+ * @brief fill the buffer with an incremental pattern
  *
- * Sets the pointer register to @p reg, then reads @p n bytes.
- *
- * @param[in]  handle Open I2C handle.
- * @param[in]  reg    Pointer register value.
- * @param[out] buf    Destination buffer.
- * @param[in]  n      Number of bytes to read.
- * @return 0 on success, negative error code otherwise.
+ * Fills buf with nbytes of incremental pattern starting with start_num
  */
-static int read_reg(i2c_handle_t handle, uint8_t reg, uint8_t *buf, uint32_t n)
+
+static void fill_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 {
-    int ret = i2c_write_sync(handle, &reg, 1U);
-    if (ret != 0)
+    uint32_t i;
+    for (i = 0; i < nbytes; i++)
     {
-        return ret;
+        *(buf + i) = start_num++;
     }
-    return i2c_read_sync(handle, buf, n);
 }
 
 /**
- * @brief Write a 16-bit value to a sensor register.
+ * @brief verify the buffer contains and incremental pattern
  *
- * @param[in] handle Open I2C handle.
- * @param[in] reg    Pointer register value.
- * @param[in] msb    Most significant byte.
- * @param[in] lsb    Least significant byte.
- * @return 0 on success, negative error code otherwise.
+ * Verifies that buf contains an incremental pattern starting with start_num
+ *
+ * @return 0 on success -1 otherwise
  */
-static int write_reg(i2c_handle_t handle, uint8_t reg, uint8_t msb, uint8_t lsb)
+static int verify_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 {
-    uint8_t b[3];
-
-    b[0] = reg;
-    b[1] = msb;
-    b[2] = lsb;
-    return i2c_write_sync(handle, b, 3U);
+    int ret = 0;
+    uint32_t i;
+    for (i = 0; i < nbytes; i++, start_num++)
+    {
+        if ((*(buf + i)) != start_num)
+        {
+            printf("ERROR: mismatch at index %d: expected 0x%2.2X got 0x%2.2X\n", i, start_num,
+                    (*(buf + i)));
+            ret = -1;
+            break;
+        }
+    }
+    return ret;
 }
 
-/**
- * @brief Decode and print a temperature register value.
- *
- * Interprets @p b as a 12-bit left-justified two's-complement value with a
- * resolution of 0.0625 C per LSB.
- *
- * @param[in] label Text label for the printed line.
- * @param[in] b     Two register bytes, most significant first.
- */
-static void print_temp(const char *label, const uint8_t *b)
-{
-    int16_t raw = (int16_t)(((uint16_t)b[0] << 8) | (uint16_t)b[1]);
-    int32_t u = (int32_t)(raw >> 4) * 625;   /* tenths of a milli-degree */
-    const char *sign = "";
-
-    if (u < 0)
-    {
-        u = -u;
-        sign = "-";
-    }
-    PRINT("%s = %s%ld.%04ld C", label, sign, (long)(u / 10000),
-            (long)(u % 10000));
-}
-
-/**
- * @brief Program a limit register and read it back to confirm the write.
- *
- * @param[in] handle Open I2C handle.
- * @param[in] reg    Pointer register value.
- * @param[in] label  Text label for the printed line.
- * @param[in] msb    Most significant byte to write.
- * @param[in] lsb    Least significant byte to write.
- * @return 0 on success, negative error code otherwise.
- */
-static int set_limit(i2c_handle_t handle, uint8_t reg, const char *label,
-        uint8_t msb, uint8_t lsb)
-{
-    uint8_t buf[2];
-    int ret;
-
-    ret = write_reg(handle, reg, msb, lsb);
-    if (ret != 0)
-    {
-        return ret;
-    }
-    ret = read_reg(handle, reg, buf, 2U);
-    if (ret != 0)
-    {
-        return ret;
-    }
-    print_temp(label, buf);
-    if ((buf[0] != msb) || (buf[1] != lsb))
-    {
-        ERROR("%s write mismatch", label);
-        return -1;
-    }
-    PRINT("%s write confirmed", label);
-    return 0;
-}
-
-/**
- * @brief I2C sample task: read temperature from a P3T1755 sensor.
- */
 void i2c_task(void)
 {
-    int retval;
+    int retval = 0;
     i2c_handle_t handle;
     i2c_config_t config;
     uint16_t slave_addr;
-    uint8_t buf[2];
-    uint32_t i;
 
-    PRINT("P3T1755 temperature sensor sample (I2C)");
+    PRINT("Sample application to write and read EEPROM using i2c driver");
 
     PRINT("Configuring the i2c as master ...");
+
+    /* Open and configure the I2C interface for standard speed */
 
     handle = i2c_open(I2CBUS);
     if (handle == NULL)
     {
         ERROR("Cannot open the i2c instance");
+        ERROR("Exiting sample application");
         return;
     }
 
@@ -195,47 +130,79 @@ void i2c_task(void)
     {
         ERROR("Configuring i2c speed failed");
         i2c_close(handle);
+        ERROR("Exiting sample application");
         return;
     }
 
+    /* set slave address */
     slave_addr = DEV_ADDR;
     retval = i2c_ioctl(handle, I2C_SET_SLAVE_ADDR, (void *)(&slave_addr));
     if (retval != 0)
     {
         ERROR("Configuring slave address failed");
         i2c_close(handle);
+        ERROR("Exiting sample application");
         return;
     }
 
     PRINT("Configuration done.");
 
-    /* continuous conversion mode */
-    buf[0] = REG_CONFIG;
-    buf[1] = 0x00;
-    retval = i2c_write_sync(handle, buf, 2U);
+    PRINT("Performing EEPROM write, read and verify");
+
+    /* Write test bytes into EEPROM */
+    /* First two bytes of the write buffer is the memory address in EEPROM */
+    wbuf[0] = (uint8_t)((MEM_ADDR >> 8) & 0xFF);
+    wbuf[1] = (uint8_t)(MEM_ADDR & 0xFF);
+
+    fill_buf((wbuf + 2), NUM_TEST_BYTES, 0x10);
+
+    /* Program the EEPROM with the pattern */
+    retval = i2c_write_sync(handle, wbuf, (MEM_ADDR_SZ + NUM_TEST_BYTES));
     if (retval != 0)
     {
-        ERROR("Config write failed");
+        ERROR("EEPROM write failed");
         i2c_close(handle);
+        ERROR("Exiting sample application");
         return;
     }
 
-    /* program the alert limits and read them back to confirm */
-    (void)set_limit(handle, REG_THIGH, "THIGH", THIGH_MSB, THIGH_LSB);
-    (void)set_limit(handle, REG_TLOW, "TLOW ", TLOW_MSB, TLOW_LSB);
+    PRINT("I2C write successful");
 
-    for (i = 0; i < NUM_READINGS; i++)
+    /* EEPROM may need a small delay between back to back write */
+    osal_task_delay(20);
+
+    /* Read back from the EEPROM */
+
+    wbuf[0] = (uint8_t)((MEM_ADDR >> 8) & 0xFF);
+    wbuf[1] = (uint8_t)(MEM_ADDR & 0xFF);
+
+    /* Write the memory address first */
+    retval = i2c_write_sync(handle, wbuf, MEM_ADDR_SZ);
+    if (retval != 0)
     {
-        retval = read_reg(handle, REG_TEMP, buf, 2U);
-        if (retval != 0)
-        {
-            ERROR("Temperature read failed");
-            break;
-        }
-        print_temp("Temperature", buf);
-        osal_task_delay(READ_DELAY_MS);
+        ERROR("ERROR: writing address to EEPROM failed");
+        ERROR("Exiting sample application");
+        return;
     }
 
-    i2c_close(handle);
+    /* perform the read */
+    retval = i2c_read_sync(handle, rbuf, NUM_TEST_BYTES);
+    if (retval != 0)
+    {
+        ERROR("ERROR: read from EEPROM failed");
+        ERROR("Exiting sample application");
+        return;
+    }
+    retval = verify_buf(rbuf, NUM_TEST_BYTES, 0x10);
+
+    if (retval == 0)
+    {
+        PRINT("EEPROM write, read and verify successful");
+    }
+    else
+    {
+        ERROR("EEPROM write, read and verify failed");
+    }
+
     PRINT("I2c sample application completed.");
 }

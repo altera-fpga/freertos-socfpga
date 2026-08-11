@@ -71,3 +71,7 @@ __pycache__/
 
 # Build dir
 *build*
+
+# Natural Docs generated output + project working dir
+docs_naturaldocs/
+.naturaldocs/

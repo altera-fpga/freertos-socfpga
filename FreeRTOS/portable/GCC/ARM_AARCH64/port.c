@@ -730,6 +730,84 @@ void vApplicationIRQHandler( uint32_t ulICCIAR )
     interrupt_irq_handler( ulICCIAR );
 }
 /*-----------------------------------------------------------*/
+
+/*
+ * Diagnostics captured by the CPU fault handlers.
+ *
+ * The syndrome is recorded in these globals for inspection
+ * (via a debugger, or by application code running in a normal context).
+ */
+volatile uint64_t ullPortLastSErrorESR = 0;
+volatile uint64_t ullPortLastSErrorFAR = 0;
+volatile uint64_t ullPortLastSErrorELR = 0;
+volatile uint64_t ullPortLastSErrorSPSR = 0;
+volatile uint32_t ulPortSErrorCount = 0;
+
+volatile uint64_t ullPortLastSyncAbortESR = 0;
+volatile uint64_t ullPortLastSyncAbortFAR = 0;
+volatile uint64_t ullPortLastSyncAbortELR = 0;
+volatile uint64_t ullPortLastSyncAbortSPSR = 0;
+volatile uint32_t ulPortSyncAbortCount = 0;
+
+/*
+ * Default handler for SError (asynchronous external abort) exceptions, called
+ * from FreeRTOS_SError_Handler in portASM.S with the fault syndrome.
+ *
+ * Any override must remain free of console / RTOS calls.
+ */
+__attribute__( ( weak ) ) void vApplicationSErrorHandler( uint64_t ulESR,
+                                                          uint64_t ulFAR,
+                                                          uint64_t ulELR,
+                                                          uint64_t ulSPSR )
+{
+    ullPortLastSErrorESR = ulESR;
+    ullPortLastSErrorFAR = ulFAR;
+    ullPortLastSErrorELR = ulELR;
+    ullPortLastSErrorSPSR = ulSPSR;
+    ulPortSErrorCount++;
+}
+/*-----------------------------------------------------------*/
+
+/*
+ * Default policy handler for synchronous CPU faults (Data / Instruction aborts)
+ * that are not a task yield, called from FreeRTOS_Sync_Abort_Handler in
+ * portASM.S with the fault syndrome.
+ *
+ * Return value:
+ *   0        - fault is not recoverable; the assembly wrapper stops in a loop.
+ *   non-zero - fault is recoverable; the assembly wrapper skips the faulting
+ *              instruction and returns so execution can continue.
+ *
+ * The default policy recovers from external-abort / ECC faults.
+ *
+ * Any override must remain free of console / RTOS calls.
+ */
+__attribute__( ( weak ) ) int vApplicationSyncAbortHandler( uint64_t ulESR,
+                                                            uint64_t ulFAR,
+                                                            uint64_t ulELR,
+                                                            uint64_t ulSPSR )
+{
+    /* Data/Instruction abort fault status code is ESR_EL1[5:0]. */
+    uint32_t ulFaultStatus = ( uint32_t ) ( ulESR & 0x3FUL );
+    int lRecoverable;
+
+    ullPortLastSyncAbortESR = ulESR;
+    ullPortLastSyncAbortFAR = ulFAR;
+    ullPortLastSyncAbortELR = ulELR;
+    ullPortLastSyncAbortSPSR = ulSPSR;
+    ulPortSyncAbortCount++;
+
+    /* External-abort family fault status codes for recoverable cases */
+    lRecoverable = ( ( ulFaultStatus == 0x10U ) ||                                   /* SEA                     */
+                     ( ulFaultStatus == 0x11U ) ||                                   /* async ext. abort tag    */
+                     ( ( ulFaultStatus >= 0x14U ) && ( ulFaultStatus <= 0x17U ) ) || /* SEA TT Walk L0-3        */
+                     ( ulFaultStatus == 0x18U ) ||                                   /* sync ECC/parity         */
+                     ( ( ulFaultStatus >= 0x1CU ) && ( ulFaultStatus <= 0x1FU ) ) )  /* sync ECC/parity walk    */
+                   ? 1 : 0;
+
+    return lRecoverable;
+}
+/*-----------------------------------------------------------*/
 /* Callback function for core to core interrupt */
 /*-----------------------------------------------------------*/
 

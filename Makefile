@@ -39,11 +39,25 @@ CMAKE_COMMAND = cmake
 #Doxygen output path
 DOXYGEN_PATH := docs
 
+# Natural Docs (read-only site install; we only ever read from it)
+NATURALDOCS_HOME    := /p/psg/ctools/naturaldocs/1.4/platform
+NATURALDOCS_BIN     := $(NATURALDOCS_HOME)/NaturalDocs
+# Our own writable dirs (project dir holds Menu.txt + build cache)
+NATURALDOCS_OUT     := docs_naturaldocs
+NATURALDOCS_PROJECT := .naturaldocs
+# Source tree(s) to document (each becomes its own -i flag)
+NATURALDOCS_SRC     := drivers samples FreeRTOS/Demo/SOCFPGA/apps
+# NOTE: ND uses "basic language support" for C, so only files that contain
+# Natural Docs comments (e.g. drivers/uart, drivers/i2c) appear in the output.
+# Sub-dirs to skip while scanning (each becomes its own -xi flag; e.g. build)
+NATURALDOCS_EXCLUDE :=
+
 #Specify build type
 BUILD_TYPE ?= Release
 
 #Specify boot core
 CORE ?= A55
+RSU_TYPE ?= rsu_sdcard
 
 #Specify SOC
 SOC ?= AGILEX5
@@ -294,10 +308,11 @@ fcs_sample:
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : fcs_sample
 
+RSU_PFG := $(abspath $(SAMPLES_PATH)/rsu/$(RSU_TYPE)/initial_image.pfg)
 
 rsu_sample:
 	rm -rf build/$@
-	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/rsu -B build/$@ $(CMAKE_ARGS)
+	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/rsu -B build/$@ $(CMAKE_ARGS) -DPFG_QSPI=$(RSU_PFG) -DRSU_TYPE=$(RSU_TYPE)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : rsu_sample
@@ -367,6 +382,7 @@ help:
 	@echo "... usb3_sample"
 	@echo "... wdt_sample"
 	@echo "... sdk_doc (build doxygen docs)"
+	@echo "... naturaldocs (build Natural Docs HTML)"
 	@echo "... usb_otg_sample"
 	@echo "Note : Dont run make with multiple job at once."
 .PHONY : help
@@ -374,11 +390,23 @@ help:
 clean:
 	rm -rf build
 	rm -rf $(DOXYGEN_PATH)
+	rm -rf $(NATURALDOCS_OUT) $(NATURALDOCS_PROJECT)
 	rm -rf RTOSApp.elf
 
 sdk_doc:
 	doxygen Doxyfile
 	@echo "Doxygen build completed. Docs generated at : $(DOXYGEN_PATH)"
+
+.PHONY: naturaldocs
+naturaldocs:
+	@test -f $(NATURALDOCS_BIN) || { echo "Natural Docs not found at $(NATURALDOCS_BIN)"; exit 1; }
+	mkdir -p $(NATURALDOCS_PROJECT) $(NATURALDOCS_OUT)
+	perl $(NATURALDOCS_BIN) \
+	    $(foreach d,$(NATURALDOCS_SRC),-i $(d)) \
+	    $(foreach x,$(NATURALDOCS_EXCLUDE),-xi $(x)) \
+	    -o HTML $(NATURALDOCS_OUT) \
+	    -p $(NATURALDOCS_PROJECT)
+	@echo "Natural Docs build completed. Docs generated at: $(NATURALDOCS_OUT)"
 
 
 -include not_shipped/Makefile.mk

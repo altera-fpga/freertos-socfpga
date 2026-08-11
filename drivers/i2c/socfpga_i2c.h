@@ -29,6 +29,17 @@
 #ifndef __SOCFPGA_I2C_H__
 #define __SOCFPGA_I2C_H__
 
+/*
+    Title: SoC FPGA I2C Driver
+
+    Public HAL API for the SoC FPGA I2C controller.
+
+    Typical master usage is: open an instance with <i2c_open>, set the target
+    address and bus speed via <i2c_ioctl>, transfer data with the read/write
+    functions, then release it with <i2c_close>. Slave mode and DMA transfers
+    are also supported through <i2c_ioctl>.
+*/
+
 /**
  * @file socfpga_i2c.h
  * @brief SoC FPGA I2C HAL driver
@@ -347,6 +358,22 @@ typedef struct i2c_slave_config
     void *cb_usr_ctxt; /*!< User context passed unchanged to all slave callbacks. */
 } i2c_slave_config_t;
 
+/*
+    Function: i2c_open
+
+    Initializes an I2C instance as master and reserves it for the caller.
+
+    A single instance can talk to multiple slaves by changing the target
+    address between transfers. The instance must be closed with <i2c_close>
+    before it can be opened again.
+
+    Parameters:
+        instance - Zero-based index of the I2C controller to initialize.
+
+    Returns:
+        A valid <i2c_handle_t> on success, or NULL if the instance number is
+        invalid, already open, or the interrupt could not be enabled.
+*/
 /**
  * @brief Initiates and reserves an I2C instance as master.
  *
@@ -384,6 +411,22 @@ i2c_handle_t i2c_open(uint32_t instance);
  */
 void i2c_set_callback(i2c_handle_t const hi2c, i2c_callback_t callback, void *param);
 
+/*
+    Function: i2c_read_sync
+
+    Reads nbytes from the currently addressed slave, blocking until done.
+    A partial read may occur; use <i2c_ioctl> with I2C_GET_RX_NBYTES for the
+    actual count. The slave address must be set beforehand via <i2c_ioctl>.
+
+    Parameters:
+        hi2c   - Handle returned by <i2c_open>.
+        buf    - Caller-allocated buffer that receives the data.
+        nbytes - Number of bytes to read.
+
+    Returns:
+        0 on success, -EINVAL for bad arguments, -ENXIO if no slave address is
+        set, -EIO on bus/driver error, or -EBUSY if the bus is busy.
+*/
 /**
  * @brief Starts the I2C master read operation in synchronous mode.
  *
@@ -418,6 +461,23 @@ void i2c_set_callback(i2c_handle_t const hi2c, i2c_callback_t callback, void *pa
 int32_t i2c_read_sync(i2c_handle_t const hi2c, void *const buf, size_t
         nbytes);
 
+/*
+    Function: i2c_write_sync
+
+    Writes nbytes to the currently addressed slave, blocking until done.
+    A partial write may occur; use <i2c_ioctl> with I2C_GET_TX_NBYTES for the
+    actual count. The slave address must be set beforehand via <i2c_ioctl>.
+
+    Parameters:
+        hi2c   - Handle returned by <i2c_open>.
+        buf    - Buffer holding the data to transmit (byte buffer in interrupt
+                 mode, IC_DATA_CMD word buffer in DMA mode).
+        nbytes - Byte count in interrupt mode, word count in DMA write mode.
+
+    Returns:
+        0 on success, -EINVAL for bad arguments, -ENXIO if no slave address is
+        set, -EIO on bus/driver error, or -EBUSY if another transfer is active.
+*/
 /**
  * @brief Starts the I2C master write operation in synchronous mode.
  *

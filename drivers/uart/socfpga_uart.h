@@ -29,6 +29,17 @@
 #ifndef __SOCFPGA_UART_H__
 #define __SOCFPGA_UART_H__
 
+/*
+    Title: SoC FPGA UART Driver
+
+    Public HAL API for the SoC FPGA UART controller.
+
+    The driver supports synchronous, asynchronous (interrupt) and polling
+    transfers. Typical usage is: open a port with <uart_open>, optionally
+    tune the line settings with <uart_ioctl>, transfer data with the
+    read/write functions, then release it with <uart_close>.
+*/
+
 /**
  * @file socfpga_uart.h
  * @brief SoC FPGA UART HAL driver.
@@ -190,6 +201,21 @@ typedef struct
  * @{
  */
 
+/*
+    Function: uart_open
+
+    Initializes a UART port and reserves it for the caller.
+
+    Once opened, the same instance must be closed with <uart_close> before it
+    can be opened again.
+
+    Parameters:
+        instance - Zero-based index of the UART port to initialize.
+
+    Returns:
+        A valid <uart_handle_t> on success, or NULL if the instance number is
+        invalid or the instance is already open.
+*/
 /**
  * @brief Initialize the UART peripheral of the board.
  *
@@ -207,6 +233,24 @@ typedef struct
  */
 uart_handle_t uart_open(uint32_t instance);
 
+/*
+    Function: uart_set_callback
+
+    Registers a per-handle completion callback for asynchronous transfers.
+
+    The callback is invoked when an asynchronous operation completes (success
+    or failure). It is not called for synchronous transfers, and a single
+    callback is shared by <uart_read_async> and <uart_write_async>.
+
+    Parameters:
+        huart    - Handle returned by <uart_open>.
+        callback - Function to invoke on completion (may be NULL to clear it).
+        param    - Opaque user context passed back to the callback.
+
+    Returns:
+        UART_SUCCESS on success, -EINVAL if huart is NULL, or -EBUSY if a
+        transfer is in progress.
+*/
 /**
  * @brief Set the application callback to be called on completion of an operation.
  *
@@ -230,6 +274,21 @@ uart_handle_t uart_open(uint32_t instance);
 int32_t uart_set_callback(uart_handle_t const huart, uart_callback_t callback,
         void *param);
 
+/*
+    Function: uart_read_sync
+
+    Reads up to nbytes from the UART, blocking until done. A partial read may
+    occur; use <uart_ioctl> with UART_GET_RX_NBYTES for the actual count.
+
+    Parameters:
+        huart  - Handle returned by <uart_open>.
+        buf    - Caller-allocated buffer that receives the data.
+        nbytes - Number of bytes to read.
+
+    Returns:
+        UART_SUCCESS on success, -EINVAL for bad arguments, -EIO on driver
+        error, or -EBUSY if another read is in progress.
+*/
 /**
  * @brief Start receiving data from UART synchronously.
  *
@@ -256,6 +315,21 @@ int32_t uart_set_callback(uart_handle_t const huart, uart_callback_t callback,
 int32_t uart_read_sync(uart_handle_t const huart, uint8_t *const buf,
         uint32_t nbytes);
 
+/*
+    Function: uart_write_sync
+
+    Writes up to nbytes to the UART, blocking until done. A partial write may
+    occur; use <uart_ioctl> with UART_GET_TX_NBYTES for the actual count.
+
+    Parameters:
+        huart  - Handle returned by <uart_open>.
+        buf    - Buffer holding the data to transmit.
+        nbytes - Number of bytes to send.
+
+    Returns:
+        UART_SUCCESS on success, -EINVAL for bad arguments, -EIO on driver
+        error, or -EBUSY if another write is in progress.
+*/
 /**
  * @brief Start transmitting data from UART synchronously.
  *

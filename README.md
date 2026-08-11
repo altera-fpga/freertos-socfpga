@@ -21,13 +21,13 @@ This repository includes a few other repositories as submodules.
    This is the bootloader used for booting FreeRTOS on SoC FPGA.
 
 4. **FCS Library**
-   [https://github.com/altera-innersource/libraries.fpga.libfcs-dev.git](https://github.com/altera-innersource/libraries.fpga.libfcs-dev.git)
+   [https://github.com/altera-fpga/libfcs.git](https://github.com/altera-fpga/libfcs.git)
    This is a fork of the FCS library repository.
    The fork includes updates to support FreeRTOS.
    The FCS library provides routines for cryptographic operations in SoC FPGA.
 
 5. **RSU Library**
-   [https://github.com/altera-innersource/libraries.fpga.unified-librsu-dev.git](https://github.com/altera-innersource/libraries.fpga.unified-librsu-dev.git)
+   [https://github.com/altera-fpga/librsu.git](https://github.com/altera-fpga/librsu.git)
    This is a fork of the Unified Remote System Update (RSU) library.
    The fork includes updates to support FreeRTOS.
    The porting layer is maintained in this SDK repository.
@@ -144,8 +144,8 @@ The following steps will generate a qspi image which can be flashed into the PDK
 ### Set up the repository
 
 ```bash
-git clone https://github.com/altera-innersource/os.rtos.socfpga.freertos
-cd os.rtos.socfpga.freertos
+git clone https://github.com/altera-fpga/freertos-socfpga
+cd freertos-socfpga
 git submodule update --init --recursive
 ```
 

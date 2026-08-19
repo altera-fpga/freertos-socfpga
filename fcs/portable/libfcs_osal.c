@@ -62,6 +62,7 @@ FCS_OSAL_INT fcs_freertos_ecdsa_sha2_data_sign(struct fcs_cmd_context *ctx);
 FCS_OSAL_INT
 fcs_freertos_ecdsa_sha2_data_verify(struct fcs_cmd_context *ctx);
 FCS_OSAL_INT fcs_freertos_hps_img_validate(struct fcs_cmd_context *ctx);
+FCS_OSAL_INT fcs_freertos_platform_get(FCS_OSAL_CHAR *platform);
 
 /**
  * @brief Allocate memory of given size.
@@ -1114,6 +1115,23 @@ FCS_OSAL_INT fcs_freertos_ecdsa_sha2_data_verify(struct fcs_cmd_context *ctx)
 }
 
 /**
+ * @brief Platform id for libfcs (see AGILEX5_PLATFORM in libfcs.c).
+ *
+ * Linux reads this from the FCS device; on bare-metal FreeRTOS we are
+ * always Agilex 5 for this SDK port.
+ */
+FCS_OSAL_INT fcs_freertos_platform_get(FCS_OSAL_CHAR *platform)
+{
+    if (platform == NULL) {
+        FCS_LOG_ERR("Invalid argument: platform is NULL\n");
+        return -EINVAL;
+    }
+
+    *platform = '2'; /* AGILEX5_PLATFORM == 2 in libfcs.c: platform = plat - '0' */
+    return 0;
+}
+
+/**
  * @brief Bind the OSAL API to the interface.
  *
  * @param intf Pointer to the OSAL interface.
@@ -1164,6 +1182,7 @@ static FCS_OSAL_INT fcs_freertos_api_binding(struct libfcs_osal_intf *intf)
     intf->ecdsa_sha2_data_sign = fcs_freertos_ecdsa_sha2_data_sign;
     intf->ecdsa_sha2_data_verify = fcs_freertos_ecdsa_sha2_data_verify;
     intf->hps_img_validate = fcs_freertos_hps_img_validate;
+    intf->platform_get = fcs_freertos_platform_get;
 
     return 0;
 }

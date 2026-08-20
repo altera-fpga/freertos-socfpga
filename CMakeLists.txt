@@ -57,6 +57,10 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/tools/socfpga_build.cmake)
 
 project(RTOSApp C CXX ASM)
 
+# Permanent FatFs base: always checkout this commit, then apply tools/fatfs.patch
+set(FATFS_BASE_COMMIT "0a38fb8")
+message(STATUS "FatFs base commit: ${FATFS_BASE_COMMIT}")
+
 add_custom_target(apply_smp_patch ALL
     COMMAND ${CMAKE_COMMAND}
     -DROOT_DIR="${FREERTOS_TOP_DIR}"
@@ -79,8 +83,21 @@ add_subdirectory(drivers)
 get_property(driver_include_dirs TARGET socfpga_drivers PROPERTY INCLUDE_DIRECTORIES)
 target_include_directories(freertos_socfpga PUBLIC ${driver_include_dirs})
 
-if (FREERTOS_FATFS )
-    #Fatfs depends on tinyusb stack. So we build tinyusb stack first followed by fatfs stack
+if (FREERTOS_FATFS)
+    # Must run at configure time: patch creates portable/SOCFPGA/ needed by add_subdirectory().
+    execute_process(
+        COMMAND ${CMAKE_COMMAND}
+            -DROOT_DIR=${FREERTOS_TOP_DIR}
+            -DFATFS_BASE_COMMIT=${FATFS_BASE_COMMIT}
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/tools/apply_fatfs_patch.cmake
+        RESULT_VARIABLE _fatfs_patch_result
+        ERROR_VARIABLE  _fatfs_patch_err
+    )
+    if(NOT _fatfs_patch_result EQUAL 0)
+        message(FATAL_ERROR "FatFs patch failed:\n${_fatfs_patch_err}")
+    endif()
+
+    # Fatfs depends on tinyusb stack. Build tinyusb first, then fatfs.
     include(${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/hw/bsp/socfpga/family.cmake)
 
     set(FREERTOS_PLUS_FAT_FETCH_FREERTOS "OFF" CACHE STRING "" FORCE)

@@ -11,13 +11,12 @@
 [submodule "tinyusb"]
 	path = tinyusb
 	url = https://github.com/Ignitarium-Technology/tinyusb.git
-[submodule "FreeRTOS/Fat-Fs"]
-	path = FreeRTOS/Fat-Fs
-	url = https://github.com/Ignitarium-Technology/Lab-Project-FreeRTOS-FAT.git
-
 [submodule "fcs/libfcs"]
 	path = fcs/libfcs
 	url = https://github.com/altera-innersource/libraries.fpga.libfcs-dev.git
 [submodule "rsu/librsu"]
 	path = rsu/librsu
 	url = https://github.com/altera-innersource/libraries.fpga.unified-librsu-dev.git
+[submodule "FreeRTOS/Fat-Fs"]
+	path = FreeRTOS/Fat-Fs
+	url = https://github.com/FreeRTOS/Lab-Project-FreeRTOS-FAT.git

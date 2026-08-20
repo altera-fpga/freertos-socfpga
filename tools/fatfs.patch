@@ -1,0 +1,2022 @@
+From a526b68002aff96963e3575ed0d7c00fa55c9da0 Mon Sep 17 00:00:00 2001
+From: souravr <sourav.raj@ignitarium.com>
+Date: Mon, 28 Jul 2025 18:16:38 +0530
+Subject: [PATCH 1/5] add support for Altera Agilex5 SoC FPGA
+
+Signed-off-by: souravr <sourav.raj@ignitarium.com>
+---
+ ff_dev_support.c                    |   8 +-
+ ff_fat.c                            | 287 +++++++++++++++++++++++-----
+ ff_file.c                           |   5 -
+ ff_ioman.c                          | 129 +++++++++++--
+ ff_locking.c                        |   2 +-
+ include/FreeRTOSFATConfig.h         |  43 +++++
+ include/FreeRTOSFATConfigDefaults.h |   8 +-
+ include/ff_error.h                  |   1 +
+ include/ff_fat.h                    |   6 +
+ include/ff_ioman.h                  |   9 +-
+ portable/common/ff_sddisk.h         |   5 +-
+ 11 files changed, 421 insertions(+), 82 deletions(-)
+ create mode 100644 include/FreeRTOSFATConfig.h
+
+diff --git a/ff_dev_support.c b/ff_dev_support.c
+index 26a8ea2..90d0810 100644
+--- a/ff_dev_support.c
++++ b/ff_dev_support.c
+@@ -59,8 +59,8 @@ enum eCACHE_ACTION
+     eCACHE_REMOVE,
+ };
+ 
+-const char pcDevicePath[] = ffconfigDEV_PATH;
+-
++//const char pcDevicePath[] = ffconfigDEV_PATH;
++const char pcDevicePath[] = "/dev";
+ struct SFileCache * pxFindFile( const char * pcFname,
+                                 enum eCACHE_ACTION eAction )
+ {
+@@ -170,6 +170,8 @@ size_t FF_Device_Read( void * pvBuf,
+                        FF_FILE * pxStream )
+ {
+     lCount *= lSize;
++    (void)pvBuf; /*SQUASH*/
++    (void)pxStream ; /*SQUASH*/
+     return lCount;
+ }
+ 
+@@ -179,6 +181,7 @@ size_t FF_Device_Write( const void * pvBuf,
+                         FF_FILE * pxStream )
+ {
+     lCount *= lSize;
++    (void)pvBuf; /*SQUASH*/
+ 
+     if( pxStream->pxDevNode != NULL )
+     {
+@@ -216,6 +219,7 @@ int FF_Device_GetDirEnt( const char * pcPath,
+                          FF_DirEnt_t * pxDirEnt )
+ {
+     BaseType_t xIsDotDir = 0;
++    (void)pcPath; /*SQUASH*/
+ 
+     if( pxDirEnt->pcFileName[ 0 ] == '.' )
+     {
+diff --git a/ff_fat.c b/ff_fat.c
+index 533cb01..c281775 100644
+--- a/ff_fat.c
++++ b/ff_fat.c
+@@ -1448,7 +1448,171 @@ FF_Error_t FF_UnlinkClusterChain( FF_IOManager_t * pxIOManager,
+     }
+ #endif /* if ( ffconfigFAT12_SUPPORT != 0 ) */
+ /*-----------------------------------------------------------*/
++uint32_t FF_FastCountFreeClusters( FF_IOManager_t * pxIOManager,
++                                   FF_Error_t * pxError,
++                                   size_t uxBlockSize )
++{
++    /* The size of hte FAT expressed in number of sectors. */
++    const uint32_t ulSectorsPerFAT = pxIOManager->xPartition.ulSectorsPerFAT;
++    /* The size of the buffer expressed in sector count. */
++    const uint32_t ulSectorsPerBuffer = uxBlockSize / 512U;
++    /* The number of clusters described in this FAT table. */
++    const uint32_t ulNumClusters = pxIOManager->xPartition.ulNumClusters;
++    /* The type of FAT: FF_T_FAT16 or FF_T_FAT32. */
++    const uint8_t ucType = pxIOManager->xPartition.ucType;
++    /* The number of bytes needed for one cluster. */
++    const uint32_t ulEntrySize = ( ucType == FF_T_FAT32 ) ? 4U : 2U;
++    /* A char buffer to read large blocks of FAT entries. */
++    uint8_t * pucBuffer;
++    /* The actual number of clusters encountered. */
++    uint32_t ulClusterNum = 0;
++    /* For iteration through 'pucBuffer'. */
++    uint32_t x;
++    /* For iteration through the FAT. */
++    uint32_t ulSectorNr;
++    /* The number of free clusters. */
++    uint32_t ulFreeClusters = 0U;
++    /* The number of bytes reserved per cluster: 2 or 4. */
++    /* Store any error that occures. */
++    FF_Error_t xError = FF_ERR_NONE;
++
++    /* The block size must be at least 512 and
++     * it must be a multiple of 512 bytes. */
++    configASSERT( uxBlockSize >= 512U );
++    configASSERT( ( uxBlockSize % 512U ) == 0 );
++
++    pucBuffer = ffconfigMALLOC( uxBlockSize );
++
++    if( pucBuffer == NULL )
++    {
++        FF_PRINTF( "FF_FastCountFreeClusters: malloc %u failed\n", ( unsigned ) uxBlockSize );
++        xError = FF_createERR( FF_ERR_NOT_ENOUGH_MEMORY, FF_FASTCOUNTFREECLUSTERS );
++    }
++    else
++    {
++        uint32_t ulSectorsPerBlock = uxBlockSize / 512U;
++        unsigned read_count = 0;
++        unsigned read_total = 0;
++        unsigned read_compares = 0;
++
++        for( ulSectorNr = 0; ulSectorNr < ulSectorsPerFAT; )
++        {
++            int32_t lRetVal;
++            uint32_t uxSectorsLeft = ulSectorsPerFAT - ulSectorNr;
++            uint32_t ulEntriesPerBuffer;
++            uint32_t ulLBA; /* The logical Block Address. */
++
++            if( uxSectorsLeft > ulSectorsPerBuffer )
++            {
++                /* There are more sectors left than we can read. */
++                uxSectorsLeft = ulSectorsPerBuffer;
++            }
++            else
++            {
++                FF_PRINTF( "Reading the last %u sectors\n", uxSectorsLeft );
++            }
++
++            ulLBA = pxIOManager->xPartition.ulFATBeginLBA + ulSectorNr;
++            ulEntriesPerBuffer = ( uxSectorsLeft * 512U ) / ulEntrySize;
++            lRetVal = FF_BlockRead( pxIOManager,
++                                    ulLBA,         /* The current sector number. */
++                                    uxSectorsLeft, /* The number of sectors to read. */
++                                    pucBuffer,     /* The receiving buffer. */
++                                    pdFALSE );     /* Semaphore has not been locked at this point. */
++            read_count++;
++            read_total += 512U * uxSectorsLeft;
++
++            if( lRetVal < 0 )
++            {
++                xError = FF_createERR( FF_ERR_DEVICE_DRIVER_FAILED, FF_FASTCOUNTFREECLUSTERS );
++                break;
++            }
++
++            #if USE_SOFT_WDT
++            {
++                /* _HT_ : FF_CountFreeClusters was a little too busy, have it call the WDT and sleep */
++                clearWDT();
++
++                if( ( ( ulSectorNr + 1 ) % 32 ) == 0 )
++                {
++                    FF_Sleep( 1 );
++                }
++            }
++            #endif
++
++            for( x = 0; x < ulEntriesPerBuffer; x++ )
++            {
++                uint32_t ulFATEntry;
++
++                if( ucType == FF_T_FAT32 )
++                {
++                    /* Clearing the top 4 bits. */
++                    ulFATEntry = FF_getLong( pucBuffer, x * 4 ) & 0x0fffffff;
++                }
++                else
++                {
++                    ulFATEntry = ( uint32_t ) FF_getShort( pucBuffer, x * 2 );
++                }
++
++                if( ulFATEntry == 0ul )
++                {
++                    ulFreeClusters++;
++                }
++
++                read_compares++;
++
++                /* FAT table might not be cluster aligned. */
++                if( ulClusterNum > ulNumClusters )
++                {
++                    /* Stop counting if that's the case. */
++                    FF_PRINTF( "Break out of 1st loop\n" );
++                    break;
++                }
++
++                ulClusterNum++;
++            }
++
++            if( ulClusterNum > ulNumClusters )
++            {
++                /* Break out of 2nd loop too ^^ */
++                FF_PRINTF( "Break out of 2nd loop\n" );
++                break;
++            }
++
++            /* ulFreeClusters is -2 because the first 2 fat entries in the table are reserved. */
++            if( ulFreeClusters > pxIOManager->xPartition.ulNumClusters )
++            {
++                ulFreeClusters = pxIOManager->xPartition.ulNumClusters;
++            }
++
++            ulSectorNr += ulSectorsPerBlock;
++        } /* for( ulSectorNr = 0; ulSectorNr < ulSectorsPerFAT; ) */
++
++        FF_PRINTF( "Counting read_count = %d SecsPerBlock %d compares %u read_total %u\n",
++                   read_count,
++                   ulSectorsPerBlock,
++                   read_compares,
++                   read_total );
++    }
++
++    if( pucBuffer != NULL )
++    {
++        ffconfigFREE( pucBuffer );
++    }
++
++    if( FF_isERR( xError ) != pdFALSE )
++    {
++        ulFreeClusters = 0U;
++    }
+ 
++    if( pxError )
++    {
++        /* Pass the error, if any, to the caller. */
++        *pxError = xError;
++    }
++
++    return ulFreeClusters;
++}
+ 
+ uint32_t FF_CountFreeClusters( FF_IOManager_t * pxIOManager,
+                                FF_Error_t * pxError )
+@@ -1457,7 +1621,6 @@ uint32_t FF_CountFreeClusters( FF_IOManager_t * pxIOManager,
+     FF_Buffer_t * pxBuffer;
+     uint32_t ulIndex, x;
+     uint32_t ulFATEntry;
+-    uint32_t ulEntriesPerSector;
+     uint32_t ulFreeClusters = 0;
+     uint32_t ClusterNum = 0;
+     BaseType_t xInfoKnown = pdFALSE;
+@@ -1491,8 +1654,8 @@ uint32_t FF_CountFreeClusters( FF_IOManager_t * pxIOManager,
+                 }
+                 else
+                 {
+-                    if( ( FF_getLong( pxBuffer->pucBuffer, 0 ) == 0x41615252 ) &&
+-                        ( FF_getLong( pxBuffer->pucBuffer, 484 ) == 0x61417272 ) )
++                    if( ( FF_getLong( pxBuffer->pucBuffer, 0 ) == FS_INFO_SIGNATURE1_0x41615252 ) &&
++                        ( FF_getLong( pxBuffer->pucBuffer, 484 ) == FS_INFO_SIGNATURE2_0x61417272 ) )
+                     {
+                         ulFreeClusters = FF_getLong( pxBuffer->pucBuffer, 488 );
+ 
+@@ -1517,88 +1680,108 @@ uint32_t FF_CountFreeClusters( FF_IOManager_t * pxIOManager,
+             }
+         }
+         #endif /* if ( ffconfigFSINFO_TRUSTED != 0 ) */
++/*xInfoKnown = pdFALSE; */
++        FF_PRINTF( "Start reading the free space\n" );
+ 
+         if( ( xInfoKnown == pdFALSE ) && ( pxIOManager->xPartition.usBlkSize != 0 ) )
+         {
+-            if( pxIOManager->xPartition.ucType == FF_T_FAT32 )
++            if( 1 ) /* xFastCount == pdTRUE ) */
+             {
+-                ulEntriesPerSector = pxIOManager->usSectorSize / 4;
++                ulFreeClusters = FF_FastCountFreeClusters( pxIOManager, &xError, 10*1024U );
+             }
+             else
+             {
+-                ulEntriesPerSector = pxIOManager->usSectorSize / 2;
+-            }
+-
+-            for( ulIndex = 0; ulIndex < pxIOManager->xPartition.ulSectorsPerFAT; ulIndex++ )
+-            {
+-                pxBuffer = FF_GetBuffer( pxIOManager, pxIOManager->xPartition.ulFATBeginLBA + ulIndex, FF_MODE_READ );
++                uint32_t ulEntriesPerSector;
+ 
+-                if( pxBuffer == NULL )
++                if( pxIOManager->xPartition.ucType == FF_T_FAT32 )
+                 {
+-                    xError = FF_createERR( FF_ERR_DEVICE_DRIVER_FAILED, FF_COUNTFREECLUSTERS );
+-                    break;
++                    ulEntriesPerSector = pxIOManager->usSectorSize / 4;
++                }
++                else
++                {
++                    ulEntriesPerSector = pxIOManager->usSectorSize / 2;
+                 }
+ 
+-                #if USE_SOFT_WDT
++                for( ulIndex = 0; ulIndex < pxIOManager->xPartition.ulSectorsPerFAT; ulIndex++ )
+                 {
+-                    /* _HT_ : FF_CountFreeClusters was a little too busy, have it call the WDT and sleep */
+-                    clearWDT();
++                    pxBuffer = FF_GetBuffer( pxIOManager, pxIOManager->xPartition.ulFATBeginLBA + ulIndex, FF_MODE_READ );
+ 
+-                    if( ( ( ulIndex + 1 ) % 32 ) == 0 )
++                    if( pxBuffer == NULL )
+                     {
+-                        FF_Sleep( 1 );
++                        xError = FF_createERR( FF_ERR_DEVICE_DRIVER_FAILED, FF_COUNTFREECLUSTERS );
++                        break;
+                     }
+-                }
+-                #endif
+ 
+-                for( x = 0; x < ulEntriesPerSector; x++ )
+-                {
+-                    if( pxIOManager->xPartition.ucType == FF_T_FAT32 )
++                    #if USE_SOFT_WDT
+                     {
+-                        /* Clearing the top 4 bits. */
+-                        ulFATEntry = FF_getLong( pxBuffer->pucBuffer, x * 4 ) & 0x0fffffff;
++                        /* _HT_ : FF_CountFreeClusters was a little too busy, have it call the WDT and sleep */
++                        clearWDT();
++
++                        if( ( ( ulIndex + 1 ) % 32 ) == 0 )
++                        {
++                            FF_Sleep( 1 );
++                        }
+                     }
+-                    else
++                    #endif
++
++                    for( x = 0; x < ulEntriesPerSector; x++ )
+                     {
+-                        ulFATEntry = ( uint32_t ) FF_getShort( pxBuffer->pucBuffer, x * 2 );
++                        if( pxIOManager->xPartition.ucType == FF_T_FAT32 )
++                        {
++                            /* Clearing the top 4 bits. */
++                            ulFATEntry = FF_getLong( pxBuffer->pucBuffer, x * 4 ) & 0x0fffffff;
++                        }
++                        else
++                        {
++                            ulFATEntry = ( uint32_t ) FF_getShort( pxBuffer->pucBuffer, x * 2 );
++                        }
++
++                        if( ulFATEntry == 0ul )
++                        {
++                            ulFreeClusters++;
++                        }
++
++                        /* FAT table might not be cluster aligned. */
++                        if( ClusterNum > pxIOManager->xPartition.ulNumClusters )
++                        {
++                            /* Stop counting if that's the case. */
++                            break;
++                        }
++
++                        ClusterNum++;
+                     }
+ 
+-                    if( ulFATEntry == 0ul )
++                    xError = FF_ReleaseBuffer( pxIOManager, pxBuffer );
++                    pxBuffer = NULL;
++
++                    if( FF_isERR( xError ) )
+                     {
+-                        ulFreeClusters++;
++                        break;
+                     }
+ 
+-                    /* FAT table might not be cluster aligned. */
+                     if( ClusterNum > pxIOManager->xPartition.ulNumClusters )
+                     {
+-                        /* Stop counting if that's the case. */
++                        /* Break out of 2nd loop too ^^ */
+                         break;
+                     }
+ 
+-                    ClusterNum++;
+-                }
+-
+-                xError = FF_ReleaseBuffer( pxIOManager, pxBuffer );
+-                pxBuffer = NULL;
+-
+-                if( FF_isERR( xError ) )
+-                {
+-                    break;
+-                }
++                    /* ulFreeClusters is -2 because the first 2 fat entries in the table are reserved. */
++                    if( ulFreeClusters > pxIOManager->xPartition.ulNumClusters )
++                    {
++                        ulFreeClusters = pxIOManager->xPartition.ulNumClusters;
++                    }
++                } /* for( ulIndex = 0; ulIndex < pxIOManager->xPartition.ulSectorsPerFAT; ulIndex++ ) */
++            }     /* if( xFastCount == pdTRUE ) */
+ 
+-                if( ClusterNum > pxIOManager->xPartition.ulNumClusters )
++            #if ( ffconfigFSINFO_TRUSTED != 0 )
++                if( FF_isERR( xError ) == pdFALSE )
+                 {
+-                    /* Break out of 2nd loop too ^^ */
+-                    break;
++                    xError = FF_UpdateFSInfo( pxIOManager, pdFALSE );
+                 }
++            #endif
++        } /* if( ( xInfoKnown == pdFALSE ) && ( pxIOManager->xPartition.usBlkSize != 0 ) ) */
+ 
+-                /* ulFreeClusters is -2 because the first 2 fat entries in the table are reserved. */
+-                if( ulFreeClusters > pxIOManager->xPartition.ulNumClusters )
+-                {
+-                    ulFreeClusters = pxIOManager->xPartition.ulNumClusters;
+-                }
+-            } /* for( ulIndex = 0; ulIndex < pxIOManager->xPartition.ulSectorsPerFAT; ulIndex++ ) */
+-        }
++        FF_PRINTF( "Ready reading the free space: %u\n", ulFreeClusters );
+     }
+ 
+     if( xTakeLock )
+diff --git a/ff_file.c b/ff_file.c
+index fbae1da..87bb31e 100644
+--- a/ff_file.c
++++ b/ff_file.c
+@@ -2447,11 +2447,6 @@ int32_t FF_Write( FF_FILE * pxFile,
+                 }
+             }
+ 
+-            if( FF_isERR( xError ) )
+-            {
+-                break;
+-            }
+-
+             /*---------- Write (memcpy) Remaining Bytes */
+             if( ulBytesLeft == 0 )
+             {
+diff --git a/ff_ioman.c b/ff_ioman.c
+index b0662f7..a4ab18a 100644
+--- a/ff_ioman.c
++++ b/ff_ioman.c
+@@ -202,8 +202,10 @@ FF_IOManager_t * FF_CreateIOManager( FF_CreationParameters_t * pxParameters,
+                 }
+ 
+                 pxIOManager->xBlkDevice.fnpReadBlocks = pxParameters->fnReadBlocks;
++
+                 pxIOManager->xBlkDevice.fnpWriteBlocks = pxParameters->fnWriteBlocks;
+                 pxIOManager->xBlkDevice.pxDisk = pxParameters->pxDisk;
++
+             }
+         }
+         else
+@@ -230,6 +232,66 @@ FF_IOManager_t * FF_CreateIOManager( FF_CreationParameters_t * pxParameters,
+ } /* FF_CreateIOManager() */
+ /*-----------------------------------------------------------*/
+ 
++#if ( ffconfigWRITE_FREE_COUNT != 0 ) || ( ffconfigFSINFO_TRUSTED != 0 )
++    FF_Error_t FF_UpdateFSInfo( FF_IOManager_t * pxIOManager,
++                                BaseType_t xClearSign )
++    {
++        FF_Error_t xError = 0;
++
++        /* FAT32 updates the FSINFO sector. */
++        if( pxIOManager->xPartition.ucType == FF_T_FAT32 )
++        {
++            /* Find the FSINFO sector. */
++            FF_Buffer_t * pxBuffer = FF_GetBuffer( pxIOManager, pxIOManager->xPartition.ulFSInfoLBA, FF_MODE_WRITE );
++
++            if( pxBuffer == NULL )
++            {
++                xError = FF_createERR( FF_ERR_DEVICE_DRIVER_FAILED, FF_INCREASEFREECLUSTERS );
++                FF_PRINTF( "FF_UpdateFSInfo: Error %08x\n", xError );
++            }
++            else
++            {
++                uint32_t ulSignatures[ 2 ];
++                ulSignatures[ 0 ] = FF_getLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_SIGNATURE1_000 );
++                ulSignatures[ 1 ] = FF_getLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_SIGNATURE2_484 );
++
++                if( xClearSign != pdFALSE )
++                {
++                    FF_PRINTF( "FF_UpdateFSInfo: writing signature 0 0\n" );
++                    FF_putLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_SIGNATURE1_000, 0U );
++                    FF_putLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_SIGNATURE2_484, 0U );
++                }
++                else
++                if( ( ulSignatures[ 0 ] != FS_INFO_SIGNATURE1_0x41615252 ) ||
++                    ( ulSignatures[ 1 ] != FS_INFO_SIGNATURE2_0x61417272 ) )
++                {
++                    FF_PRINTF( "FF_UpdateFSInfo: %X %X (correcting)\n", ulSignatures[ 0 ], ulSignatures[ 1 ] );
++                    /* FSINFO sector magic nums we're verified. Safe to write. */
++                    FF_putLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_SIGNATURE1_000, FS_INFO_SIGNATURE1_0x41615252 );
++                    FF_putLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_SIGNATURE2_484, FS_INFO_SIGNATURE2_0x61417272 );
++                }
++                else
++                {
++                    FF_PRINTF( "FF_UpdateFSInfo: OK\n" );
++                }
++
++                FF_putLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_FREE_COUNT_488, pxIOManager->xPartition.ulFreeClusterCount );
++                FF_putLong( pxBuffer->pucBuffer, FS_INFO_OFFSET_FREE_CLUSTER_492, pxIOManager->xPartition.ulLastFreeCluster );
++
++                xError = FF_ReleaseBuffer( pxIOManager, pxBuffer );
++            }
++        }
++        else
++        {
++            FF_PRINTF( "FF_UpdateFSInfo: wrong FS type %02X\n", pxIOManager->xPartition.ucType );
++        }
++        return 0;
++    }
++#endif /* ( ffconfigWRITE_FREE_COUNT != 0 ) || ( ffconfigFSINFO_TRUSTED != 0 ) */
++
++
++
++
+ /**
+  *	@brief	Destroys an FF_IOManager_t object, and frees all assigned memory.
+  *
+@@ -382,6 +444,7 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+                             uint32_t ulSector,
+                             uint8_t ucMode )
+ {
++
+     FF_Buffer_t * pxBuffer;
+ /* Least Recently Used Buffer */
+     FF_Buffer_t * pxRLUBuffer;
+@@ -390,24 +453,30 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+     BaseType_t xLoopCount = FF_GETBUFFER_WAIT_TIME_MS;
+     const FF_Buffer_t * pxLastBuffer = &( pxIOManager->pxBuffers[ pxIOManager->usCacheSize ] );
+ 
++
+     /* 'pxIOManager->usCacheSize' is bigger than zero and it is a multiple of ulSectorSize. */
+ 
+     while( pxMatchingBuffer == NULL )
+     {
+         xLoopCount--;
+ 
++
+         if( xLoopCount == 0 )
+         {
+             break;
++
+         }
+ 
+         FF_PendSemaphore( pxIOManager->pvSemaphore );
+ 
++
+         for( pxBuffer = pxIOManager->pxBuffers; pxBuffer < pxLastBuffer; pxBuffer++ )
+         {
++
+             if( ( pxBuffer->ulSector == ulSector ) && ( pxBuffer->bValid ) )
+             {
+                 pxMatchingBuffer = pxBuffer;
++
+                 /* Don't look further if you found a perfect match. */
+                 break;
+             }
+@@ -419,7 +488,8 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+             if( ( ucMode == FF_MODE_READ ) && ( pxMatchingBuffer->ucMode == FF_MODE_READ ) )
+             {
+                 pxMatchingBuffer->usNumHandles += 1;
+-                pxMatchingBuffer->usPersistence += 1;
++                pxMatchingBuffer->usPersistance += 1;
++
+                 break;
+             }
+ 
+@@ -435,7 +505,7 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+                 }
+ 
+                 pxMatchingBuffer->usNumHandles = 1;
+-                pxMatchingBuffer->usPersistence += 1;
++                pxMatchingBuffer->usPersistance += 1;
+                 break;
+             }
+ 
+@@ -453,26 +523,31 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+                 if( pxBuffer->usNumHandles != 0 )
+                 {
+                     continue; /* Occupied */
++
+                 }
+ 
+                 pxBuffer->ulLRU += 1;
+ 
++
+                 if( ( pxRLUBuffer == NULL ) ||
+                     ( pxBuffer->ulLRU > pxRLUBuffer->ulLRU ) ||
+-                    ( ( pxBuffer->ulLRU == pxRLUBuffer->ulLRU ) && ( pxBuffer->usPersistence > pxRLUBuffer->usPersistence ) ) )
++                    ( ( pxBuffer->ulLRU == pxRLUBuffer->ulLRU ) && ( pxBuffer->usPersistance > pxRLUBuffer->usPersistance ) ) )
+                 {
+                     pxRLUBuffer = pxBuffer;
++
+                 }
+             }
+ 
+             /* A free buffer with the highest value of 'ulLRU' was found: */
+             if( pxRLUBuffer != NULL )
+             {
++
+                 /* Process the suitable candidate. */
+                 if( pxRLUBuffer->bModified == pdTRUE )
+                 {
+                     /* Along with the pdTRUE parameter to indicate semaphore has been claimed already. */
+-                    lRetVal = FF_BlockWrite( pxIOManager, pxRLUBuffer->ulSector, 1, pxRLUBuffer->pucBuffer, pdTRUE );
++
++                	lRetVal = FF_BlockWrite( pxIOManager, pxRLUBuffer->ulSector, 1, pxRLUBuffer->pucBuffer, pdTRUE );
+ 
+                     if( lRetVal < 0 )
+                     {
+@@ -484,9 +559,11 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+                 if( ucMode == FF_MODE_WR_ONLY )
+                 {
+                     memset( pxRLUBuffer->pucBuffer, '\0', pxIOManager->usSectorSize );
++
+                 }
+                 else
+                 {
++
+                     lRetVal = FF_BlockRead( pxIOManager, ulSector, 1, pxRLUBuffer->pucBuffer, pdTRUE );
+ 
+                     if( lRetVal < 0 )
+@@ -497,7 +574,7 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+                 }
+ 
+                 pxRLUBuffer->ucMode = ( ucMode & FF_MODE_RD_WR );
+-                pxRLUBuffer->usPersistence = 1;
++                pxRLUBuffer->usPersistance = 1;
+                 pxRLUBuffer->ulLRU = 0;
+                 pxRLUBuffer->usNumHandles = 1;
+                 pxRLUBuffer->ulSector = ulSector;
+@@ -507,6 +584,7 @@ FF_Buffer_t * FF_GetBuffer( FF_IOManager_t * pxIOManager,
+                 pxRLUBuffer->bValid = pdTRUE;
+                 pxMatchingBuffer = pxRLUBuffer;
+                 break;
++
+             } /* if( pxRLUBuffer != NULL ) */
+         }     /* else ( pxMatchingBuffer == NULL ) */
+ 
+@@ -588,24 +666,30 @@ int32_t FF_BlockRead( FF_IOManager_t * pxIOManager,
+ {
+     int32_t slRetVal = 0;
+ 
++
+     if( pxIOManager->xPartition.ulTotalSectors != 0ul )
+     {
++
+         /* At some point while formatting a partition, ulTotalSectors might be unknown.
+          * In that case this test will be skipped. */
+         if( ( ulSectorLBA + ulNumSectors ) > ( pxIOManager->xPartition.ulTotalSectors + pxIOManager->xPartition.ulBeginLBA ) )
+         {
++
+             slRetVal = FF_createERR( FF_ERR_IOMAN_OUT_OF_BOUNDS_READ, FF_BLOCKREAD );
+         }
+     }
+ 
+     if( ( slRetVal == 0ul ) && ( pxIOManager->xBlkDevice.fnpReadBlocks != NULL ) )
+     {
++
+         do
+         {
++
+             /* Make sure we don't execute a NULL. */
+             if( ( xSemLocked == pdFALSE ) &&
+                 ( ( pxIOManager->ucFlags & FF_IOMAN_BLOCK_DEVICE_IS_REENTRANT ) == pdFALSE ) )
+             {
++
+                 FF_PendSemaphore( pxIOManager->pvSemaphore );
+             }
+ 
+@@ -614,6 +698,7 @@ int32_t FF_BlockRead( FF_IOManager_t * pxIOManager,
+             if( ( xSemLocked == pdFALSE ) &&
+                 ( ( pxIOManager->ucFlags & FF_IOMAN_BLOCK_DEVICE_IS_REENTRANT ) == pdFALSE ) )
+             {
++
+                 FF_ReleaseSemaphore( pxIOManager->pvSemaphore );
+             }
+ 
+@@ -622,10 +707,13 @@ int32_t FF_BlockRead( FF_IOManager_t * pxIOManager,
+              * the actual error code.  See 'ff_error.h' for definitions. */
+             if( slRetVal != ( int32_t ) FF_ERR_DRIVER_BUSY )
+             {
++
+                 break;
+             }
+ 
++
+             FF_Sleep( ffconfigDRIVER_BUSY_SLEEP_MS );
++
+         } while( pdTRUE );
+     }
+ 
+@@ -720,6 +808,8 @@ static FF_Error_t prvDetermineFatType( FF_IOManager_t * pxIOManager )
+     FF_Buffer_t * pxBuffer;
+     /* The first 32-bits of the FAT. */
+     uint32_t ulFirstCluster = 0U;
++    (void)ulFirstCluster;
++
+     FF_Error_t xError = FF_ERR_NONE;
+ 
+     pxPartition = &( pxIOManager->xPartition );
+@@ -1099,6 +1189,7 @@ FF_Error_t FF_PartitionSearch( FF_IOManager_t * pxIOManager,
+ 
+     do
+     {
++
+         pxBuffer = FF_GetBuffer( pxIOManager, 0, FF_MODE_READ );
+ 
+         if( pxBuffer == NULL )
+@@ -1114,6 +1205,8 @@ FF_Error_t FF_PartitionSearch( FF_IOManager_t * pxIOManager,
+ 
+         /* Check MBR (Master Boot Record) or
+          * PBR (Partition Boot Record) signature. */
++
++
+         if( ( FF_getChar( ucDataBuffer, FF_FAT_MBR_SIGNATURE ) != 0x55 ) ||
+             ( FF_getChar( ucDataBuffer, FF_FAT_MBR_SIGNATURE + 1 ) != 0xAA ) )
+         {
+@@ -1129,14 +1222,16 @@ FF_Error_t FF_PartitionSearch( FF_IOManager_t * pxIOManager,
+             }
+             else
+             {
+-                FF_PRINTF( "FF_PartitionSearch: [%02X,%02X] No signature (%02X %02X), no PBR neither\n",
+-                           FF_getChar( ucDataBuffer, 0 ),
+-                           FF_getChar( ucDataBuffer, 2 ),
+-                           FF_getChar( ucDataBuffer, FF_FAT_MBR_SIGNATURE ),
+-                           FF_getChar( ucDataBuffer, FF_FAT_MBR_SIGNATURE + 1 ) );
+-
+-                /* No MBR and no PBR then no partition found. */
+-                xError = FF_createERR( FF_ERR_IOMAN_INVALID_FORMAT, FF_PARTITIONSEARCH );
++//                FF_PRINTF( "FF_PartitionSearch: [%02X,%02X] No signature (%02X %02X), no PBR neither\n",
++//                           FF_getChar( ucDataBuffer, 0 ),
++//                           FF_getChar( ucDataBuffer, 2 ),
++//                           FF_getChar( ucDataBuffer, FF_FAT_MBR_SIGNATURE ),
++//                           FF_getChar( ucDataBuffer, FF_FAT_MBR_SIGNATURE + 1 ) );
++
++					/* No MBR and no PBR then no partition found. */
++
++					xError = FF_createERR( FF_ERR_IOMAN_INVALID_FORMAT, FF_PARTITIONSEARCH );
++
+                 break;
+             }
+         }
+@@ -1144,6 +1239,7 @@ FF_Error_t FF_PartitionSearch( FF_IOManager_t * pxIOManager,
+         /* Copy the 4 partition records into 'pxPartitions': */
+         FF_ReadParts( ucDataBuffer, pxPartitions );
+ 
++
+         for( xPartNr = 0; ( xPartNr < 4 ) && ( isPBR == pdFALSE ); xPartNr++ )
+         {
+             /*		FF_PRINTF ("FF_Part[%d]: id %02X act %02X Start %6lu Len %6lu (sectors)\n", */
+@@ -1789,10 +1885,13 @@ FF_Error_t FF_IncreaseFreeClusters( FF_IOManager_t * pxIOManager,
+         {
+             xError = FF_ERR_NONE;
+             taskENTER_CRITICAL();
++
++
+             {
+                 pxIOManager->xPartition.ulFreeClusterCount += Count;
+             }
+             taskEXIT_CRITICAL();
++
+         }
+ 
+         if( pxIOManager->xPartition.ulLastFreeCluster == 0 )
+@@ -1874,9 +1973,9 @@ FF_Error_t FF_DecreaseFreeClusters( FF_IOManager_t * pxIOManager,
+     else
+     {
+         taskENTER_CRITICAL();
+-        pxIOManager->xPartition.ulFreeClusterCount -= Count;
++         pxIOManager->xPartition.ulFreeClusterCount -= Count;
+         taskEXIT_CRITICAL();
+-    }
++     }
+ 
+     if( FF_isERR( xError ) == pdFALSE )
+     {
+diff --git a/ff_locking.c b/ff_locking.c
+index 439bd34..1bea0e8 100644
+--- a/ff_locking.c
++++ b/ff_locking.c
+@@ -94,7 +94,7 @@ void FF_PendSemaphore( void * pxSemaphore )
+ 
+     configASSERT( pxSemaphore );
+     xSemaphoreTakeRecursive( ( SemaphoreHandle_t ) pxSemaphore, portMAX_DELAY );
+-}
++ }
+ /*-----------------------------------------------------------*/
+ 
+ void FF_ReleaseSemaphore( void * pxSemaphore )
+diff --git a/include/FreeRTOSFATConfig.h b/include/FreeRTOSFATConfig.h
+new file mode 100644
+index 0000000..8b5804c
+--- /dev/null
++++ b/include/FreeRTOSFATConfig.h
+@@ -0,0 +1,43 @@
++/*
++ * FreeRTOS+FAT V2.3.3
++ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy of
++ * this software and associated documentation files (the "Software"), to deal in
++ * the Software without restriction, including without limitation the rights to
++ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
++ * the Software, and to permit persons to whom the Software is furnished to do so,
++ * subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in all
++ * copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
++ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
++ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
++ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ *
++ * https://www.FreeRTOS.org
++ * https://github.com/FreeRTOS
++ *
++ */
++
++#ifndef FREERTOS_FAT_CONFIG_H
++#define FREERTOS_FAT_CONFIG_H
++
++#define ffconfigWRITE_BOTH_FATS 1
++
++#define ffconfigBYTE_ORDER                ( pdFREERTOS_LITTLE_ENDIAN )
++
++#define ffconfigCWD_THREAD_LOCAL_INDEX    ( 0 )
++
++/* Note - must be deifined */
++#if !defined( portINLINE )
++    #define portINLINE    __inline
++#endif
++
++/* Note: All other ffconfig values will be defined in FreeRTOSFATConfigDefaults.h when not defined here */
++
++#endif /*FREERTOS_FAT_CONFIG_H */
+diff --git a/include/FreeRTOSFATConfigDefaults.h b/include/FreeRTOSFATConfigDefaults.h
+index 8bc4836..76b39c4 100644
+--- a/include/FreeRTOSFATConfigDefaults.h
++++ b/include/FreeRTOSFATConfigDefaults.h
+@@ -54,7 +54,7 @@
+  *
+  * Set to 0 not to use a CWD, in which case full paths must be used for each
+  * file access. */
+-    #define ffconfigHAS_CWD    0
++    #define ffconfigHAS_CWD    1
+ 
+     #if !defined( ffconfigCWD_THREAD_LOCAL_INDEX )
+         #error ffconfigCWD_THREAD_LOCAL_INDEX must be set to a free position within FreeRTOSs thread local storage pointer array for storage of a pointer to the CWD structure.
+@@ -238,7 +238,7 @@
+  *
+  * Set to 0 to find these two values when they	are first needed.  Determining
+  * the values can take some time. */
+-    #define ffconfigMOUNT_FIND_FREE    0
++    #define ffconfigMOUNT_FIND_FREE    1
+ #endif
+ 
+ #if !defined( ffconfigFSINFO_TRUSTED )
+@@ -247,7 +247,7 @@
+  * ulFreeClusterCount fields.
+  *
+  * Set to 0 not to 'trust' these fields.*/
+-    #define ffconfigFSINFO_TRUSTED    0
++    #define ffconfigFSINFO_TRUSTED    1
+ #endif
+ 
+ #if !defined( ffconfigFINDAPI_ALLOW_WILDCARDS )
+@@ -489,7 +489,7 @@
+ 
+ /* A rarely used feature of FreeRTOS+FAT which lets files behave
+  * as 'devices'. */
+-    #define ffconfigDEV_SUPPORT    0
++    #define ffconfigDEV_SUPPORT    1
+ #endif
+ 
+ #ifndef USE_SOFT_WDT
+diff --git a/include/ff_error.h b/include/ff_error.h
+index c2e2286..1283c67 100644
+--- a/include/ff_error.h
++++ b/include/ff_error.h
+@@ -238,6 +238,7 @@
+ #define FF_ERR_UNICODE_DEST_TOO_SMALL           101 /* Not enough space in the UTF-16 buffer to encode the entire sequence as UTF-16. */
+ #define FF_ERR_UNICODE_INVALID_SEQUENCE         102 /* An invalid UTF-16 sequence was encountered. */
+ #define FF_ERR_UNICODE_CONVERSION_EXCEEDED      103 /* Filename exceeds MAX long-filename length when converted to UTF-16. */
++#define FF_FASTCOUNTFREECLUSTERS     ( ( 6 << FF_FUNCTION_SHIFT ) | FF_MODULE_FAT )
+ 
+ typedef int32_t FF_Error_t;
+ 
+diff --git a/include/ff_fat.h b/include/ff_fat.h
+index 54a1996..bf3c0d3 100644
+--- a/include/ff_fat.h
++++ b/include/ff_fat.h
+@@ -132,6 +132,12 @@ uint32_t FF_FindEndOfChain( FF_IOManager_t * pxIOManager,
+ FF_Error_t FF_ClearCluster( FF_IOManager_t * pxIOManager,
+                             uint32_t ulCluster );
+ 
++uint32_t FF_FastCountFreeClusters( FF_IOManager_t * pxIOManager,
++                                      FF_Error_t * pxError,
++                                      size_t uxBlockSize );
++
++
++
+ #if ( ffconfig64_NUM_SUPPORT != 0 )
+     uint64_t FF_GetFreeSize( FF_IOManager_t * pxIOManager,
+                              FF_Error_t * pxError );
+diff --git a/include/ff_ioman.h b/include/ff_ioman.h
+index b324d87..a0e0989 100644
+--- a/include/ff_ioman.h
++++ b/include/ff_ioman.h
+@@ -76,6 +76,9 @@
+         #define pdFALSE_UNSIGNED    ( ( UBaseType_t ) 0u )
+     #endif
+ 
++    /*Edited to make it work with latest FreeRTOS kernel*/
++	#define  FS_INFO_SIGNATURE2_0x61417272  0x61417272UL
++	#define  FS_INFO_SIGNATURE1_0x41615252  0x41615252UL
+ /**
+  *	I/O Driver Definitions
+  *	Provide access to any Block Device via the following interfaces.
+@@ -175,6 +178,7 @@
+          * the media type before they attempt to access the pvTag field, or perform any
+          * read and write operations. */
+         uint32_t ulSignature;
++        int ulDevAddr;
+     };
+ 
+     typedef struct xFFDisk FF_Disk_t;
+@@ -213,7 +217,7 @@
+                  bModified : 1, /* If the sector was modified since read. */
+                  bValid : 1;    /* Initially FALSE. */
+         uint16_t usNumHandles;  /* Number of objects using this buffer. */
+-        uint16_t usPersistence; /* For the persistence algorithm. */
++        uint16_t usPersistance; /* For the persistance algorithm. */
+     } FF_Buffer_t;
+ 
+     typedef struct
+@@ -379,7 +383,7 @@
+             ucActive : 8,       /* FF_FAT_PTBL_ACTIVE */
+             ucPartitionID : 8,  /* FF_FAT_PTBL_ID */
+             bIsExtended : 1;
+-    } FF_Part_t;
++    }__attribute__((packed, aligned(8))) FF_Part_t;
+ 
+     typedef struct _SPartFound
+     {
+@@ -409,6 +413,7 @@
+ 
+ /* Needed to make this public/private to be used in FF_Partition/FF_Format. */
+     void FF_IOMAN_InitBufferDescriptors( FF_IOManager_t * pxIOManager );
++    FF_Error_t FF_UpdateFSInfo( FF_IOManager_t * pxIOManager, BaseType_t xClearSign );
+ 
+     #ifdef __cplusplus
+ }         /* extern "C" */
+diff --git a/portable/common/ff_sddisk.h b/portable/common/ff_sddisk.h
+index c5b0a1e..3c01740 100644
+--- a/portable/common/ff_sddisk.h
++++ b/portable/common/ff_sddisk.h
+@@ -41,6 +41,8 @@
+         BaseType_t xDiskPartition;   /**< Default disk partition number */
+     } FFInitSettings_t;
+ 
++    int32_t FFReadUsb( uint8_t *pucBuffer, uint32_t ulSectorNumber, uint32_t ulSectorCount, FF_Disk_t *pxDisk );
++    int32_t FFWriteUsb( uint8_t *pucBuffer, uint32_t ulSectorNumber, uint32_t ulSectorCount, FF_Disk_t *pxDisk );
+ 
+ /* Return non-zero if the SD-card is present.
+  * The parameter 'pxDisk' may be null, unless device locking is necessary. */
+@@ -50,9 +52,10 @@
+     FF_Disk_t * FF_SDDiskInitWithSettings( const char * pcName,
+                                            const FFInitSettings_t * pxSettings );
+ 
+-    FF_Disk_t * FF_SDDiskInit( const char * pcName );
++    FF_Disk_t * FF_SDDiskInit( const char * pcName , int ulDriveNum );
+ 
+     BaseType_t FF_SDDiskReinit( FF_Disk_t * pxDisk );
++    void test_print();
+ 
+ /* Unmount the volume */
+     BaseType_t FF_SDDiskUnmount( FF_Disk_t * pDisk );
+-- 
+2.43.7
+
+
+From fdfa607f349ba5e7558df027195d19b7dfb826a9 Mon Sep 17 00:00:00 2001
+From: souravr <sourav.raj@ignitarium.com>
+Date: Tue, 29 Jul 2025 19:42:02 +0530
+Subject: [PATCH 2/5] add portable layer for agilex5
+
+Signed-off-by: souravr <sourav.raj@ignitarium.com>
+---
+ portable/AGILEX5/CMakeLists.txt |  23 +
+ portable/AGILEX5/ff_sddisk.c    | 796 ++++++++++++++++++++++++++++++++
+ portable/AGILEX5/ff_socfpga.c   |  49 ++
+ portable/AGILEX5/ff_socfpga.h   |  25 +
+ 4 files changed, 893 insertions(+)
+ create mode 100644 portable/AGILEX5/CMakeLists.txt
+ create mode 100644 portable/AGILEX5/ff_sddisk.c
+ create mode 100644 portable/AGILEX5/ff_socfpga.c
+ create mode 100644 portable/AGILEX5/ff_socfpga.h
+
+diff --git a/portable/AGILEX5/CMakeLists.txt b/portable/AGILEX5/CMakeLists.txt
+new file mode 100644
+index 0000000..8be26e0
+--- /dev/null
++++ b/portable/AGILEX5/CMakeLists.txt
+@@ -0,0 +1,23 @@
++add_library(freertos_plus_fat_port STATIC)
++
++target_sources(freertos_plus_fat_port
++    PRIVATE
++    ff_sddisk.c
++    ff_socfpga.c
++    )
++
++target_include_directories(freertos_plus_fat_port
++    PUBLIC
++    .
++    ${FREERTOS_TOP_DIR}/drivers/sdmmc/
++    )
++
++target_link_libraries(freertos_plus_fat_port
++  PUBLIC
++    freertos_plus_fat_port_common
++  PRIVATE
++    agilex5-tinyusb
++    freertos_kernel
++    freertos_plus_fat
++    socfpga_drivers
++    )
+diff --git a/portable/AGILEX5/ff_sddisk.c b/portable/AGILEX5/ff_sddisk.c
+new file mode 100644
+index 0000000..b13990f
+--- /dev/null
++++ b/portable/AGILEX5/ff_sddisk.c
+@@ -0,0 +1,796 @@
++/*
++ * FreeRTOS+FAT V2.3.3
++ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a copy of
++ * this software and associated documentation files (the "Software"), to deal in
++ * the Software without restriction, including without limitation the rights to
++ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
++ * the Software, and to permit persons to whom the Software is furnished to do so,
++ * subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included in all
++ * copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
++ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
++ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
++ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
++ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ *
++ * https://www.FreeRTOS.org
++ * https://github.com/FreeRTOS
++ *
++ */
++
++/*
++ * SPDX-FileCopyrightText: Copyright (C) 2025 Altera Corporation
++ *
++ * SPDX-License-Identifier: MIT-0
++ *
++ * Modifications to support SoC FPGA
++ */
++
++/* Standard includes. */
++#include <stdlib.h>
++#include <string.h>
++#include <stdarg.h>
++#include <stdio.h>
++#include <stdbool.h>
++#include <errno.h>
++
++/* FreeRTOS includes. */
++#include "FreeRTOS.h"
++#include "FreeRTOSConfig.h"
++#include "task.h"
++#include "semphr.h"
++#include "portmacro.h"
++
++/* FreeRTOS+FAT includes. */
++#include "ff_sddisk.h"
++#include "ff_sys.h"
++
++/*usb includes*/
++#include "ff_socfpga.h"
++#include "socfpga_sdmmc.h"
++
++/* Tinyusb MSC includes */
++#include "msc_app.h"
++#include "msc_host.h"
++
++#define sdSIGNATURE                          0x41404342UL
++#define sdHUNDRED_64_BIT                     ( 100ull )
++#define sdBYTES_PER_MB                       ( 1024ull * 1024ull )
++#define sdSECTORS_PER_MB                     ( sdBYTES_PER_MB / 512ull )
++#define sdIOMAN_MEM_SIZE                     4096
++#define PRINT_INFO 0x0
++
++
++/* Define a time-out for all DMA transactions in msec. */
++#ifndef sdMAX_TIME_TICKS
++#define sdMAX_TIME_TICKS    pdMS_TO_TICKS( 2000UL )
++#endif
++
++#ifndef sdCARD_DETECT_DEBOUNCE_TIME_MS
++/* Debouncing time is applied only after card gets inserted. */
++#define sdCARD_DETECT_DEBOUNCE_TIME_MS    ( 5000 )
++#endif
++
++#ifndef sdARRAY_SIZE
++#define sdARRAY_SIZE( x )    ( int ) ( sizeof( x ) / sizeof( x )[ 0 ] )
++#endif
++
++/*-----------------------------------------------------------*/
++
++/*
++ * Return pdFALSE if the SD card is not inserted.  This function just reads the
++ * value of the GPIO C/D pin.
++ */
++static BaseType_t prvSDDetect( void );
++/*
++ * Translate a numeric code like 'SD_TX_UNDERRUN' to a printable string.
++ */
++static const char* prvSDCodePrintable( uint32_t ulCode );
++/*
++ * The following 'hook' must be provided by the user of this module.  It will be
++ * called from a GPIO ISR after every change.  Note that during the ISR, the
++ * value of the GPIO is not stable and it can not be used.  All you can do from
++ * this hook is wake-up some task, which will call FF_SDDiskDetect().
++ */
++extern void vApplicationCardDetectChangeHookFromISR(
++        BaseType_t *pxHigherPriorityTaskWoken );
++/*
++ * Check if the card is present, and if so, print out some info on the card.
++ */
++static BaseType_t prvSDMMCInit( BaseType_t xDriveNumber );
++
++/*-----------------------------------------------------------*/
++
++uint64_t SectorNum = 0;
++typedef struct
++{
++    /* Only after a card has been inserted, debouncing is necessary. */
++    TickType_t xRemainingTime;
++    TimeOut_t xTimeOut;
++    UBaseType_t bLastPresent :1, bStableSignal :1;
++} CardDetect_t;
++
++static SemaphoreHandle_t xSDCardSemaphore = NULL;
++static SemaphoreHandle_t xPlusFATMutex = NULL;
++/* Remembers if the card is currently considered to be present. */
++static BaseType_t xSDCardStatus = pdFALSE;
++/* Maintains state for card detection. */
++static CardDetect_t xCardDetect;
++/*call back process for usb tx starts*/
++
++/*call back process for usb tx ends*/
++int32_t FFReadSdmmc( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk )
++{
++    int32_t lReturnCode = FF_ERR_IOMAN_OUT_OF_BOUNDS_READ | FF_ERRFLAG;
++
++    if ((pxDisk != NULL) && (xSDCardStatus == pdPASS)
++            && (pxDisk->ulSignature == sdSIGNATURE)
++            && (pxDisk->xStatus.bIsInitialised != pdFALSE)
++            && (ulSectorNumber < pxDisk->ulNumberOfSectors)
++            && ((pxDisk->ulNumberOfSectors - ulSectorNumber) >= ulSectorCount))
++    {
++        uint64_t ullReadAddr;
++        int32_t sd_result;
++
++        ullReadAddr = 512ull * (uint64_t) ulSectorNumber;
++        if ((((size_t) pucBuffer) & (sizeof(size_t) - 1)) == 0)
++        {
++            sd_result = sdmmc_read_block_sync((uint64_t*) pucBuffer, ullReadAddr,
++                    512ul, ulSectorCount);
++        }
++        else
++        {
++            uint32_t ulSector;
++            uint8_t *pucDMABuffer = ffconfigMALLOC(512ul);
++
++            if (pucDMABuffer != NULL)
++            {
++                sd_result = 0;
++                for (ulSector = 0; ulSector < ulSectorCount; ulSector++)
++                {
++                    ullReadAddr = 512ull *
++                            ((uint64_t) ulSectorNumber + (uint64_t) ulSector);
++                    sd_result = sdmmc_read_block_sync((uint64_t*) pucDMABuffer,
++                            512 * ulSectorNumber, 512ul, ulSectorCount);
++
++                    if (sd_result == 0)
++                    {
++                        memcpy(pucBuffer + 512ul * ulSector, pucDMABuffer,
++                                512ul);
++                    }
++                    else
++                    {
++                        break;
++                    }
++
++                }
++                ffconfigFREE(pucDMABuffer);
++            }
++            else
++            {
++                sd_result = -EIO;
++            }
++        }
++
++        if (sd_result == 0)
++        {
++            lReturnCode = 0L;
++        }
++        else
++        {
++            FF_PRINTF("prvFFRead: %u: %u (%s)\n", (unsigned) ulSectorNumber,
++                    sd_result, prvSDCodePrintable(sd_result));
++        }
++    }
++    else
++    {
++        memset((void*) pucBuffer, '\0', ulSectorCount * 512UL);
++
++    }
++
++    return lReturnCode;
++}
++
++
++
++int32_t FFWriteSdmmc( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk )
++{
++    int32_t lReturnCode = FF_ERR_IOMAN_OUT_OF_BOUNDS_READ | FF_ERRFLAG;
++
++    if ((pxDisk != NULL) && (xSDCardStatus == pdPASS)
++            && (pxDisk->ulSignature == sdSIGNATURE)
++            && (pxDisk->xStatus.bIsInitialised != pdFALSE)
++            && (ulSectorNumber < pxDisk->ulNumberOfSectors)
++            && ((pxDisk->ulNumberOfSectors - ulSectorNumber) >= ulSectorCount))
++    {
++        int32_t sd_result;
++        uint64_t ullWriteAddr;
++        ullWriteAddr = 512ull * ulSectorNumber;
++
++        if ((((size_t) pucBuffer) & (sizeof(size_t) - 1)) == 0)
++        {
++            sd_result = sdmmc_write_block_sync((uint64_t*) pucBuffer, ullWriteAddr,
++                    512ul, ulSectorCount);
++        }
++        else
++        {
++            uint32_t ulSector;
++            uint8_t *pucDMABuffer = ffconfigMALLOC(512ul);
++
++            if (pucDMABuffer != NULL)
++            {
++                sd_result = 0;
++
++                for (ulSector = 0; ulSector < ulSectorCount; ulSector++)
++                {
++                    memcpy(pucDMABuffer, pucBuffer + 512ul * ulSector, 512ul);
++                    ullWriteAddr = 512ull * (ulSectorNumber + ulSector);
++                    sd_result = sdmmc_write_block_sync((uint64_t*) pucDMABuffer,
++                            ullWriteAddr, 512ul, 1);
++
++                    if (sd_result != 0)
++                    {
++                        break;
++                    }
++
++                }
++
++                ffconfigFREE(pucDMABuffer);
++            }
++            else
++            {
++                sd_result = -EIO;
++            }
++        }
++
++        if (sd_result == 0)
++        {
++            lReturnCode = 0L;
++        }
++    }
++
++    return lReturnCode;
++}
++
++
++
++int32_t FFReadUsb( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk )
++{
++    int32_t lReturnCode = FF_ERR_IOMAN_OUT_OF_BOUNDS_READ | FF_ERRFLAG;
++
++    if ( (pxDisk != NULL) && (xSDCardStatus == pdPASS)
++            && (pxDisk->ulSignature == sdSIGNATURE)
++            && (pxDisk->xStatus.bIsInitialised != pdFALSE)
++            && (ulSectorNumber < pxDisk->ulNumberOfSectors)
++            && ((pxDisk->ulNumberOfSectors - ulSectorNumber) >= ulSectorCount) )
++    {
++        bool usb_result = false;
++
++        if ( (((size_t) pucBuffer) & (sizeof(size_t) - 1)) == 0 )
++        {
++            usb_result = usb_disk_read(pucBuffer, ulSectorNumber,(uint16_t)ulSectorCount);
++        }
++        else
++        {
++            uint32_t ulSector;
++            uint8_t *pucDMABuffer = ffconfigMALLOC(512ul * ulSectorCount);
++
++            if ( pucDMABuffer != NULL )
++            {
++                usb_result = true;
++                for ( ulSector = 0; ulSector < ulSectorCount; ulSector++ )
++                {
++                    usb_result = usb_disk_read(pucDMABuffer, 512ul * ulSectorNumber, ulSectorCount);
++
++                    if ( usb_result == true )
++                    {
++                        memcpy(pucBuffer + 512ul * ulSector, pucDMABuffer,
++                                512ul * ulSectorCount);
++                    }
++                    else
++                    {
++                        break;
++                    }
++
++                }
++                ffconfigFREE(pucDMABuffer);
++            }
++            else
++            {
++                usb_result = false;
++            }
++        }
++        if ( usb_result == true )
++        {
++            lReturnCode = 0L;
++        }
++    }
++    else
++    {
++        memset((void*) pucBuffer, '\0', ulSectorCount * 512UL);
++    }
++
++    return lReturnCode;
++}
++/*-----------------------------------------------------------*/
++
++int32_t FFWriteUsb( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk )
++{
++    int32_t lReturnCode = FF_ERR_IOMAN_OUT_OF_BOUNDS_READ | FF_ERRFLAG;
++
++    if ( (pxDisk != NULL) && (xSDCardStatus == pdPASS)
++            && (pxDisk->ulSignature == sdSIGNATURE)
++            && (pxDisk->xStatus.bIsInitialised != pdFALSE)
++            && (ulSectorNumber < pxDisk->ulNumberOfSectors)
++            && ((pxDisk->ulNumberOfSectors - ulSectorNumber) >= ulSectorCount) )
++    {
++        bool usb_result = false;
++
++        if ( (((size_t) pucBuffer) & (sizeof(size_t) - 1)) == 0 )
++        {
++        	usb_result = usb_disk_write(pucBuffer, ulSectorNumber, ulSectorCount);
++        }
++        else
++        {
++            uint32_t ulSector;
++            uint8_t *pucDMABuffer = ffconfigMALLOC(512ul * ulSectorCount);
++
++            if ( pucDMABuffer != NULL )
++            {
++                usb_result = true;
++
++                for ( ulSector = 0; ulSector < ulSectorCount; ulSector++ )
++                {
++                    memcpy(pucDMABuffer, pucBuffer + 512ul * ulSector, 512ul * ulSectorCount);
++                    usb_result = usb_disk_write( pucDMABuffer, ulSectorNumber, ulSectorCount);
++                    if (usb_result != false )
++                    {
++                        break;
++                    }
++                }
++                ffconfigFREE(pucDMABuffer);
++            }
++            else
++            {
++                usb_result = false;
++            }
++        }
++
++        if ( usb_result == true )
++        {
++            lReturnCode = 0L;
++        }
++    }
++
++    return lReturnCode;
++}
++/*-----------------------------------------------------------*/
++
++void FF_SDDiskFlush( FF_Disk_t *pxDisk )
++{
++    if ( (pxDisk != NULL) && (pxDisk->xStatus.bIsInitialised != pdFALSE)
++            && (pxDisk->pxIOManager != NULL) )
++    {
++        FF_FlushCache(pxDisk->pxIOManager);
++    }
++}
++/*-----------------------------------------------------------*/
++
++FF_Disk_t* FF_SDDiskInit( const char *pcName , int ulDriveNum)
++{
++    FF_Error_t xFFError;
++    BaseType_t xPartitionNumber = 0;
++    FF_CreationParameters_t xParameters;
++    FF_Disk_t *pxDisk;
++
++    xSDCardStatus = prvSDMMCInit(ulDriveNum);
++
++    if ( xSDCardStatus != pdPASS )
++    {
++        printf("\r FF_SDDiskInit: prvSDMMCInit failed\n");
++        pxDisk = NULL;
++    }
++    else
++    {
++        pxDisk = (FF_Disk_t*) ffconfigMALLOC(sizeof(*pxDisk));
++
++        if ( pxDisk == NULL )
++        {
++            printf("\r FF_SDDiskInit: Malloc failed\n");
++        }
++        else
++        {
++            memset(pxDisk, '\0', sizeof(*pxDisk));
++
++            if ( xPlusFATMutex == NULL )
++            {
++                xPlusFATMutex = xSemaphoreCreateRecursiveMutex();
++            }
++
++            pxDisk->ulSignature = sdSIGNATURE;
++            if( ulDriveNum >=0)
++            {
++            	uint32_t block_count = tuh_msc_get_block_count(1, 0);
++            	/* printf("Block count is : %d \r\n", block_count); */
++            	pxDisk->ulNumberOfSectors = block_count;
++            }
++            else
++            {
++            	pxDisk->ulNumberOfSectors = SectorNum;
++            }
++
++            if ( xPlusFATMutex != NULL )
++            {
++                memset(&xParameters, '\0', sizeof(xParameters));
++                xParameters.ulMemorySize = sdIOMAN_MEM_SIZE;
++                xParameters.ulSectorSize = 512;
++                xParameters.fnWriteBlocks = FatWriteAbsLayer;
++                xParameters.fnReadBlocks = FatReadAbsLayer;
++                xParameters.pxDisk = pxDisk;
++
++                xParameters.xBlockDeviceIsReentrant = pdFALSE;
++
++                /* The semaphore will be used to protect critical sections in
++                 * the +FAT driver, and also to avoid concurrent calls to
++                 * prvFFRead()/prvFFWrite() from different tasks. */
++                xParameters.pvSemaphore = (void*) xPlusFATMutex;
++
++                pxDisk->pxIOManager = FF_CreateIOManager(&xParameters,
++                        &xFFError);
++
++                if ( pxDisk->pxIOManager == NULL )
++                {
++                    FF_PRINTF("FF_SDDiskInit: FF_CreateIOManager: %s\n",
++                            (const char*) FF_GetErrMessage(xFFError));
++
++                    FF_SDDiskDelete(pxDisk);
++
++                    printf("\r Disk deletion\n");
++                    pxDisk = NULL;
++                }
++                else
++                {
++                    pxDisk->xStatus.bIsInitialised = pdTRUE;
++                    pxDisk->xStatus.bPartitionNumber = xPartitionNumber;
++                    pxDisk->ulDevAddr = ulDriveNum;
++
++                    if ( FF_SDDiskMount(pxDisk) == 0 )
++                    {
++
++                        FF_SDDiskDelete(pxDisk);
++                        pxDisk = NULL;
++                    }
++                    else
++                    {
++                        if ( pcName == NULL )
++                        {
++                            pcName = "/";
++                        }
++                        FF_FS_Add(pcName, pxDisk);
++                        FF_SDDiskShowPartition(pxDisk);
++                    }
++                }
++            }
++        }
++    }
++
++    return pxDisk;
++}
++/*-----------------------------------------------------------*/
++
++BaseType_t FF_SDDiskFormat( FF_Disk_t *pxDisk, BaseType_t xPartitionNumber )
++{
++    FF_Error_t xError;
++    BaseType_t xReturn = pdFAIL;
++    xError = FF_Unmount(pxDisk);
++
++    if ( FF_isERR( xError ) != pdFALSE )
++    {
++        FF_PRINTF("FF_SDDiskFormat: unmount fails: %08x\n", (unsigned) xError);
++    }
++    else
++    {
++        xError = FF_Format(pxDisk, xPartitionNumber, pdFALSE, pdFALSE);
++
++        if ( FF_isERR(xError) )
++        {
++            FF_PRINTF("FF_SDDiskFormat: %s\n",
++                    (const char*) FF_GetErrMessage(xError));
++        }
++        else
++        {
++            FF_PRINTF("FF_SDDiskFormat: OK, now remounting\n");
++            pxDisk->xStatus.bPartitionNumber = xPartitionNumber;
++            xError = FF_SDDiskMount(pxDisk);
++            FF_PRINTF("FF_SDDiskFormat: rc %08x\n", (unsigned) xError);
++
++            if ( FF_isERR( xError ) == pdFALSE )
++            {
++                xReturn = pdPASS;
++                FF_SDDiskShowPartition(pxDisk);
++            }
++        }
++    }
++
++    return xReturn;
++}
++/*-----------------------------------------------------------*/
++
++BaseType_t FF_SDDiskUnmount( FF_Disk_t *pxDisk )
++{
++    FF_Error_t xFFError;
++    BaseType_t xReturn = pdPASS;
++
++    if ( (pxDisk != NULL) && (pxDisk->xStatus.bIsMounted != pdFALSE) )
++    {
++        pxDisk->xStatus.bIsMounted = pdFALSE;
++        xFFError = FF_Unmount(pxDisk);
++
++        if ( FF_isERR(xFFError) )
++        {
++            FF_PRINTF("FF_SDDiskUnmount: rc %08x\n", (unsigned) xFFError);
++            xReturn = pdFAIL;
++        }
++        else
++        {
++            FF_PRINTF("Drive unmounted\n");
++        }
++    }
++
++    return xReturn;
++}
++/*-----------------------------------------------------------*/
++
++BaseType_t FF_SDDiskReinit( FF_Disk_t *pxDisk )
++{
++    BaseType_t xStatus = prvSDMMCInit(0);
++
++    (void) pxDisk;
++
++    return xStatus;
++}
++/*-----------------------------------------------------------*/
++
++BaseType_t FF_SDDiskMount( FF_Disk_t *pxDisk )
++{
++    FF_Error_t xFFError;
++    BaseType_t xReturn;
++
++    xFFError = FF_Mount(pxDisk, pxDisk->xStatus.bPartitionNumber);
++
++    if ( FF_isERR(xFFError) )
++    {
++        xReturn = pdFAIL;
++    }
++    else
++    {
++        pxDisk->xStatus.bIsMounted = pdTRUE;
++        xReturn = pdPASS;
++    }
++
++    return xReturn;
++}
++/*-----------------------------------------------------------*/
++
++FF_IOManager_t* sddisk_ioman( FF_Disk_t *pxDisk )
++{
++    FF_IOManager_t *pxReturn;
++
++    if ( (pxDisk != NULL) && (pxDisk->xStatus.bIsInitialised != pdFALSE) )
++    {
++        pxReturn = pxDisk->pxIOManager;
++    }
++    else
++    {
++        pxReturn = NULL;
++    }
++
++    return pxReturn;
++}
++/*-----------------------------------------------------------*/
++
++BaseType_t FF_SDDiskDelete( FF_Disk_t *pxDisk )
++{
++    if ( pxDisk != NULL )
++    {
++        pxDisk->ulSignature = 0;
++        pxDisk->xStatus.bIsInitialised = 0;
++
++        if ( pxDisk->pxIOManager != NULL )
++        {
++            if ( FF_Mounted(pxDisk->pxIOManager) != pdFALSE )
++            {
++                FF_Unmount(pxDisk);
++            }
++
++            FF_DeleteIOManager(pxDisk->pxIOManager);
++        }
++
++        vPortFree(pxDisk);
++    }
++
++    return 1;
++}
++/*-----------------------------------------------------------*/
++
++BaseType_t FF_SDDiskShowPartition( FF_Disk_t *pxDisk )
++{
++    FF_Error_t xError;
++    uint64_t ullFreeSectors;
++    uint32_t ulTotalSizeMB, ulFreeSizeMB;
++    int iPercentageFree;
++    FF_IOManager_t *pxIOManager;
++    const char *pcTypeName = "unknown type";
++    BaseType_t xReturn = pdPASS;
++
++    if ( pxDisk == NULL )
++    {
++        xReturn = pdFAIL;
++    }
++    else
++    {
++        pxIOManager = pxDisk->pxIOManager;
++
++        switch (pxIOManager->xPartition.ucType)
++        {
++            case FF_T_FAT12:
++                pcTypeName = "FAT12";
++                break;
++
++            case FF_T_FAT16:
++                pcTypeName = "FAT16";
++                break;
++
++            case FF_T_FAT32:
++                pcTypeName = "FAT32";
++                break;
++
++            default:
++                pcTypeName = "UNKOWN";
++                break;
++        }
++
++        FF_GetFreeSize(pxIOManager, &xError);
++
++        ullFreeSectors = pxIOManager->xPartition.ulFreeClusterCount
++            * pxIOManager->xPartition.ulSectorsPerCluster;
++        iPercentageFree = (int) (( sdHUNDRED_64_BIT * ullFreeSectors
++                    + pxIOManager->xPartition.ulDataSectors / 2)
++                / ((uint64_t) pxIOManager->xPartition.ulDataSectors));
++
++        ulTotalSizeMB =
++            pxIOManager->xPartition.ulDataSectors / sdSECTORS_PER_MB;
++        ulFreeSizeMB = (uint32_t) (ullFreeSectors / sdSECTORS_PER_MB);
++#if PRINT_INFO
++        printf( "\r Partition Nr   %8u\n ", pxDisk->xStatus.bPartitionNumber );
++        printf( "\r Type           %8u (%s)\n", pxIOManager->xPartition.ucType, pcTypeName );
++        printf( "\r VolLabel       '%8s' \n", pxIOManager->xPartition.pcVolumeLabel );
++        printf( "\r TotalSectors   %u\n", ( unsigned ) pxIOManager->xPartition.ulTotalSectors );
++        printf("\n");
++        printf( "\r SecsPerCluster %u ", ( unsigned ) pxIOManager->xPartition.ulSectorsPerCluster );
++        fflush(stdout);
++        printf("\n");
++        printf( "\r Size           %u MB\n", ( unsigned ) ulTotalSizeMB );
++        printf( "\r FreeSize       %u MB ( %d percent free )\n", ( unsigned ) ulFreeSizeMB, iPercentageFree );
++#endif
++    }
++    (void) ulTotalSizeMB;
++    (void) ulFreeSizeMB;
++    (void) iPercentageFree;
++    (void) pcTypeName;
++
++    return xReturn;
++}
++/*-----------------------------------------------------------*/
++
++/* This routine returns true if the SD-card is inserted.  After insertion, it
++ * will wait for sdCARD_DETECT_DEBOUNCE_TIME_MS before returning pdTRUE. */
++
++static BaseType_t prvSDDetect( void )
++{
++    int iReturn;
++    if ( sdmmc_is_card_present() == 0 )
++    {
++        iReturn = pdFALSE;
++    }
++    else
++    {
++        iReturn = pdTRUE;
++    }
++
++    return iReturn;
++}
++
++BaseType_t FF_SDDiskDetect( FF_Disk_t *pxDisk )
++{
++    (void) pxDisk;
++    int xReturn;
++    xReturn = prvSDDetect();
++    if ( xReturn != pdFALSE )
++    {
++        if ( xCardDetect.bStableSignal == pdFALSE )
++        {
++            if ( xCardDetect.bLastPresent == pdFALSE )
++            {
++                xCardDetect.bLastPresent = pdTRUE;
++                xCardDetect.xRemainingTime = pdMS_TO_TICKS(
++                        ( TickType_t ) sdCARD_DETECT_DEBOUNCE_TIME_MS);
++                vTaskSetTimeOutState(&xCardDetect.xTimeOut);
++            }
++
++            if ( xTaskCheckForTimeOut(&xCardDetect.xTimeOut,
++                        &xCardDetect.xRemainingTime) != pdFALSE )
++            {
++                xCardDetect.bStableSignal = pdTRUE;
++            }
++            else
++            {
++
++                xReturn = pdFALSE;
++            }
++        }
++    }
++    else
++    {
++        xCardDetect.bLastPresent = pdFALSE;
++        xCardDetect.bStableSignal = pdFALSE;
++    }
++
++    return xReturn;
++}
++
++static BaseType_t prvSDMMCInit( BaseType_t xDriveNumber )
++{
++    uint64_t *PtrSectorNum = &SectorNum;
++    int SD_state = 0;
++
++    if(xDriveNumber == -1)
++    {
++        if ( xSDCardSemaphore == NULL )
++        {
++            xSDCardSemaphore = xSemaphoreCreateBinary();
++        }
++        if ( prvSDDetect() == pdFALSE )
++        {
++            printf("No SD card detected\n");
++            return 0;
++        }
++        SD_state = sdmmc_init_card(PtrSectorNum);
++        xCardDetect.bLastPresent = pdTRUE;
++        xCardDetect.bStableSignal = pdTRUE;
++        return SD_state == 0 ? 1 : 0;
++    }
++    else
++    {
++    	/*add usb init here*/
++        xCardDetect.bLastPresent = pdTRUE;
++        xCardDetect.bStableSignal = pdTRUE;
++        return pdPASS;
++    }
++
++
++}
++/*-----------------------------------------------------------*/
++
++struct xCODE_NAME
++{
++    uint32_t ulValue;
++    const char *pcName;
++};
++
++static const char* prvSDCodePrintable( uint32_t ulCode )
++{
++    (void) ulCode;
++    static char retString[ 32 ];
++    return retString;
++}
+diff --git a/portable/AGILEX5/ff_socfpga.c b/portable/AGILEX5/ff_socfpga.c
+new file mode 100644
+index 0000000..45e9544
+--- /dev/null
++++ b/portable/AGILEX5/ff_socfpga.c
+@@ -0,0 +1,49 @@
++#include "ff_sddisk.h"
++#include "ff_sys.h"
++#include "ff_socfpga.h"
++
++int32_t FatReadAbsLayer( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk )
++{
++    int32_t ret = FF_ERR_IOMAN_OUT_OF_BOUNDS_READ | FF_ERRFLAG;
++    if(pxDisk == NULL)
++    {
++        return -1;
++    }
++    if( pxDisk->ulDevAddr == -1 )
++    {
++        ret = FFReadSdmmc( pucBuffer, ulSectorNumber,ulSectorCount, pxDisk );
++    }
++    else if( pxDisk->ulDevAddr >= 0 )
++    {
++        ret = FFReadUsb( pucBuffer, ulSectorNumber,ulSectorCount, pxDisk );
++    }
++    else
++    {
++        return -1;
++    }
++    return ret;
++}
++
++int32_t FatWriteAbsLayer( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk )
++{
++    int32_t ret = FF_ERR_IOMAN_OUT_OF_BOUNDS_READ | FF_ERRFLAG;
++    if(pxDisk == NULL)
++    {
++        return -1;
++    }
++    if( pxDisk->ulDevAddr == -1 )
++    {
++        ret = FFWriteSdmmc( pucBuffer, ulSectorNumber,ulSectorCount, pxDisk );
++    }
++    else if( pxDisk->ulDevAddr >= 0 )
++    {
++        ret = FFWriteUsb( pucBuffer, ulSectorNumber,ulSectorCount, pxDisk );
++    }
++    else
++    {
++        return -1;
++    }
++    return ret;
++}
+diff --git a/portable/AGILEX5/ff_socfpga.h b/portable/AGILEX5/ff_socfpga.h
+new file mode 100644
+index 0000000..bc0408c
+--- /dev/null
++++ b/portable/AGILEX5/ff_socfpga.h
+@@ -0,0 +1,25 @@
++/*
++ * SPDX-FileCopyrightText: Copyright (C) 2025 Altera Corporation
++ *
++ * SPDX-License-Identifier: MIT-0
++ *
++ * Header file for xHCI implementation
++ */
++
++#ifndef __FF_SOCFPGA_H__
++#define __FF_SOCFPGA_H__
++
++#include <stdint.h>
++
++int32_t FFWriteSdmmc( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk );
++
++int32_t FFReadSdmmc( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk );
++
++int32_t FatReadAbsLayer( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk );
++int32_t FatWriteAbsLayer( uint8_t *pucBuffer, uint32_t ulSectorNumber,
++        uint32_t ulSectorCount, FF_Disk_t *pxDisk );
++
++#endif /* __FF_SOCFPGA_H__ */
+-- 
+2.43.7
+
+
+From 3b4c29fdb07d6581868b35ddee6da3afa9072096 Mon Sep 17 00:00:00 2001
+From: souravr <sourav.raj@ignitarium.com>
+Date: Mon, 6 Oct 2025 16:17:05 +0530
+Subject: [PATCH 3/5] update SOCFPGA directory name
+
+Signed-off-by: souravr <sourav.raj@ignitarium.com>
+---
+ portable/{AGILEX5 => SOCFPGA}/CMakeLists.txt | 0
+ portable/{AGILEX5 => SOCFPGA}/ff_sddisk.c    | 0
+ portable/{AGILEX5 => SOCFPGA}/ff_socfpga.c   | 0
+ portable/{AGILEX5 => SOCFPGA}/ff_socfpga.h   | 0
+ 4 files changed, 0 insertions(+), 0 deletions(-)
+ rename portable/{AGILEX5 => SOCFPGA}/CMakeLists.txt (100%)
+ rename portable/{AGILEX5 => SOCFPGA}/ff_sddisk.c (100%)
+ rename portable/{AGILEX5 => SOCFPGA}/ff_socfpga.c (100%)
+ rename portable/{AGILEX5 => SOCFPGA}/ff_socfpga.h (100%)
+
+diff --git a/portable/AGILEX5/CMakeLists.txt b/portable/SOCFPGA/CMakeLists.txt
+similarity index 100%
+rename from portable/AGILEX5/CMakeLists.txt
+rename to portable/SOCFPGA/CMakeLists.txt
+diff --git a/portable/AGILEX5/ff_sddisk.c b/portable/SOCFPGA/ff_sddisk.c
+similarity index 100%
+rename from portable/AGILEX5/ff_sddisk.c
+rename to portable/SOCFPGA/ff_sddisk.c
+diff --git a/portable/AGILEX5/ff_socfpga.c b/portable/SOCFPGA/ff_socfpga.c
+similarity index 100%
+rename from portable/AGILEX5/ff_socfpga.c
+rename to portable/SOCFPGA/ff_socfpga.c
+diff --git a/portable/AGILEX5/ff_socfpga.h b/portable/SOCFPGA/ff_socfpga.h
+similarity index 100%
+rename from portable/AGILEX5/ff_socfpga.h
+rename to portable/SOCFPGA/ff_socfpga.h
+-- 
+2.43.7
+
+
+From 3a19a276422bdb1ada76cf2677346bfafb360e85 Mon Sep 17 00:00:00 2001
+From: Abdul Jaleel <abdul.jaleel@ignitarium.com>
+Date: Fri, 10 Oct 2025 14:12:33 +0530
+Subject: [PATCH 4/5] Socfpga: fix file headers
+
+Minor updates to the file headers
+
+Signed-off-by: Abdul Jaleel <abdul.jaleel@ignitarium.com>
+---
+ portable/SOCFPGA/ff_sddisk.c  | 2 +-
+ portable/SOCFPGA/ff_socfpga.c | 5 +++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/portable/SOCFPGA/ff_sddisk.c b/portable/SOCFPGA/ff_sddisk.c
+index b13990f..58a2bd2 100644
+--- a/portable/SOCFPGA/ff_sddisk.c
++++ b/portable/SOCFPGA/ff_sddisk.c
+@@ -27,7 +27,7 @@
+ /*
+  * SPDX-FileCopyrightText: Copyright (C) 2025 Altera Corporation
+  *
+- * SPDX-License-Identifier: MIT-0
++ * SPDX-License-Identifier: MIT
+  *
+  * Modifications to support SoC FPGA
+  */
+diff --git a/portable/SOCFPGA/ff_socfpga.c b/portable/SOCFPGA/ff_socfpga.c
+index 45e9544..cfa73f9 100644
+--- a/portable/SOCFPGA/ff_socfpga.c
++++ b/portable/SOCFPGA/ff_socfpga.c
+@@ -1,3 +1,8 @@
++/*
++ * SPDX-FileCopyrightText: Copyright (C) 2025 Altera Corporation
++ *
++ * SPDX-License-Identifier: MIT
++ */
+ #include "ff_sddisk.h"
+ #include "ff_sys.h"
+ #include "ff_socfpga.h"
+-- 
+2.43.7
+
+
+From 5f4b4e86cc361e6a62d91e90a44bda1e4cd57041 Mon Sep 17 00:00:00 2001
+From: souravr <sourav.raj@ignitarium.com>
+Date: Sun, 23 Nov 2025 20:25:41 +0530
+Subject: [PATCH 5/5] include msc_app.c in fatfs CMakeLists.txt
+
+Signed-off-by: souravr <sourav.raj@ignitarium.com>
+---
+ portable/SOCFPGA/CMakeLists.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/portable/SOCFPGA/CMakeLists.txt b/portable/SOCFPGA/CMakeLists.txt
+index 8be26e0..a782688 100644
+--- a/portable/SOCFPGA/CMakeLists.txt
++++ b/portable/SOCFPGA/CMakeLists.txt
+@@ -4,6 +4,7 @@ target_sources(freertos_plus_fat_port
+     PRIVATE
+     ff_sddisk.c
+     ff_socfpga.c
++    ${FREERTOS_TOP_DIR}/tinyusb/apps/msc_app.c
+     )
+ 
+ target_include_directories(freertos_plus_fat_port
+-- 
+2.43.7
+

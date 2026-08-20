@@ -30,12 +30,22 @@ static void vPortSocfpgaSetVirtualTimerControl( uint32_t ulTimerControl )
 
 static void vPortSocfpgaSetVirtualTimerCompareValue( void )
 {
-    /* The value of the counter will be equal to or greater than
-     * ullCounterCurrval when this function is called.
-     */
+    uint64_t ullNow;
+
+    __asm__ volatile ( "MRS %0, CNTVCT_EL0" : "=r" ( ullNow ) );
+
+#ifdef CONFIG_FREERTOS_DROP_MISSED_TICKS_ON_DEBUG
+    /* Catch up to real time after a debug halt */
+    if ( ullCounterCurrVal < ullNow )
+    {
+        ullCounterCurrVal = ullNow;
+    }
+#endif
+
     ullCounterCurrVal += ullCounterReloadVal;
     asm volatile ( "MSR CNTV_CVAL_EL0, %0" : : "r" ( ullCounterCurrVal ) );
 }
+
 /*-----------------------------------------------------------*/
 
 static uint32_t vPortSocfpgaTGetFrequency( void )

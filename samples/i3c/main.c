@@ -15,8 +15,21 @@
 #include "socfpga_smmu.h"
 
 #define TASK_PRIORITY    (configMAX_PRIORITIES - 2)
+
+/* Select which I3C sample task(s) to run. These may be overridden from the
+ * build targets:
+ * --> i3c_sample target for the EEPROM test
+ * --> i3c_temp_sample target for the temperature sensor test */
+#ifndef I3C_SAMPLE_ENABLE_EEPROM
+#define I3C_SAMPLE_ENABLE_EEPROM    1
+#endif
+#ifndef I3C_SAMPLE_ENABLE_TEMP
+#define I3C_SAMPLE_ENABLE_TEMP      0
+#endif
+
 void run_samples( void *arg );
 void i3c_task( void );
+void i3c_temp_task( void );
 
 void vApplicationTickHook( void )
 {
@@ -61,7 +74,12 @@ void run_samples( void *arg )
 {
     (void) arg;
 
+#if I3C_SAMPLE_ENABLE_EEPROM
     i3c_task();
+#endif
+#if I3C_SAMPLE_ENABLE_TEMP
+    i3c_temp_task();
+#endif
 
     vTaskSuspend(NULL);
 }

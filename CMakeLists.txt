@@ -61,6 +61,10 @@ project(RTOSApp C CXX ASM)
 set(FATFS_BASE_COMMIT "0a38fb8")
 message(STATUS "FatFs base commit: ${FATFS_BASE_COMMIT}")
 
+# Permanent TinyUSB base: always checkout this commit, then apply tools/tinyusb.patch
+set(TINYUSB_BASE_COMMIT "86ad6e56c1700e85f1c5678607a762cfe3aa2f47")
+message(STATUS "TinyUSB base commit: ${TINYUSB_BASE_COMMIT}")
+
 add_custom_target(apply_smp_patch ALL
     COMMAND ${CMAKE_COMMAND}
     -DROOT_DIR="${FREERTOS_TOP_DIR}"
@@ -95,6 +99,19 @@ if (FREERTOS_FATFS)
     )
     if(NOT _fatfs_patch_result EQUAL 0)
         message(FATAL_ERROR "FatFs patch failed:\n${_fatfs_patch_err}")
+    endif()
+
+    # Patch tinyusb before including it (plain git diff, applied with git apply).
+    execute_process(
+        COMMAND ${CMAKE_COMMAND}
+            -DROOT_DIR=${FREERTOS_TOP_DIR}
+            -DTINYUSB_BASE_COMMIT=${TINYUSB_BASE_COMMIT}
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/tools/apply_tinyusb_patch.cmake
+        RESULT_VARIABLE _tinyusb_patch_result
+        ERROR_VARIABLE  _tinyusb_patch_err
+    )
+    if(NOT _tinyusb_patch_result EQUAL 0)
+        message(FATAL_ERROR "TinyUSB patch failed:\n${_tinyusb_patch_err}")
     endif()
 
     # Fatfs depends on tinyusb stack. Build tinyusb first, then fatfs.

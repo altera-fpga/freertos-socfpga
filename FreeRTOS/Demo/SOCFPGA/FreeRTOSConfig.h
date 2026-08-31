@@ -219,7 +219,12 @@ standard names. */
 
 #define configTASK_NOTIFICATION_ARRAY_ENTRIES     3
 
-#define configPRINTF( X )                         ( printf X )
+#ifndef __ASSEMBLER__
+void vLoggingPrintf( const char * format,
+                     ... );
+#endif
+
+#define configPRINTF( X )                         vLoggingPrintf X
 #define configCOMMAND_INT_MAX_OUTPUT_SIZE         ( 200 )
 
 /* Required for TCP stack TODO : Need to find right place */

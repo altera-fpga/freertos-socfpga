@@ -7,6 +7,7 @@
  */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <socfpga_uart.h>
 #include "socfpga_console.h"
@@ -19,6 +20,7 @@
 #define MAX_PIPE_SIZE        4096
 #define MAX_INT_BUFF_SIZE    128
 #define CONSOLE_CFG_MAX_LEN  17
+#define CONSOLE_LOG_BUF_SIZE 160
 /*
  * If CONSOLE_DROP_MSG_FMT is changed, update CONSOLE_DROP_MSG_LEN to fit the
  * longest possible formatted string (max 10 digits for the byte count) + '\0'.
@@ -306,6 +308,30 @@ int console_write(unsigned char *const buf, int length)
     int ret = console_fill_buffer(buf, length);
     console_signal_fill();
     return ret;
+}
+
+void vLoggingPrintf(const char *format, ...)
+{
+    char log_buf[CONSOLE_LOG_BUF_SIZE];
+    va_list args;
+    int length;
+
+    va_start(args, format);
+    length = vsnprintf(log_buf, sizeof(log_buf), format, args);
+    va_end(args);
+
+    if (length <= 0)
+    {
+        return;
+    }
+
+    /* vsnprintf returns the length the message needs, not the length it wrote. */
+    if (length > (int)sizeof(log_buf) - 1)
+    {
+        length = (int)sizeof(log_buf) - 1;
+    }
+
+    (void)console_write((unsigned char *)log_buf, length);
 }
 
 void console_clear_pending(void)

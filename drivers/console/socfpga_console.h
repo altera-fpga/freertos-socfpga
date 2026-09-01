@@ -35,6 +35,16 @@ int console_init(uint32_t id, const char *config_str);
 int console_write(unsigned char *const buf, int length);
 
 /**
+ * @brief Format a message and queue it for the console.
+ *
+ * The function bypasses stdio, it is therefore safe with the scheduler suspended. 
+ * Messages longer than the internal buffer are truncated.
+ *
+ * @param format printf style format string.
+ */
+void vLoggingPrintf(const char *format, ...);
+
+/**
  * @brief Read data from the console.
  *
  * @param buf Pointer to the receive buffer.

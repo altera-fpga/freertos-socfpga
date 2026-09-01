@@ -39,9 +39,10 @@ static SemaphoreHandle_t xStdioMutex[ STDIO_LOCK_COUNT + 1 ];
 
 static int stdio_use_mutex(int lock_id)
 {
+    /* A mutex may only be taken from a task with the scheduler running */
     return ( lock_id > 0 )
         && ( lock_id <= STDIO_LOCK_COUNT )
-        && ( xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED )
+        && ( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
         && ( xPortIsInsideInterrupt() == pdFALSE )
         && ( xStdioMutex[ lock_id ] != NULL );
 }

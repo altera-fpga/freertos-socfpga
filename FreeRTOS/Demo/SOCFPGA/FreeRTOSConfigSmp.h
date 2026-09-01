@@ -15,9 +15,15 @@
  *   SMP=On             -> configSMP_BUILD = 1
  *   CORE=A55 (default) -> configBOOT_CORE = 0  (A55 cluster: cores 0,1)
  *   CORE=A76           -> configBOOT_CORE = 2  (A76 cluster: cores 2,3)
+ *
+ *   HSMP=On            -> configHSMP_BUILD = 1
+ *
  */
 #ifndef configSMP_BUILD
     #define configSMP_BUILD 0
+#endif
+#ifndef configHSMP_BUILD
+    #define configHSMP_BUILD 0
 #endif
 #ifndef configBOOT_CORE
     #define configBOOT_CORE 0
@@ -39,7 +45,19 @@
         #define configSMP_CORE2_ENABLE  0
         #define configSMP_CORE3_ENABLE  0
     #endif
+#elif ( configHSMP_BUILD != 0 )
+    /* HSMP core enable controls.
+     * HSMP on : user must manually enable cores 0/1(A55) and 2/3(A76) from here for HSMP testing.
+     * HSMP off: enables only the default boot core.
+     */
+    #define configSMP_CORE0_ENABLE  1
+    #define configSMP_CORE1_ENABLE  1
+    #define configSMP_CORE2_ENABLE  1
+    #define configSMP_CORE3_ENABLE  1
 #else
+    /*
+    * Default Boot Core
+    */
     #define configSMP_CORE0_ENABLE  ( configBOOT_CORE == 0 )
     #define configSMP_CORE1_ENABLE  ( configBOOT_CORE == 1 )
     #define configSMP_CORE2_ENABLE  ( configBOOT_CORE == 2 )

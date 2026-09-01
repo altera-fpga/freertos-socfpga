@@ -65,11 +65,14 @@ SOC ?= AGILEX5
 #SMP config
 SMP ?= OFF
 
+#HSMP config
+HSMP ?= OFF
+
 #Stack core count
 CORE_COUNT ?= 4
 
 #Common cmake configure arguments
-CMAKE_ARGS := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT) -DSMP=$(SMP)
+CMAKE_ARGS := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DCORE=$(CORE) -DSOC=$(SOC) -DCORE_COUNT=$(CORE_COUNT) -DSMP=$(SMP) -DHSMP=$(HSMP)
 
 #demo path for hello world and demo applications
 DEMO_PATH := FreeRTOS/Demo/SOCFPGA/apps
@@ -160,6 +163,14 @@ enet_demo:
 	@make -C build/$@  -j${nproc}
 	@echo "enet app build completed Successfully.\nOutput Directory : build/$@"
 .PHONY : enet_demo
+
+heterogeneous_multi_block_test:
+	rm -rf build/$@
+	@$(CMAKE_COMMAND) -S $(DEMO_PATH)/samples/heterogeneous_multi_block_test -B build/$@ $(CMAKE_ARGS)
+	@make -C build/$@ -j${nproc}
+	@echo "heterogeneous_multi_block_test build completed Successfully.\nOutput Directory : build/$@"
+.PHONY : heterogeneous_multi_block_test
+
 
 samples: dma_sample bridge_sample fatfs_sample fpga_manager_sample gpio_sample i2c_sample i2c_temp_sample i3c_sample i3c_temp_sample iossm_sample qspi_sample sdmmc_sample reboot_manager_sample seu_sample spi_sample timer_sample uart_sample fcs_sample rsu_sample sdm_mailbox_sample usb3_sample wdt_sample multi_thread_sample ecc_sample usb_otg_sample
 .PHONY : samples
@@ -363,7 +374,7 @@ usb_otg_sample:
 	@$(CMAKE_COMMAND) -S $(SAMPLES_PATH)/usb_otg -B build/$@ $(CMAKE_ARGS)
 	@make -C build/$@ -j${nproc}
 	@echo "$@ build completed Successfully.\nOutput Directory : build/$@"
-.PHONY : usb3_sample
+.PHONY : usb_otg_sample
 
 all: hello_world cli_app enet_demo main_full main_blinky samples
 
@@ -374,6 +385,7 @@ help:
 	@echo "... hello_world"
 	@echo "... cli_app"
 	@echo "... enet_demo"
+	@echo "... heterogeneous_multi_block_test"
 	@echo "... main_blinky"
 	@echo "... main_full"
 	@echo "... samples (builds all the sample applications)"

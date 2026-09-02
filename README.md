@@ -196,9 +196,23 @@ The following parameters can be specified during the CMake configuration stage:
   make SMP=On <app>            # A55 pair (cores 0,1)
   make SMP=On CORE=A76 <app>   # A76 pair (cores 2,3)
   ```
-  `configNUMBER_OF_CORES` is derived automatically from the enabled cores, so no manual edit of `FreeRTOSConfigSmp.h` is required. On Agilex3, cores 2/3 are always disabled.
 
   > **Note:** A76 SMP requires ATF to hand FreeRTOS off to an A76 core (MPIDR `0x200`) as the primary boot core. If ATF boots on the A55 (MPIDR `0x0`), an A76 SMP build will not come up correctly.
+
+- **HSMP (multi-core)**<br>
+  By default the build is single-core (`HSMP=OFF`). Set `HSMP=On` to run FreeRTOS HSMP across cores of different core cluster. 
+  ```bash
+  -DSMP=On
+  ```
+  
+  Using the Makefile:
+  ```bash
+  make HSMP=On <app>
+  ```
+
+  To disable/enable the cores, manually set the respective core's macro in `FreeRTOSConfigSmp.h` to 0/1 respectively.
+
+`configNUMBER_OF_CORES` is derived automatically from the enabled cores. On Agilex3, cores 2/3 are always disabled.
 
 - **Stack core count (linker)**<br>
   Override the number of core stacks reserved by the linker. This only affects `_NUM_CORE` stack allocation, not which cores are enabled.
@@ -262,6 +276,35 @@ Resulting enables:
 | default (SMP off)        | boot core only| 1                     |
 | `SMP=On`                 | 0, 1 (A55)    | 2                     |
 | `SMP=On CORE=A76`        | 2, 3 (A76)    | 2                     |
+
+#### Core configuration (HSMP)
+
+Use the **HSMP** build option (`cmake -DHSMP=On` / `make HSMP=On`), to enable HSMP.
+
+The rest of the controls live in `FreeRTOS/Demo/SOCFPGA/FreeRTOSConfigSmp.h`:
+
+- `configHSMP_BUILD` (from `-DHSMP`) turns HSMP on/off.
+- User must manually set macros `configSMP_CORE0_ENABLE` .. `configSMP_CORE3_ENABLE` to enable and disable cores.
+- To enable/disable pinning feature, set macro `HET_STRESS_ENABLE_PINNING` in `FreeRTOS/Demo/SOCFPGA/apps/samples/heterogeneous_multi_block_test/heterogeneous_multi_block_test_config.h`.
+- MPIDR values can be adjusted via `configSMP_CORE*_MPIDR` if needed.
+- Agilex3 supports cores 0 and 1 only; cores 2/3 are forced off when `AGILEX3` is defined.
+
+These are the possible test cases for HSMP:
+
+| Case |       HSMP     | Enabled cores (logical)   | `configSMP_CORE0..3_ENABLE`           | Task pinning (`HET_STRESS_ENABLE_PINNING`) | `configNUMBER_OF_CORES`   |
+|----- |--------------- |-------------------------- |-------------------------------------- | ------------------------------------------ | ------------------------- |
+| 1    | Off (Default)  | Boot core only            | (default; do not enable extra cores)  | N/A                                        | 1                         |
+| 2    | On  (-DHSMP=ON)| 0, 2                      | 1, 0, 1, 0                            | 0 (disabled)                               | 2                         |
+| 3    | On  (-DHSMP=ON)| 0, 2                      | 1, 0, 1, 0                            | 1 (enabled)                                | 2                         |
+| 4    | On  (-DHSMP=ON)| 0, 3                      | 1, 0, 0, 1                            | 0 (disabled)                               | 2                         |
+| 5    | On  (-DHSMP=ON)| 0, 3                      | 1, 0, 0, 1                            | 1 (enabled)                                | 2                         |
+| 6    | On  (-DHSMP=ON)| 1, 2                      | 0, 1, 1, 0                            | 0 (disabled)                               | 2                         |
+| 7    | On  (-DHSMP=ON)| 1, 2                      | 0, 1, 1, 0                            | 1 (enabled)                                | 2                         |
+| 8    | On  (-DHSMP=ON)| 1, 3                      | 0, 1, 0, 1                            | 0 (disabled)                               | 2                         |
+| 9    | On  (-DHSMP=ON)| 1, 3                      | 0, 1, 0, 1                            | 1 (enabled)                                | 2                         |
+| 10   | On  (-DHSMP=ON)| 0, 1, 2, 3                | 1, 1, 1, 1                            | 0 (disabled)                               | 4                         |
+| 11   | On  (-DHSMP=ON)| 0, 1, 2, 3                | 1, 1, 1, 1                            | 1 (enabled)                                | 4                         |
+
 
 The following applications exist in the repository. Build the application of your choice.
 * Hello world application <br>

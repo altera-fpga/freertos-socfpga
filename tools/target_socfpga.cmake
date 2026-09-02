@@ -81,6 +81,16 @@ else()
     message(STATUS "${BoldWhite}SMP build       :  OFF${ColourReset}")
 endif()
 
+# HSMP build: Expects manual selection of cores from A55 and A76 clusters in FreeRTOSConfigSmp.h for HSMP testing.
+string(TOUPPER "${HSMP}" HSMP_ENABLED)
+if(HSMP_ENABLED STREQUAL "ON" OR HSMP_ENABLED STREQUAL "1" OR HSMP_ENABLED STREQUAL "TRUE" OR HSMP_ENABLED STREQUAL "YES")
+    add_compile_definitions(configHSMP_BUILD=1)
+    message(STATUS "${BoldGreen}HSMP build      :  ON  (manual core selection in FreeRTOSConfigSmp.h)${ColourReset}")
+else()
+    add_compile_definitions(configHSMP_BUILD=0)
+    message(STATUS "${BoldWhite}HSMP build       :  OFF${ColourReset}")
+endif()
+
 add_link_options( -Wl,--defsym,_NUM_CORE=${NUM_CORES} )
 
 add_link_options(

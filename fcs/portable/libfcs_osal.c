@@ -64,13 +64,18 @@ fcs_freertos_ecdsa_sha2_data_verify(struct fcs_cmd_context *ctx);
 FCS_OSAL_INT fcs_freertos_hps_img_validate(struct fcs_cmd_context *ctx);
 FCS_OSAL_INT fcs_freertos_platform_get(FCS_OSAL_CHAR *platform);
 
-/**
- * @brief Allocate memory of given size.
- *
- * @param size allocate memory size.
- * @return Pointer to the allocated memory, or NULL if size is 0 or allocation
- * fails.
- */
+/*
+    Allocate memory of given size.
+
+    Parameters:
+
+        size - allocate memory size.
+
+    Returns:
+
+        Pointer to the allocated memory, or NULL if size is 0 or allocation
+        fails.
+*/
 FCS_OSAL_VOID *fcs_malloc(FCS_OSAL_SIZE size)
 {
     if (size == 0) {
@@ -87,11 +92,13 @@ FCS_OSAL_VOID *fcs_malloc(FCS_OSAL_SIZE size)
     return ptr;
 }
 
-/**
- * @brief Free allocated memory.
- *
- * @param ptr Pointer to the memory to free.
- */
+/*
+    Free allocated memory.
+
+    Parameters:
+
+        ptr - Pointer to the memory to free.
+*/
 FCS_OSAL_VOID fcs_osal_free(FCS_OSAL_VOID *ptr)
 {
     if (ptr != NULL)
@@ -104,13 +111,17 @@ FCS_OSAL_VOID fcs_osal_free(FCS_OSAL_VOID *ptr)
     }
 }
 
-/**
- * @brief Initialize a mutex.
- *
- * @param mutex Pointer to the mutex.
- *
- * @return 0 on success, negative value on error.
- */
+/*
+    Initialize a mutex.
+
+    Parameters:
+
+        mutex - Pointer to the mutex.
+
+    Returns:
+
+        0 on success, negative value on error.
+*/
 FCS_OSAL_INT fcs_mutex_init(FCS_OSAL_MUTEX *mutex)
 {
     if (!mutex) {
@@ -128,14 +139,18 @@ FCS_OSAL_INT fcs_mutex_init(FCS_OSAL_MUTEX *mutex)
     return 0;
 }
 
-/**
- * @brief Lock the mutex with a timeout.
- *
- * @param mutex Pointer to the mutex.
- * @param time Timeout value in milliseconds.
- *
- * @return 0 on success, negative value on error.
- */
+/*
+    Lock the mutex with a timeout.
+
+    Parameters:
+
+        mutex - Pointer to the mutex.
+        time - Timeout value in milliseconds.
+
+    Returns:
+
+        0 on success, negative value on error.
+*/
 FCS_OSAL_INT fcs_mutex_timedlock(FCS_OSAL_MUTEX *mutex, FCS_OSAL_U32 const time)
 {
     FCS_OSAL_INT ret;
@@ -157,13 +172,17 @@ FCS_OSAL_INT fcs_mutex_timedlock(FCS_OSAL_MUTEX *mutex, FCS_OSAL_U32 const time)
     }
 }
 
-/**
- * @brief Release the mutex.
- *
- * @param mutex Pointer to the mutex.
- *
- * @return 0 on success, negative value on error.
- */
+/*
+    Release the mutex.
+
+    Parameters:
+
+        mutex - Pointer to the mutex.
+
+    Returns:
+
+        0 on success, negative value on error.
+*/
 FCS_OSAL_INT fcs_mutex_unlock(FCS_OSAL_MUTEX *mutex)
 {
     /* Check if the mutex pointer is NULL */
@@ -178,13 +197,17 @@ FCS_OSAL_INT fcs_mutex_unlock(FCS_OSAL_MUTEX *mutex)
     return 0;
 }
 
-/**
- * @brief Destroy the mutex.
- *
- * @param mutex Pointer to the mutex.
- *
- * @return 0 on success, negative value on error.
- */
+/*
+    Destroy the mutex.
+
+    Parameters:
+
+        mutex - Pointer to the mutex.
+
+    Returns:
+
+        0 on success, negative value on error.
+*/
 FCS_OSAL_INT fcs_mutex_destroy(FCS_OSAL_MUTEX *mutex)
 {
     /* Check if the mutex pointer is NULL */
@@ -199,14 +222,18 @@ FCS_OSAL_INT fcs_mutex_destroy(FCS_OSAL_MUTEX *mutex)
     return 0;
 }
 
-/**
- * @brief allocate memory for the buffer and copy the file content to the buffer
- *
- * @param filename file name to read
- * @param buffer to copy the file content
- *
- * @return FCS_OSAL_INT
- */
+/*
+    allocate memory for the buffer and copy the file content to the buffer
+
+    Parameters:
+
+        filename - file name to read
+        buffer - to copy the file content
+
+    Returns:
+
+        FCS_OSAL_INT
+*/
 
 FCS_OSAL_INT fcs_alloc_and_cpy_file_to_mem(const FCS_OSAL_CHAR *filename,
         FCS_OSAL_CHAR **buffer)
@@ -231,37 +258,45 @@ FCS_OSAL_INT fcs_alloc_and_cpy_file_to_mem(const FCS_OSAL_CHAR *filename,
     return bytes_read;
 }
 
-/**
- * @brief returns fdt error message for the given error code
- */
+/*
+    returns fdt error message for the given error code
+*/
 const FCS_OSAL_CHAR *fcs_fit_strerror(FCS_OSAL_INT err)
 {
     (void)err;
     return NULL;
 }
 
-/**
- * @brief Verify the FIT image header.
- *
- * @param fit Pointer to the FIT buffer.
- * @param size FIT size.
- *
- * @return 0 always return success
- */
+/*
+    Verify the FIT image header.
+
+    Parameters:
+
+        fit - Pointer to the FIT buffer.
+        size - FIT size.
+
+    Returns:
+
+        0 always return success
+*/
 FCS_OSAL_INT fcs_fit_verify_header(FCS_OSAL_CHAR *fit)
 {
     (void)fit;
     return 0;
 }
 
-/**
- * @brief Get the position of the node in the FIT image
- *
- * @param fit - pointer to the FIT format image header
- * @param path - path to the node
- *
- * @return -EIO always return failure
- */
+/*
+    Get the position of the node in the FIT image
+
+    Parameters:
+
+        fit - - pointer to the FIT format image header
+        path - - path to the node
+
+    Returns:
+
+        -EIO always return failure
+*/
 FCS_OSAL_INT fcs_fit_get_noffset(FCS_OSAL_CHAR *fit, const FCS_OSAL_CHAR *path)
 {
     (void)fit;
@@ -269,15 +304,19 @@ FCS_OSAL_INT fcs_fit_get_noffset(FCS_OSAL_CHAR *fit, const FCS_OSAL_CHAR *path)
     return -EIO;
 }
 
-/**
- * @brief FIT stub for freeRTOS
- *
- * @param fit - pointer to the FIT format image header
- * @param offset - offset to the node
- * @param depth - pointer to store the depth
- *
- * @return -EIO always return failure
- */
+/*
+    FIT stub for freeRTOS
+
+    Parameters:
+
+        fit - - pointer to the FIT format image header
+        offset - - offset to the node
+        depth - - pointer to store the depth
+
+    Returns:
+
+        -EIO always return failure
+*/
 FCS_OSAL_INT fcs_fit_next_node(FCS_OSAL_CHAR *fit, FCS_OSAL_INT offset,
         FCS_OSAL_INT *depth)
 {
@@ -287,17 +326,21 @@ FCS_OSAL_INT fcs_fit_next_node(FCS_OSAL_CHAR *fit, FCS_OSAL_INT offset,
     return -EIO;
 }
 
-/**
- * @brief FIT stub for freeRTOS
- *
- * @param fit - pointer to the FIT format image header
- * @param noffset - offset to the image node
- * @param offset - pointer to store the data position
- * @param data - pointer to store the data pointer
- * @param size - pointer to store the data size
- *
- * @return -EIO always return failure
- */
+/*
+    FIT stub for freeRTOS
+
+    Parameters:
+
+        fit - - pointer to the FIT format image header
+        noffset - - offset to the image node
+        offset - - pointer to store the data position
+        data - - pointer to store the data pointer
+        size - - pointer to store the data size
+
+    Returns:
+
+        -EIO always return failure
+*/
 FCS_OSAL_INT fcs_fit_image_get_data_and_size(FCS_OSAL_CHAR *fit,
         FCS_OSAL_INT noffset,
         FCS_OSAL_CHAR **data,
@@ -310,13 +353,26 @@ FCS_OSAL_INT fcs_fit_image_get_data_and_size(FCS_OSAL_CHAR *fit,
     return -EIO;
 }
 
-/**
- * @brief Open a service session
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    File: Portable Layer FCS Library OSAL
+
+    Implements the Portable Layer FCS Library OSAL: 51 functions, 38 of them
+    local to this file.
+*/
+
+/*
+    Function: fcs_freertos_open_service_session
+
+    Open a service session
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_open_service_session(struct fcs_cmd_context *ctx)
 {
     char uuid[FCS_OSAL_UUID_SIZE] = {0};
@@ -339,13 +395,19 @@ FCS_OSAL_INT fcs_freertos_open_service_session(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Close service session
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_close_service_session
+
+    Close service session
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_close_service_session(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_close_service_session(ctx->close_session.suuid);
@@ -357,13 +419,20 @@ FCS_OSAL_INT fcs_freertos_close_service_session(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Get provisioned data inforamtion
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_service_get_provision_data
+
+    Get provisioned data inforamtion
+
+    Parameters:
+
+    ctx - Context pointer to the context of the command
+
+    Returns:
+
+    0 on success, otherwise value on error.
+*/
+
 FCS_OSAL_INT
 fcs_freertos_service_get_provision_data(struct fcs_cmd_context *ctx)
 {
@@ -377,13 +446,19 @@ fcs_freertos_service_get_provision_data(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Generate a random number
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_random_number_ext
+
+    Generate a random number
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_random_number_ext(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_random_number_ext(ctx->rng.rng,
@@ -398,13 +473,19 @@ FCS_OSAL_INT fcs_freertos_random_number_ext(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Import a service key
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_import_service_key
+
+    Import a service key
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_import_service_key(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_import_service_key(ctx->import_key.suuid,
@@ -419,13 +500,19 @@ FCS_OSAL_INT fcs_freertos_import_service_key(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Export a service key object
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_export_service_key
+
+    Export a service key object
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_export_service_key(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_export_service_key(ctx->export_key.suuid,
@@ -439,13 +526,19 @@ FCS_OSAL_INT fcs_freertos_export_service_key(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Remove service key
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_remove_service_key
+
+    Remove service key
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_remove_service_key(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_remove_service_key(ctx->remove_key.suuid,
@@ -458,13 +551,19 @@ FCS_OSAL_INT fcs_freertos_remove_service_key(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Get service key information
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_get_service_key_info
+
+    Get service key information
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_get_service_key_info(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_get_service_key_info(ctx->key_info.suuid,
@@ -479,13 +578,19 @@ FCS_OSAL_INT fcs_freertos_get_service_key_info(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Create a service key
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_create_service_key
+
+    Create a service key
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_create_service_key(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_create_service_key(ctx->create_key.suuid,
@@ -500,13 +605,19 @@ FCS_OSAL_INT fcs_freertos_create_service_key(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Perform counter set
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_counter_set
+
+    Perform counter set
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_counter_set(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_send_certificate(ctx->ctr_set.ccert,
@@ -521,13 +632,20 @@ FCS_OSAL_INT fcs_freertos_counter_set(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Perform counter set preauth
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_counter_set_preauthorized
+
+    Perform counter set preauth
+
+    Parameters:
+
+    ctx - Context pointer to the context of the command
+
+    Returns:
+
+    0 on success, otherwise value on error.
+*/
+
 FCS_OSAL_INT
 fcs_freertos_counter_set_preauthorized(struct fcs_cmd_context *ctx)
 {
@@ -542,13 +660,19 @@ fcs_freertos_counter_set_preauthorized(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief HKDF request
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_hkdf_request
+
+    HKDF request
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_hkdf_request(struct fcs_cmd_context *ctx)
 {
     char *temp, *input_data;
@@ -593,13 +717,19 @@ FCS_OSAL_INT fcs_freertos_hkdf_request(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Get chip ID
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_get_chip_id
+
+    Get chip ID
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_get_chip_id(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_get_chip_id(ctx->chip_id.chip_id_lo,
@@ -612,13 +742,20 @@ FCS_OSAL_INT fcs_freertos_get_chip_id(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Get an attestation certificate
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_attestation_get_certificate
+
+    Get an attestation certificate
+
+    Parameters:
+
+    ctx - Context pointer to the context of the command
+
+    Returns:
+
+    0 on success, otherwise value on error.
+*/
+
 FCS_OSAL_INT
 fcs_freertos_attestation_get_certificate(struct fcs_cmd_context *ctx)
 {
@@ -633,13 +770,20 @@ fcs_freertos_attestation_get_certificate(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Attestation certificate reload
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_attestation_cert_reload
+
+    Attestation certificate reload
+
+    Parameters:
+
+    ctx - Context pointer to the context of the command
+
+    Returns:
+
+    0 on success, otherwise value on error.
+*/
+
 FCS_OSAL_INT
 fcs_freertos_attestation_cert_reload(struct fcs_cmd_context *ctx)
 {
@@ -654,13 +798,19 @@ fcs_freertos_attestation_cert_reload(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Perform MCTP operation
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_mctp_cmd_send
+
+    Perform MCTP operation
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_mctp_cmd_send(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_mctp_cmd_send(ctx->mctp.mctp_req,
@@ -674,13 +824,19 @@ FCS_OSAL_INT fcs_freertos_mctp_cmd_send(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Get JTAG ID code
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_get_jtag_idcode
+
+    Get JTAG ID code
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_get_jtag_idcode(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_get_jtag_idcode(ctx->jtag_id.jtag_idcode);
@@ -692,13 +848,19 @@ FCS_OSAL_INT fcs_freertos_get_jtag_idcode(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Get device identity
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_get_device_identity
+
+    Get device identity
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_get_device_identity(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_get_device_identity(
@@ -712,13 +874,19 @@ FCS_OSAL_INT fcs_freertos_get_device_identity(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Open an access to QSPI interface
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_qspi_open
+
+    Open an access to QSPI interface
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_qspi_open(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_qspi_open();
@@ -730,13 +898,19 @@ FCS_OSAL_INT fcs_freertos_qspi_open(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Close an access to QSPI interface
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_qspi_close
+
+    Close an access to QSPI interface
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_qspi_close(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_qspi_close();
@@ -749,13 +923,19 @@ FCS_OSAL_INT fcs_freertos_qspi_close(struct fcs_cmd_context *ctx)
 }
 
 
-/**
- * @brief Chip select
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_qspi_set_cs
+
+    Chip select
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_qspi_set_cs(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_qspi_set_cs(ctx->qspi_cs.chipsel);
@@ -767,13 +947,19 @@ FCS_OSAL_INT fcs_freertos_qspi_set_cs(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Read data from QSPI flash
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_qspi_read
+
+    Read data from QSPI flash
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_qspi_read(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_qspi_read(ctx->qspi_write.qspi_addr,
@@ -786,13 +972,19 @@ FCS_OSAL_INT fcs_freertos_qspi_read(struct fcs_cmd_context *ctx)
     }
     return ret;
 }
-/**
- * @brief Write data to QSPI flash
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_qspi_write
+
+    Write data to QSPI flash
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_qspi_write(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_qspi_write(ctx->qspi_write.qspi_addr,
@@ -806,13 +998,19 @@ FCS_OSAL_INT fcs_freertos_qspi_write(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Erase QSPI flash
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_qspi_erase
+
+    Erase QSPI flash
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_qspi_erase(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_qspi_erase(ctx->qspi_erase.qspi_addr,
@@ -825,13 +1023,19 @@ FCS_OSAL_INT fcs_freertos_qspi_erase(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Perform AES encryption/decryption operation
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_aes_crypt
+
+    Perform AES encryption/decryption operation
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_aes_crypt(struct fcs_cmd_context *ctx)
 {
     if (ctx->aes.mode == FCS_AES_GCM_GHASH)
@@ -859,6 +1063,11 @@ FCS_OSAL_INT fcs_freertos_aes_crypt(struct fcs_cmd_context *ctx)
     return ret;
 }
 
+/*
+    Function: fcs_freertos_ecdh_req
+
+    Calls <run_fcs_ecdh_request>.
+*/
 FCS_OSAL_INT fcs_freertos_ecdh_req(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_ecdh_request(ctx->ecdh_req.suuid,
@@ -875,13 +1084,19 @@ FCS_OSAL_INT fcs_freertos_ecdh_req(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Generate digest
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_get_digest
+
+    Generate digest
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_get_digest(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_get_digest(ctx->dgst.suuid,
@@ -897,13 +1112,19 @@ FCS_OSAL_INT fcs_freertos_get_digest(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Verify HMAC
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_mac_verify
+
+    Verify HMAC
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_mac_verify(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_mac_verify(ctx->mac_verify.suuid,
@@ -921,13 +1142,19 @@ FCS_OSAL_INT fcs_freertos_mac_verify(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Validate an HPS image
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_hps_img_validate
+
+    Validate an HPS image
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_hps_img_validate(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_send_certificate(
@@ -941,13 +1168,19 @@ FCS_OSAL_INT fcs_freertos_hps_img_validate(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Perform SDOS encryption operation
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_sdos_encrypt
+
+    Perform SDOS encryption operation
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_sdos_encrypt(struct fcs_cmd_context *ctx)
 {
     (void) memcpy(&ctx->sdos.own, ctx->sdos.src + SDOS_OWNER_ID_OFFSET,
@@ -964,13 +1197,19 @@ FCS_OSAL_INT fcs_freertos_sdos_encrypt(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Perform SDOS decryption operation
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_sdos_decrypt
+
+    Perform SDOS decryption operation
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_sdos_decrypt(struct fcs_cmd_context *ctx)
 {
     (void) memcpy(&ctx->sdos.own, ctx->sdos.src + SDOS_OWNER_ID_OFFSET,
@@ -988,13 +1227,19 @@ FCS_OSAL_INT fcs_freertos_sdos_decrypt(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Get ECDSA public key
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_ecdsa_get_pub_key
+
+    Get ECDSA public key
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_ecdsa_get_pub_key(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_ecdsa_get_public_key(ctx->ecdsa_pub_key.suuid,
@@ -1009,13 +1254,19 @@ FCS_OSAL_INT fcs_freertos_ecdsa_get_pub_key(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Generate ECDSA hash signature
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_ecdsa_hash_sign
+
+    Generate ECDSA hash signature
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_ecdsa_hash_sign(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_ecdsa_hash_sign(ctx->ecdsa_hash_sign.suuid,
@@ -1031,13 +1282,19 @@ FCS_OSAL_INT fcs_freertos_ecdsa_hash_sign(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Verify ECDSA hash signature
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_ecdsa_hash_verify
+
+    Verify ECDSA hash signature
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_ecdsa_hash_verify(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_ecdsa_hash_verify(ctx->ecdsa_hash_verify.suuid,
@@ -1058,13 +1315,19 @@ FCS_OSAL_INT fcs_freertos_ecdsa_hash_verify(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Generate ECDSA SHA2 data signature
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_ecdsa_sha2_data_sign
+
+    Generate ECDSA SHA2 data signature
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_ecdsa_sha2_data_sign(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_ecdsa_sha2_data_sign(
@@ -1084,13 +1347,19 @@ FCS_OSAL_INT fcs_freertos_ecdsa_sha2_data_sign(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Verify ECDSA SHA2 data signature
- *
- * @param ctx Context pointer to the context of the command
- *
- * @return 0 on success, otherwise value on error.
- */
+/*
+    Function: fcs_freertos_ecdsa_sha2_data_verify
+
+    Verify ECDSA SHA2 data signature
+
+    Parameters:
+
+        ctx - Context pointer to the context of the command
+
+    Returns:
+
+        0 on success, otherwise value on error.
+*/
 FCS_OSAL_INT fcs_freertos_ecdsa_sha2_data_verify(struct fcs_cmd_context *ctx)
 {
     FCS_OSAL_INT ret = run_fcs_ecdsa_sha2_data_sign_verify(
@@ -1114,12 +1383,14 @@ FCS_OSAL_INT fcs_freertos_ecdsa_sha2_data_verify(struct fcs_cmd_context *ctx)
     return ret;
 }
 
-/**
- * @brief Platform id for libfcs (see AGILEX5_PLATFORM in libfcs.c).
- *
- * Linux reads this from the FCS device; on bare-metal FreeRTOS we are
- * always Agilex 5 for this SDK port.
- */
+/*
+    Function: fcs_freertos_platform_get
+
+    Platform id for libfcs (see AGILEX5_PLATFORM in libfcs.c).
+
+    Linux reads this from the FCS device; on bare-metal FreeRTOS we are always
+    Agilex 5 for this SDK port.
+*/
 FCS_OSAL_INT fcs_freertos_platform_get(FCS_OSAL_CHAR *platform)
 {
     if (platform == NULL) {
@@ -1131,13 +1402,20 @@ FCS_OSAL_INT fcs_freertos_platform_get(FCS_OSAL_CHAR *platform)
     return 0;
 }
 
-/**
- * @brief Bind the OSAL API to the interface.
- *
- * @param intf Pointer to the OSAL interface.
- *
- * @return 0 on success, negative value on error.
- */
+/*
+    Function: fcs_freertos_api_binding
+
+    Bind the OSAL API to the interface.
+
+    Parameters:
+
+    intf - Pointer to the OSAL interface.
+
+    Returns:
+
+    0 on success, negative value on error.
+*/
+
 static FCS_OSAL_INT fcs_freertos_api_binding(struct libfcs_osal_intf *intf)
 {
     if (intf == NULL) {
@@ -1187,14 +1465,18 @@ static FCS_OSAL_INT fcs_freertos_api_binding(struct libfcs_osal_intf *intf)
     return 0;
 }
 
-/**
- * @brief Initialize the OSAL.
- *
- * @param intf Pointer to the OSAL interface.
- * @param loglevel set log level
- *
- * @return 0 on success, negative value on error.
- */
+/*
+    Initialize the OSAL.
+
+    Parameters:
+
+        intf - Pointer to the OSAL interface.
+        loglevel - set log level
+
+    Returns:
+
+        0 on success, negative value on error.
+*/
 
 FCS_OSAL_INT libfcs_osal_init(struct libfcs_osal_intf *intf, char *log_level)
 {

@@ -6,6 +6,14 @@
  * This contains the register definitions for SoC FPGA clock manager
  */
 
+/*
+    File: Clock Manager Registers
+
+    This contains the register definitions for SoC FPGA clock manager.
+
+    The definitions fall into the CLK_MNGR_*, MAINPLL_CLK_* and PERPLL_CLK_*
+    families.
+*/
 
 #ifndef __SOCFPGA_CLK_MNGR_REG_H__
 #define __SOCFPGA_CLK_MNGR_REG_H__

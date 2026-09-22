@@ -6,10 +6,11 @@
  * Sample application implementation for i3c temperature sensor
  */
 
-/**
- * @file i3c_temp_sample.c
- * @brief Sample Application for I3C using a temperature sensor
- */
+/*
+    File: I3C Temp Sample
+
+    Sample Application for I3C using a temperature sensor
+*/
 
 #include <FreeRTOS.h>
 #include <FreeRTOSConfig.h>
@@ -20,40 +21,43 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup i3c_temp_sample I3C Temperature Sensor
- * @ingroup samples
- *
- * Sample application for the I3C driver using a temperature sensor
- *
- * @details
- * @section i3c_temp_desc Description
- * This is a sample application to demonstrate the usage of I3C driver.
- * It communicates with an NXP P3T1755 (LM75-style) temperature sensor on the
- * I3C bus, either as a native I3C device (enumerated by dynamic address
- * assignment) or as a legacy I2C device, selected by @c SENSOR_MODE_I3C_NATIVE.
- * It programs the THIGH/TLOW limit registers, reads them back to confirm, then
- * reads the ambient temperature a few times.
- *
- * @section i3c_temp_pre Prerequisites
- * - A P3T1755 (or compatible) sensor connected to the I3C bus. In legacy I2C
- *   mode, the slave address shall be updated in this file if different.
- *
- * @section i3c_temp_param Configurable Parameters
- * - The connected_devices structure shall be initialized with the correct device properties
- * - The sensor transport can be selected with @c SENSOR_MODE_I3C_NATIVE.
- * - The sensor slave address can be configured in @c SENSOR_ADDRESS macro.
- * - The number of readings can be configured in @c NUM_READINGS macro.
- *
- * @section i3c_temp_how_to How to Run
- * 1. Build with the @c i3c_temp_sample target and flash the application.
- * 2. Run the application on the board with the sensor connected.
- * 3. Observe the UART terminal for status messages.
- *
- * @section i3c_temp_result Expected Results
- * - THIGH 80 C and TLOW 75 C are written, confirmed, and a plausible ambient
- *   temperature is printed.
- */
+/*
+    Group: I3C Temperature Sensor
+
+    Sample application for the I3C driver using a temperature sensor
+
+    Description:
+
+    This is a sample application to demonstrate the usage of I3C driver. It
+    communicates with an NXP P3T1755 (LM75-style) temperature sensor on the
+    I3C bus, either as a native I3C device (enumerated by dynamic address
+    assignment) or as a legacy I2C device, selected by SENSOR_MODE_I3C_NATIVE.
+    It programs the THIGH/TLOW limit registers, reads them back to confirm,
+    then reads the ambient temperature a few times.
+
+    Prerequisites:
+
+    - A P3T1755 (or compatible) sensor connected to the I3C bus. In legacy I2C
+    mode, the slave address shall be updated in this file if different.
+
+    Configurable Parameters:
+
+    - The connected_devices structure shall be initialized with the correct device properties
+    - The sensor transport can be selected with SENSOR_MODE_I3C_NATIVE.
+    - The sensor slave address can be configured in SENSOR_ADDRESS macro.
+    - The number of readings can be configured in NUM_READINGS macro.
+
+    How to Run:
+
+    1. Build with the i3c_temp_sample target and flash the application.
+    2. Run the application on the board with the sensor connected.
+    3. Observe the UART terminal for status messages.
+
+    Expected Results:
+
+    - THIGH 80 C and TLOW 75 C are written, confirmed, and a plausible ambient
+    temperature is printed.
+*/
 
 /* Access the P3T1755 as a native I3C device (1) or a legacy I2C device (0) */
 #define SENSOR_MODE_I3C_NATIVE    1
@@ -119,15 +123,20 @@ static struct i3c_device connected_devices[] =
 #endif
 };
 
-/**
- * @brief Decode and print a temperature register value.
- *
- * Interprets @p b as a 12-bit left-justified two's-complement value with a
- * resolution of 0.0625 C per LSB.
- *
- * @param[in] label Text label for the printed line.
- * @param[in] b     Two register bytes, most significant first.
- */
+/*
+    Function: print_temp
+
+    Decode and print a temperature register value.
+
+    Interprets b as a 12-bit left-justified two's-complement value with a
+    resolution of 0.0625 C per LSB.
+
+    Parameters:
+
+    label - Text label for the printed line.
+    b - Two register bytes, most significant first.
+*/
+
 static void print_temp(const char *label, const uint8_t *b)
 {
     int16_t raw = (int16_t)(((uint16_t)b[0] << 8) | (uint16_t)b[1]);
@@ -143,18 +152,26 @@ static void print_temp(const char *label, const uint8_t *b)
             (long)(u % 10000));
 }
 
-/**
- * @brief Read a sensor register.
- *
- *    Two transfer requests are sent. The first writes the 1-byte pointer
- *    (register address), the second reads the register content. The 'is_i2c'
- *    flag marks the device as a legacy I2C device on the I3C bus.
- *
- * @param[in]  reg_address Pointer register value.
- * @param[out] data        Destination buffer.
- * @param[in]  num_bytes   Number of bytes to read.
- * @return 0 on success, negative error code otherwise.
- */
+/*
+    Function: sensor_read_reg
+
+    Read a sensor register.
+
+    Two transfer requests are sent. The first writes the 1-byte pointer
+    (register address), the second reads the register content. The 'is_i2c'
+    flag marks the device as a legacy I2C device on the I3C bus.
+
+    Parameters:
+
+    reg_address - Pointer register value.
+    data - Destination buffer.
+    num_bytes - Number of bytes to read.
+
+    Returns:
+
+    0 on success, negative error code otherwise.
+*/
+
 static int sensor_read_reg(uint8_t reg_address, uint8_t *data,
         uint32_t num_bytes)
 {
@@ -179,18 +196,26 @@ static int sensor_read_reg(uint8_t reg_address, uint8_t *data,
     return retval;
 }
 
-/**
- * @brief Write to a sensor register.
- *
- *    One transfer request carries the 1-byte pointer (register address)
- *    followed by the data bytes. The 'is_i2c' flag marks the device as a
- *    legacy I2C device on the I3C bus.
- *
- * @param[in] reg_address Pointer register value.
- * @param[in] data        Data bytes to write.
- * @param[in] num_bytes   Number of data bytes.
- * @return 0 on success, negative error code otherwise.
- */
+/*
+    Function: sensor_write_reg
+
+    Write to a sensor register.
+
+    One transfer request carries the 1-byte pointer (register address)
+    followed by the data bytes. The 'is_i2c' flag marks the device as a legacy
+    I2C device on the I3C bus.
+
+    Parameters:
+
+    reg_address - Pointer register value.
+    data - Data bytes to write.
+    num_bytes - Number of data bytes.
+
+    Returns:
+
+    0 on success, negative error code otherwise.
+*/
+
 static int sensor_write_reg(uint8_t reg_address, uint8_t *data,
         uint8_t num_bytes)
 {
@@ -214,14 +239,19 @@ static int sensor_write_reg(uint8_t reg_address, uint8_t *data,
     return retval;
 }
 
-/**
- * @brief Program a temperature limit register and read it back to confirm.
- *
- * @param[in] reg   Limit pointer register (@c REG_THIGH or @c REG_TLOW).
- * @param[in] label Text label for the printed line.
- * @param[in] msb   Expected most significant byte.
- * @param[in] lsb   Expected least significant byte.
- */
+/*
+    Function: sensor_set_limit
+
+    Program a temperature limit register and read it back to confirm.
+
+    Parameters:
+
+    reg - Limit pointer register (REG_THIGH or REG_TLOW).
+    label - Text label for the printed line.
+    msb - Expected most significant byte.
+    lsb - Expected least significant byte.
+*/
+
 static void sensor_set_limit(uint8_t reg, const char *label, uint8_t msb,
         uint8_t lsb)
 {
@@ -244,6 +274,9 @@ static void sensor_set_limit(uint8_t reg, const char *label, uint8_t msb,
     }
 }
 
+/*
+    Function: i3c_temp_task
+*/
 void i3c_temp_task(void)
 {
     struct i3c_dev_list dev_list =

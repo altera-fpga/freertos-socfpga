@@ -5,6 +5,13 @@
  *
  * HAL driver implementation for UART
  */
+
+/*
+    File: UART Driver Implementation
+
+    Implements the UART driver: 14 functions, 4 of them local to this file.
+*/
+
 #include <string.h>
 #include <errno.h>
 #include <stdbool.h>
@@ -48,9 +55,12 @@ static struct uart_descriptor uart_descriptors[UART_MAX_INSTANCE];
 
 void uart_isr(void *param);
 
-/**
- * @brief Check if the UART handle is valid
- */
+/*
+    Function: uart_is_handle_valid
+
+    Check if the UART handle is valid
+*/
+
 static bool uart_is_handle_valid(uart_handle_t handle)
 {
     if ((handle == &uart_descriptors[0]) || (handle == &uart_descriptors[1]))
@@ -217,10 +227,13 @@ int32_t uart_set_callback(uart_handle_t const huart, uart_callback_t callback,
     return 0;
 }
 
-/**
- * @brief Start writing data to transmit FIFO and enable tx interrupt
- * Update the number of bytes
- */
+/*
+    Function: uart_write
+
+    Start writing data to transmit FIFO and enable tx interrupt Update the
+    number of bytes
+*/
+
 static void uart_write(uart_handle_t huart, uint8_t *const buffer,
         uint32_t nbytes)
 {
@@ -235,10 +248,12 @@ static void uart_write(uart_handle_t huart, uint8_t *const buffer,
     uart_enable_interrupt(huart->base_address, INTERRUPT_TX);
 }
 
-/**
- * @brief Start reading data from receive FIFO
- * Enable rx interrupt if required
- */
+/*
+    Function: uart_read
+
+    Start reading data from receive FIFO Enable rx interrupt if required
+*/
+
 static int32_t uart_read(uart_handle_t huart, uint8_t *const buffer,
         uint32_t nbytes)
 {
@@ -539,10 +554,11 @@ int32_t uart_close(uart_handle_t const huart)
 
     return 0;
 }
+/*
+    Function: uart_isr
 
-/**
- * @brief Interrupt handler for UART
- */
+    Interrupt handler for UART
+*/
 void uart_isr(void *param)
 {
     uart_handle_t huart;

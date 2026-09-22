@@ -7,6 +7,14 @@
  * Capabilities sub-module
  */
 
+/*
+    File: xHCI Cap Driver
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+
+    They are get_xhc_cap_params and get_xhci_op_registers.
+*/
+
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,8 +22,8 @@
 #include "osal_log.h"
 
 /*
- * @brief read the host controller capability registers
- */
+    read the host controller capability registers
+*/
 int get_xhc_cap_params(struct xhci_data *xhci)
 {
     uint32_t caplength = RD_REG32(USBBASE + USB3_CAPLENGTH);

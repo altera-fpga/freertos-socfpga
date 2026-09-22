@@ -6,64 +6,62 @@
  * Implementation of CLI commands for timer
  */
 
-/**
- * @defgroup cli_timer Timer
- * @ingroup cli
- *
- * Perform operations on timer
- *
- * @details
- * It supports the following commands:
- * - timer config &lt;instance&gt; &lt;mode&gt; &lt;period&gt;
- * - timer start
- * - timer stop
- * - timer close
- * - timer ticks
- * - timer help
- *
- * Typical usage:
- * - Use 'timer config' to configure the timer instance
- * - Use 'timer start' to start the timer
- * - Use 'timer ticks' to get the current timer ticks while timer is running
- * - Use 'timer stop' to stop the timer
- * - Use 'timer close' to close the timer instance
- *
- * @section tim_commands Commands
- * @subsection timer_config timer config
- * Configure timer instance <br>
- *
- * Usage: <br>
- * timer config &lt;instance&gt; &lt;mode&gt; &lt;period&gt; <br>
- *
- * It requires the following arguments:
- * - instance The instance of the timer. Valid values: 0 to 3.
- * - mode The mode of the timer. 1 = one-shot, 2 = free-running.
- * - period The period in microseconds for one-shot mode. Hex value 0x0 to 0xFFFFFFFF.
- *
- * @subsection timer_start timer start
- * Start timer instance <br>
- *
- * Usage: <br>
- * timer start <br>
- *
- * @subsection timer_ticks timer ticks
- * Get the current counter value of the timer instance <br>
- *
- * Usage: <br>
- * timer ticks <br>
- *
- * @subsection timer_stop timer stop
- * Stop timer instance <br>
- *
- * Usage: <br>
- * timer stop <br>
- *
- * @subsection timer_close timer close
- * Close timer instance <br>
- *
- * Usage: <br>
- * timer close <br>
- */
+/*
+    File: Timer CLI Commands
+
+    Perform operations on timer
+
+    It supports the following commands:
+    - timer config &lt;instance&gt; &lt;mode&gt; &lt;period&gt;
+    - timer start
+    - timer stop
+    - timer close
+    - timer ticks
+    - timer help
+
+    Typical usage:
+    - Use 'timer config' to configure the timer instance
+    - Use 'timer start' to start the timer
+    - Use 'timer ticks' to get the current timer ticks while timer is running
+    - Use 'timer stop' to stop the timer
+    - Use 'timer close' to close the timer instance
+    Group: Commands
+
+    timer config:
+
+    Configure timer instance
+
+    Usage: timer config &lt;instance&gt; &lt;mode&gt; &lt;period&gt;
+
+    It requires the following arguments:
+    - instance The instance of the timer. Valid values: 0 to 3.
+    - mode The mode of the timer. 1 = one-shot, 2 = free-running.
+    - period The period in microseconds for one-shot mode. Hex value 0x0 to 0xFFFFFFFF.
+
+    timer start:
+
+    Start timer instance
+
+    Usage: timer start
+
+    timer ticks:
+
+    Get the current counter value of the timer instance
+
+    Usage: timer ticks
+
+    timer stop:
+
+    Stop timer instance
+
+    Usage: timer stop
+
+    timer close:
+
+    Close timer instance
+
+    Usage: timer close
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,6 +87,11 @@ extern SemaphoreHandle_t print_semaphore;
 timer_handle_t timer_handle;
 uint8_t is_timer_open = 0, is_timer_running = 0;
 
+/*
+    Function: timer_callback
+
+    Calls <timer_stop>, <timer_close> and xSemaphoreGiveFromISR.
+*/
 void timer_callback( void *buff )
 {
     timer_handle_t timer_handle_loc = (timer_handle_t) buff;
@@ -99,6 +102,11 @@ void timer_callback( void *buff )
     timer_handle_loc = NULL;
     xSemaphoreGiveFromISR(print_semaphore,NULL);
 }
+/*
+    Function: timer_callback_free
+
+    Calls <timer_stop> and xSemaphoreGiveFromISR.
+*/
 void timer_callback_free( void *buff )
 {
     timer_handle_t timer_handle_loc = (timer_handle_t) buff;
@@ -106,6 +114,12 @@ void timer_callback_free( void *buff )
     xSemaphoreGiveFromISR(print_semaphore,NULL);
 }
 
+/*
+    Function: print_status
+
+    Calls <timer_set_callback>, <timer_set_period_us>, osal_semaphore_wait and
+    vTaskDelete.
+*/
 void print_status(void *data)
 {
     uint32_t*count = (uint32_t*)data;
@@ -117,6 +131,12 @@ void print_status(void *data)
     vTaskDelete(NULL);
 }
 
+/*
+    Function: cmd_timer
+
+    Implements the timer command of the CLI sample: perform operations on
+    timer.
+*/
 BaseType_t cmd_timer( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

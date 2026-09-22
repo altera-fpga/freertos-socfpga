@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Int Queue
+
+    Declares the Int Queue interface: 4 functions.
+
+    They are vStartInterruptQueueTasks, xAreIntQueueTasksStillRunning,
+    xFirstTimerHandler and xSecondTimerHandler.
+*/
+
 #ifndef QUEUE_ACCESS_TEST
 #define QUEUE_ACCESS_TEST
 

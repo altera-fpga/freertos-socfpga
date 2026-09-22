@@ -6,6 +6,12 @@
  * Header file for common HAL register access helpers
  */
 
+/*
+    File: Defines Definitions
+
+    Header file for common HAL register access helpers.
+*/
+
 #ifndef __SOCFPGA_DEFINES_H__
 #define __SOCFPGA_DEFINES_H__
 
@@ -24,32 +30,50 @@
 #define WR_REG64(address, val)    io_write64(address, val)
 #define RD_REG64(address)           io_read64(address)
 
+/*
+    Function: io_write16
+*/
 static inline void io_write16(uint32_t address, uint32_t value) {
     volatile uint16_t *paddress = (volatile uint16_t *)((uint64_t)address);
     *paddress = value;
 }
 
+/*
+    Function: io_read16
+*/
 static inline uint32_t io_read16(uint32_t address) {
     volatile uint16_t *paddress = (volatile uint16_t *)((uint64_t)address);
     return *paddress;
 }
 
+/*
+    Function: io_write32
+*/
 static inline void io_write32(uint32_t address, uint32_t value) {
     volatile uint32_t *paddress = (volatile uint32_t *)((uint64_t)address);
     *paddress = value;
 }
 
+/*
+    Function: io_read32
+*/
 static inline uint32_t io_read32(uint32_t address) {
     volatile uint32_t *paddress = (volatile uint32_t *)((uint64_t)address);
     return *paddress;
 }
 
+/*
+    Function: io_write64
+*/
 static inline void io_write64(uint32_t address, uint64_t value) {
     volatile uint64_t *paddress =
             (volatile uint64_t *)((uint64_t)address);
     *paddress = value;
 }
 
+/*
+    Function: io_read64
+*/
 static inline uint64_t io_read64(uint32_t address) {
     volatile uint64_t *paddress =
             (volatile uint64_t *)((uint64_t)address);

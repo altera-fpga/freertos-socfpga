@@ -6,108 +6,106 @@
  * Implementation of CLI commands for FAT file system
  */
 
-/**
- * @defgroup cli_fat FAT
- * @ingroup cli
- *
- * Perform file operations on USB and SD/MMC devices
- *
- * @details
- * It supports the following subcommands:
- * - fat mount &lt;partition&gt;
- * - fat unmount &lt;partition&gt;
- * - fat ls &lt;dir_name&gt;
- * - fat rm &lt;file_name&gt;
- * - fat cat &lt;file_name&gt;
- * - fat write &lt;file_name&gt; &lt;string&gt;
- * - fat mkdir &lt;dir_name&gt;
- * - fat rmdir &lt;dir_name&gt;
- * - fat help
- *
- * Typical usage:
- * - Use 'fat mount' to mount the FAT partition.
- * - Use 'fat ls' to list files and directories.
- * - Use 'fat cat' to display file contents.
- * - Use 'fat write' to write data to a file.
- * - Use 'fat mkdir' to create a directory.
- * - Use 'fat rmdir' to delete a directory.
- * - Use 'fat rm' to delete a file.
- * - Use 'fat unmount' to unmount the partition.
- *
- * @section fat_commands Commands
- * @subsection fat_mount fat mount
- * Mount FAT partition  <br>
- *
- * Usage:  <br>
- *   fat mount &lt;partition&gt;  <br>
- *
- * It requires the following arguments:
- * - partition -     The name of the partition to be mounted. Partition name should follow a forward slash (e.g., `/sd/` for SD/MMC or `/usb3/` for USB3 drive).  <br>
- *
- * @subsection fat_unmount fat unmount
- * Unmount FAT partition  <br>
- *
- * Usage:  <br>
- *   fat unmount &lt;partition&gt;  <br>
- *
- * It requires the following arguments:
- * - partition -     The name of the partition to be unmounted. Partition name should follow a forward slash (e.g., `/sd/` for SD/MMC or `/usb3/` for USB3 drive).  <br>
- *
- * @subsection fat_ls fat ls
- * List files and sub-directories  <br>
- *
- * Usage:  <br>
- *   fat ls &lt;dir_name&gt;  <br>
- *
- * It requires the following arguments:
- * - dir_name -     The directory name. Maximum length (excluding mount point) is 8 characters.  <br>
- *
- * @subsection fat_cat fat cat
- * Display the contents of a file  <br>
- *
- * Usage:  <br>
- *   fat cat &lt;file_name&gt;  <br>
- *
- * It requires the following arguments:
- * - file_name -     The full path to the file (including mount point). Maximum length (excluding mount point) is 8 characters.  <br>
- *
- * @subsection fat_write fat write
- * Write data to a file  <br>
- *
- * Usage:  <br>
- *   fat write &lt;file_name&gt; &lt;data&gt;  <br>
- *
- * It requires the following arguments:
- * - file_name -     The full path to the file (including mount point). Maximum length (excluding mount point) is 8 characters.  <br>
- * - data -          The string to write. Can contain spaces and special characters. If the file does not exist, it will be created; otherwise data is appended.  <br>
- *
- * @subsection fat_mkdir fat mkdir
- * Create directory  <br>
- *
- * Usage:  <br>
- *   fat mkdir &lt;dir_name&gt;  <br>
- *
- * It requires the following arguments:
- * - dir_name -     The full path to the new directory (including mount point). Maximum length (excluding mount point) is 8 characters.  <br>
- *
- * @subsection fat_rmdir fat rmdir
- * Delete directory  <br>
- *
- * Usage:  <br>
- *   fat rmdir &lt;dir_name&gt;  <br>
- *
- * It requires the following arguments:
- * - dir_name -     The full path to the directory (including mount point). Maximum length (excluding mount point) is 8 characters.  <br>
- *
- * @subsection fat_rm fat rm
- * Delete file in partition  <br>
- *
- * Usage:  <br>
- *   fat rm &lt;file_name&gt;  <br>
- *
- * It requires the following arguments:
- * - file_name -     The full path to the file (including mount point). Maximum length (excluding mount point) is 8 characters.  <br>
- */
+/*
+    File: FAT CLI Commands
+
+    Perform file operations on USB and SD/MMC devices
+
+    It supports the following subcommands:
+    - fat mount &lt;partition&gt;
+    - fat unmount &lt;partition&gt;
+    - fat ls &lt;dir_name&gt;
+    - fat rm &lt;file_name&gt;
+    - fat cat &lt;file_name&gt;
+    - fat write &lt;file_name&gt; &lt;string&gt;
+    - fat mkdir &lt;dir_name&gt;
+    - fat rmdir &lt;dir_name&gt;
+    - fat help
+
+    Typical usage:
+    - Use 'fat mount' to mount the FAT partition.
+    - Use 'fat ls' to list files and directories.
+    - Use 'fat cat' to display file contents.
+    - Use 'fat write' to write data to a file.
+    - Use 'fat mkdir' to create a directory.
+    - Use 'fat rmdir' to delete a directory.
+    - Use 'fat rm' to delete a file.
+    - Use 'fat unmount' to unmount the partition.
+    Group: Commands
+
+    fat mount:
+
+    Mount FAT partition
+
+    Usage: fat mount &lt;partition&gt;
+
+    It requires the following arguments:
+    - partition -     The name of the partition to be mounted. Partition name should follow a forward slash (e.g., `/sd/` for SD/MMC or `/usb3/` for USB3 drive).
+
+    fat unmount:
+
+    Unmount FAT partition
+
+    Usage: fat unmount &lt;partition&gt;
+
+    It requires the following arguments:
+    - partition -     The name of the partition to be unmounted. Partition name should follow a forward slash (e.g., `/sd/` for SD/MMC or `/usb3/` for USB3 drive).
+
+    fat ls:
+
+    List files and sub-directories
+
+    Usage: fat ls &lt;dir_name&gt;
+
+    It requires the following arguments:
+    - dir_name -     The directory name. Maximum length (excluding mount point) is 8 characters.
+
+    fat cat:
+
+    Display the contents of a file
+
+    Usage: fat cat &lt;file_name&gt;
+
+    It requires the following arguments:
+    - file_name -     The full path to the file (including mount point). Maximum length (excluding mount point) is 8 characters.
+
+    fat write:
+
+    Write data to a file
+
+    Usage: fat write &lt;file_name&gt; &lt;data&gt;
+
+    It requires the following arguments:
+    - file_name -     The full path to the file (including mount point). Maximum length (excluding mount point) is 8 characters.
+    - data -          The string to write. Can contain spaces and special characters. If the file does not exist, it will be created; otherwise data is appended.
+
+    fat mkdir:
+
+    Create directory
+
+    Usage: fat mkdir &lt;dir_name&gt;
+
+    It requires the following arguments:
+    - dir_name -     The full path to the new directory (including mount point). Maximum length (excluding mount point) is 8 characters.
+
+    fat rmdir:
+
+    Delete directory
+
+    Usage: fat rmdir &lt;dir_name&gt;
+
+    It requires the following arguments:
+    - dir_name -     The full path to the directory (including mount point). Maximum length (excluding mount point) is 8 characters.
+
+    fat rm:
+
+    Delete file in partition
+
+    Usage: fat rm &lt;file_name&gt;
+
+    It requires the following arguments:
+    - file_name -     The full path to the file (including mount point). Maximum length (excluding mount point) is 8 characters.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -124,6 +122,11 @@
 const char sdmmc_mount[] = "/sd/";
 const char usb_mount[] = "/usb3/";
 
+/*
+    Function: get_disk_type
+
+    Calls strncmp.
+*/
 static disk_type_t get_disk_type(const char *mptr)
 {
     if (strncmp(mptr, sdmmc_mount, 4) == 0)
@@ -142,6 +145,11 @@ static disk_type_t get_disk_type(const char *mptr)
     return DISK_TYPE_INVALID;
 }
 
+/*
+    Function: fat_ops
+
+    Implements the fat command of the CLI sample: perform fat operations.
+*/
 BaseType_t fat_ops( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

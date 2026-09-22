@@ -7,6 +7,12 @@
  */
 
 /*
+    File: SD/MMC Driver Implementation
+
+    HAL driver implementation for SDMMC.
+*/
+
+/*
  * This is the implementation of the SDMMC/eMMC driver. It supports both the
  * SD card and eMMC device. The driver can be used directly or via the FAT
  * file system. The typical usage is via FAT file system.
@@ -598,7 +604,12 @@ int32_t sdmmc_init_card(uint64_t *ptr_sec_num)
     }
 }
 #if (DEV_TYPE ==  DEV_TYPE_SD)
-/*follows SD association standard*/
+/*
+    Function: sd_mmc_init
+
+    follows SD association standard
+*/
+
 static int32_t sd_mmc_init(uint64_t *sec_num)
 {
     cmd_parameters_t *pcmd_handle;
@@ -657,6 +668,11 @@ static int32_t sd_mmc_init(uint64_t *sec_num)
 
     return state;
 }
+/*
+    Function: sd_go_idle
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_go_idle(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -675,6 +691,11 @@ static int32_t sd_go_idle(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: sd_snd_if_cond
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_snd_if_cond(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -693,6 +714,11 @@ static int32_t sd_snd_if_cond(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: sd_snd_app_cmd
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_snd_app_cmd(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -711,6 +737,11 @@ static int32_t sd_snd_app_cmd(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: sd_check_ocr
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_check_ocr(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -729,6 +760,11 @@ static int32_t sd_check_ocr(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: sd_snd_all_cid
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_snd_all_cid(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -747,6 +783,11 @@ static int32_t sd_snd_all_cid(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: sd_snd_rel_add
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_snd_rel_add(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -765,6 +806,12 @@ static int32_t sd_snd_rel_add(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 
 }
+/*
+    Function: sd_en_card_ready
+
+    Calls <sdmmc_is_card_ready>, <sd_snd_app_cmd>, <sd_check_ocr> and
+    <osal_task_delay>.
+*/
 static int32_t sd_en_card_ready(cmd_parameters_t *pcmd_handle)
 {
     int32_t state;
@@ -799,6 +846,11 @@ static int32_t sd_en_card_ready(cmd_parameters_t *pcmd_handle)
     return 0;
 }
 
+/*
+    Function: sd_sel_card
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_xfer_done>.
+*/
 static int32_t sd_sel_card(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -819,6 +871,11 @@ static int32_t sd_sel_card(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: sd_snd_csd
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_snd_csd(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -838,6 +895,11 @@ static int32_t sd_snd_csd(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: sd_set_bus_width
+
+    Calls <sd_snd_app_bus_cmd> and <sd_bus_width_4>.
+*/
 static int32_t sd_set_bus_width(cmd_parameters_t *pcmd_handle)
 {
     int32_t state;
@@ -857,6 +919,11 @@ static int32_t sd_set_bus_width(cmd_parameters_t *pcmd_handle)
     return 0;
 }
 
+/*
+    Function: sd_bus_width_4
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_bus_width_4(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -874,6 +941,11 @@ static int32_t sd_bus_width_4(cmd_parameters_t *pcmd)
     sdmmc_wait_cmd_done();
     return sdmmc_descriptor.status_code;
 }
+/*
+    Function: sd_snd_app_bus_cmd
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t sd_snd_app_bus_cmd(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -895,9 +967,13 @@ static int32_t sd_snd_app_bus_cmd(cmd_parameters_t *pcmd)
 #endif
 
 #if (DEV_TYPE ==  DEV_TYPE_EMMC)
-/*follows e.MMC standard: JESD84-B51A: Embedded MultiMediaCard (e.MMC),
- * Electrical Standard (5.1A)
- */
+/*
+    Function: sd_mmc_init
+
+    follows e.MMC standard: JESD84-B51A: Embedded MultiMediaCard (e.MMC),
+    Electrical Standard (5.1A)
+*/
+
 static int32_t sd_mmc_init(uint64_t *sec_num)
 {
     cmd_parameters_t *pcmd_handle;
@@ -956,6 +1032,11 @@ static int32_t sd_mmc_init(uint64_t *sec_num)
 }
 
 
+/*
+    Function: mmc_go_idle
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t mmc_go_idle(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -973,6 +1054,11 @@ static int32_t mmc_go_idle(cmd_parameters_t *pcmd)
     sdmmc_wait_cmd_done();
     return sdmmc_descriptor.status_code;
 }
+/*
+    Function: mmc_sel_card
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_xfer_done>.
+*/
 static int32_t mmc_sel_card(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -991,6 +1077,11 @@ static int32_t mmc_sel_card(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: mmc_snd_csd
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t mmc_snd_csd(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -1009,6 +1100,11 @@ static int32_t mmc_snd_csd(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: mmc_set_rel_add
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t mmc_set_rel_add(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -1028,6 +1124,11 @@ static int32_t mmc_set_rel_add(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: mmc_snd_all_cid
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_cmd_done>.
+*/
 static int32_t mmc_snd_all_cid(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -1046,6 +1147,12 @@ static int32_t mmc_snd_all_cid(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: mmc_check_ocr
+
+    Calls <sdmmc_is_card_ready>, <sdmmc_send_command> and
+    <sdmmc_wait_cmd_done>.
+*/
 static int32_t mmc_check_ocr(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -1068,6 +1175,9 @@ static int32_t mmc_check_ocr(cmd_parameters_t *pcmd)
     return sdmmc_descriptor.status_code;
 }
 
+/*
+    Function: mmc_send_ext_csd
+*/
 static int32_t mmc_send_ext_csd(cmd_parameters_t *pcmd,
         uint64_t *sector_count_ref)
 {
@@ -1099,6 +1209,11 @@ static int32_t mmc_send_ext_csd(cmd_parameters_t *pcmd,
     }
     return sdmmc_descriptor.status_code;
 }
+/*
+    Function: mmc_switch_bus_width
+
+    Calls <sdmmc_send_command> and <sdmmc_wait_xfer_done>.
+*/
 static int32_t mmc_switch_bus_width(cmd_parameters_t *pcmd)
 {
     int32_t state;
@@ -1120,6 +1235,12 @@ static int32_t mmc_switch_bus_width(cmd_parameters_t *pcmd)
 }
 #endif
 
+/*
+    Function: sdmmc_setup_host
+
+    Calls <sdmmc_reset_per0>, <sdmmc_reset_configs>, <sdmmc_init_phy> and
+    <sdmmc_init_configs>.
+*/
 static int32_t sdmmc_setup_host(void)
 {
     /*
@@ -1154,18 +1275,31 @@ uint32_t sdmmc_is_card_present(void)
     return sdmmc_is_card_detected();
 }
 
+/*
+    Function: sdmmc_wait_xfer_done
+
+    Wrapper around <osal_semaphore_wait>.
+*/
 static void sdmmc_wait_xfer_done(void)
 {
     (void)osal_semaphore_wait(sdmmc_descriptor.semaphore_xfer,
             OSAL_TIMEOUT_WAIT_FOREVER);
 }
 
+/*
+    Function: sdmmc_wait_cmd_done
+
+    Wrapper around <osal_semaphore_wait>.
+*/
 static void sdmmc_wait_cmd_done(void)
 {
     (void)osal_semaphore_wait(sdmmc_descriptor.semaphore_cmd,
             SDMMC_CMD_TIMEOUT_MS);
 }
 
+/*
+    Function: sdmmc_irq_handler
+*/
 void sdmmc_irq_handler(void *data)
 {
     (void)data;

@@ -5,6 +5,13 @@
  *
  * header file for sample implementation for iossm
  */
+
+/*
+    File: IOSSM Sample
+
+    Header file for sample implementation for iossm.
+*/
+
 #ifndef __IOSSM_SAMPLE_H__
 #define __IOSSM_SAMPLE_H__
 void iossm_task();

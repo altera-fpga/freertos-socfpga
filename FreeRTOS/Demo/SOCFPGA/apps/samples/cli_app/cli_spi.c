@@ -7,46 +7,47 @@
  */
 
 
-/**
- * @defgroup cli_spi SPI
- * @ingroup cli
- *
- * Perform operations on EEPROM connected to SPI bus
- *
- * @details
- * It supports the following commands:
- * - spi read &lt;instance&gt; &lt;slave_select&gt; &lt;register_address&gt; &lt;data_size&gt;
- * - spi write &lt;instance&gt; &lt;slave_select&gt; &lt;register_address&gt; &lt;data&gt;...
- * - spi help
- *
- * Typical usage:
- * - Use 'spi write' command to write data to the SPI EEPROM.
- * - Use 'spi read' command to read data from the SPI EEPROM.
- *
- * @section spi_commands Commands
- * @subsection spi_read spi read
- * Read from SPI EEPROM memory <br>
- *
- * Usage: <br>
- * spi read &lt;instance&gt; &lt;slave_select&gt; &lt;register_address&gt; &lt;data_size&gt; <br>
- *
- * It requires the following arguments:
- * - instance - The instance of the SPI driver. Valid values are 0 and 1.
- * - slave_select - The number assigned to the slave device. Valid range is from 1 to 4.
- * - register_address - The address of the memory location. It is a hexadecimal value from 0x00 to 0x3FFF.
- * - data_size - Number of bytes to read.
- * @subsection spi_write spi write
- * Write to SPI EEPROM memory
- *
- * Usage: <br>
- * spi write &lt;instance&gt; &lt;slave_select&gt; &lt;register_address&gt; &lt;data&gt;... <br>
- *
- * It requires the following arguments:
- * - instance - The instance of the SPI driver. Valid values are 0 and 1.
- * - slave_select - The number assigned to the slave device. Valid range is from 1 to 4.
- * - register_address - The address of the memory location. It is a hexadecimal value from 0x00 to 0x3FFF.
- * - data - Data written to the EEPROM memory. User can provide multiple values.
- */
+/*
+    File: SPI CLI Commands
+
+    Perform operations on EEPROM connected to SPI bus
+
+    It supports the following commands:
+    - spi read &lt;instance&gt; &lt;slave_select&gt; &lt;register_address&gt; &lt;data_size&gt;
+    - spi write &lt;instance&gt; &lt;slave_select&gt; &lt;register_address&gt; &lt;data&gt;...
+    - spi help
+
+    Typical usage:
+    - Use 'spi write' command to write data to the SPI EEPROM.
+    - Use 'spi read' command to read data from the SPI EEPROM.
+    Group: Commands
+
+    spi read:
+
+    Read from SPI EEPROM memory
+
+    Usage: spi read &lt;instance&gt; &lt;slave_select&gt;
+    &lt;register_address&gt; &lt;data_size&gt;
+
+    It requires the following arguments:
+    - instance - The instance of the SPI driver. Valid values are 0 and 1.
+    - slave_select - The number assigned to the slave device. Valid range is from 1 to 4.
+    - register_address - The address of the memory location. It is a hexadecimal value from 0x00 to 0x3FFF.
+    - data_size - Number of bytes to read.
+
+    spi write:
+
+    Write to SPI EEPROM memory
+
+    Usage: spi write &lt;instance&gt; &lt;slave_select&gt;
+    &lt;register_address&gt; &lt;data&gt;...
+
+    It requires the following arguments:
+    - instance - The instance of the SPI driver. Valid values are 0 and 1.
+    - slave_select - The number assigned to the slave device. Valid range is from 1 to 4.
+    - register_address - The address of the memory location. It is a hexadecimal value from 0x00 to 0x3FFF.
+    - data - Data written to the EEPROM memory. User can provide multiple values.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,10 +74,11 @@ int32_t eeprom_enable_write();
 
 spi_handle_t spi_hdl;
 
-/**
- * @func : cmd_spi
- * @brief : spi command line execution
- */
+/*
+    Function: cmd_spi
+
+    : spi command line execution
+*/
 BaseType_t cmd_spi( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {
@@ -373,6 +375,11 @@ BaseType_t cmd_spi( char *write_buffer, size_t write_buffer_len,
     return pdFALSE;
 }
 
+/*
+    Function: eeprom_enable_write
+
+    Calls <spi_xfer_sync>.
+*/
 int32_t eeprom_enable_write()
 {
     uint8_t cmd = EEPROM_WR_ENABLE;
@@ -386,6 +393,9 @@ int32_t eeprom_enable_write()
     return 0;
 }
 
+/*
+    Function: eeprom_write
+*/
 int32_t eeprom_write( uint8_t *buf, size_t size, uint16_t mem_add )
 {
     uint8_t cmd[ 150 ] = { 0 };
@@ -409,6 +419,11 @@ int32_t eeprom_write( uint8_t *buf, size_t size, uint16_t mem_add )
     return 0;
 }
 
+/*
+    Function: eeprom_read
+
+    Calls <spi_xfer_sync>.
+*/
 int32_t eeprom_read( uint8_t *buf, size_t size, uint16_t mem_add )
 {
     uint32_t i = 0;

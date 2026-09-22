@@ -6,6 +6,11 @@
  * Header file for FAT FS sample application with SD card storage
  */
 
+/*
+    File: FatFs Sample
+
+    Header file for FAT FS sample application with SD card storage.
+*/
 
 #ifndef __FATFS_SAMPLE_H__
 #define __FATFS_SAMPLE_H__

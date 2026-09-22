@@ -61,6 +61,12 @@
  * with the mailbox through the ATF using SMC calls.
  */
 
+/*
+    File: FCS Driver Implementation
+
+    Implements the FCS driver: 51 functions, 14 of them local to this file.
+*/
+
 #include <string.h>
 #include <errno.h>
 #include "socfpga_cache.h"
@@ -74,6 +80,11 @@
 #define FCS_BUFFER_SIZE           0x100000U
 #define FCS_CRYPTO_BLOCK_SIZE     0x400000U
 #define FCS_NON_GCM_BLOCK_SIZE    32U
+/*
+    Struct: fcs_session_handle_t
+
+    Handle for the FCS driver, holding uuid, session_id and crypto_handle. Declared as session_map[] in socfpga_fcs.c.
+*/
 typedef struct
 {
     char uuid[FCS_UUID_SIZE];
@@ -81,6 +92,11 @@ typedef struct
     sdm_client_handle_t crypto_handle;
 } fcs_session_handle_t;
 
+/*
+    Struct: fcs_service_descriptor
+
+    Descriptor for the FCS driver, holding fcs_sem, session_map, security_handle and session_count. Declared as fcs_descriptor in socfpga_fcs.c.
+*/
 struct fcs_service_descriptor
 {
     osal_semaphore_t fcs_sem;
@@ -90,11 +106,18 @@ struct fcs_service_descriptor
 };
 
 static struct fcs_service_descriptor *fcs_descriptor = NULL;
-/** @cond DOXYGEN_IGNORE */
 /* Statically allocating 4MB of data, 64 byte alignment for cache operations */
 static uint32_t fcs_inp_ops_buffer[FCS_BUFFER_SIZE] __attribute__((aligned(64)));
 static uint32_t fcs_out_ops_buffer[FCS_BUFFER_SIZE] __attribute__((aligned(64)));
-/** @endcond */
+
+/*
+    Function: fcs_callback
+
+    Calls osal_semaphore_post.
+
+    Parameters:
+        resp_values - Not used.
+*/
 
 void fcs_callback(uint64_t *resp_values);
 
@@ -186,6 +209,11 @@ int fcs_deinit(void)
     return 0;
 }
 
+/*
+    Function: get_client_handle
+
+    Calls ERROR and memcmp.
+*/
 static sdm_client_handle_t get_client_handle(char *uuid, uint32_t *session_id)
 {
     int i;
@@ -210,7 +238,12 @@ static sdm_client_handle_t get_client_handle(char *uuid, uint32_t *session_id)
     return fcs_handle;
 }
 
-/* @brief Use the random number generator to generate a UUID for the session ID */
+/*
+    Function: generate_uuid
+
+    Use the random number generator to generate a UUID for the session ID
+*/
+
 static void generate_uuid(sdm_client_handle_t fcs_handle, uint32_t session_id,
         char *uuid)
 {
@@ -848,6 +881,9 @@ int run_fcs_service_counter_set_preauthorized(uint8_t type, uint32_t value,
     return ret;
 }
 
+/*
+    Function: run_fcs_get_digest_init
+*/
 static int run_fcs_get_digest_init(char *uuid,
         uint32_t context_id, uint32_t key_id,
         uint32_t op_mode, uint32_t dig_size)
@@ -895,6 +931,9 @@ static int run_fcs_get_digest_init(char *uuid,
             sizeof(fcs_digest_init_args), NULL, 0);
 }
 
+/*
+    Function: run_fcs_get_digest_update
+*/
 static int run_fcs_get_digest_update(char *uuid, uint32_t context_id,
         char *src_data, uint32_t src_size,
         char *digest_data, uint32_t *digest_size,
@@ -1042,6 +1081,9 @@ int run_fcs_get_digest(char *uuid, uint32_t context_id,
     }
     return ret;
 }
+/*
+    Function: run_fcs_mac_verify_init
+*/
 static int run_fcs_mac_verify_init(char *uuid, uint32_t context_id,
         uint32_t key_id, uint32_t dig_size)
 {
@@ -1067,6 +1109,9 @@ static int run_fcs_mac_verify_init(char *uuid, uint32_t context_id,
             fcs_mac_verify_init_args, sizeof(fcs_mac_verify_init_args), NULL,
             0);
 }
+/*
+    Function: run_fcs_mac_verify_update
+*/
 static int run_fcs_mac_verify_update(char *uuid, uint32_t context_id,
         char *src_addr, uint32_t src_size,
         char *mac_data, uint32_t mac_data_size,
@@ -1697,6 +1742,9 @@ int run_fcs_get_device_identity(char *dev_identity, uint32_t *dev_id_size)
     return ret;
 }
 
+/*
+    Function: fcs_aes_set_params
+*/
 static int fcs_aes_set_params(uint32_t block_mode, uint32_t crypt_mode,
         uint32_t iv_src, char *iv_data, uint32_t tag_size, uint32_t aad_size,
         uint32_t *param_data, uint32_t *param_size)
@@ -1756,6 +1804,9 @@ static int fcs_aes_set_params(uint32_t block_mode, uint32_t crypt_mode,
     (void)memcpy((void *)&param_data[3], (void *)iv_data, FCS_AES_IV_SIZE);
     return 0;
 }
+/*
+    Function: run_fcs_aes_crypt_init
+*/
 static int run_fcs_aes_crypt_init(char *uuid, uint32_t context_id,
         uint32_t key_id, uint32_t block_mode, uint32_t crypt_mode,
         uint32_t iv_src, char *iv_data, uint32_t tag_size,
@@ -1795,6 +1846,9 @@ static int run_fcs_aes_crypt_init(char *uuid, uint32_t context_id,
 
     return ret;
 }
+/*
+    Function: run_fcs_aes_update
+*/
 static int run_fcs_aes_update(char *uuid, uint32_t context_id,
         char *src_addr, uint32_t src_size, char *dest_addr,
         uint32_t dest_size, uint32_t padding_size,
@@ -2252,6 +2306,9 @@ int run_fcs_ecdsa_hash_verify(char *uuid, uint32_t context_id,
     return ret;
 }
 
+/*
+    Function: run_fcs_ecdsa_sha2_data_sign_init
+*/
 static int run_fcs_ecdsa_sha2_data_sign_init(char *uuid,
         uint32_t context_id, uint32_t key_id, uint32_t ecc_algo)
 {
@@ -2286,6 +2343,9 @@ static int run_fcs_ecdsa_sha2_data_sign_init(char *uuid,
     return ret;
 }
 
+/*
+    Function: run_fcs_ecdsa_sha2_data_sign_update
+*/
 static int run_fcs_ecdsa_sha2_data_sign_update(char *uuid,
         uint32_t context_id, char *src_addr, uint32_t src_size,
         char *dest_data, uint32_t *dest_size, uint8_t final)
@@ -2426,6 +2486,9 @@ int run_fcs_ecdsa_sha2_data_sign(char *uuid, uint32_t context_id,
     }
     return ret;
 }
+/*
+    Function: run_fcs_ecdsa_sha2_data_sign_verify_init
+*/
 static int run_fcs_ecdsa_sha2_data_sign_verify_init(char *uuid,
         uint32_t context_id, uint32_t key_id, uint32_t ecc_algo)
 {
@@ -2459,9 +2522,12 @@ static int run_fcs_ecdsa_sha2_data_sign_verify_init(char *uuid,
             0);
 }
 /*
- * Signature data should be stored after the input data
- * If pubkey is provided, ensure its after the signature to be verified
- */
+    Function: run_fcs_ecdsa_sha2_data_sign_verify_update
+
+    Signature data should be stored after the input data
+    If pubkey is provided, ensure its after the signature to be verified
+*/
+
 static int run_fcs_ecdsa_sha2_data_sign_verify_update(char *uuid,
         uint32_t context_id, char *src_addr, uint32_t src_size,
         char *signed_data, uint32_t sig_size, char *pub_key_data,

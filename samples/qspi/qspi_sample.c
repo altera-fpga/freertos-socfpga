@@ -6,10 +6,11 @@
  * Sample application for QSPI
  */
 
-/**
- * @file qspi_sample.c
- * @brief Sample Application for QSPI
- */
+/*
+    File: QSPI Sample
+
+    Sample Application for QSPI
+*/
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -20,34 +21,39 @@
 #include "socfpga_cache.h"
 #include "osal_log.h"
 
-/**
- * @defgroup qspi_sample QSPI Flash
- * @ingroup samples
- *
- * Sample Application for QSPI Flash
- *
- * @details
- * @section qspi_desc Description
- * This is a sample application to demonstrate the usage of QSPI flash driver.
- * It writes data to flash using QSPI, reads it back and then verifies it.
+/*
+    Group: QSPI Flash
 
- * This sample app was  tested with Micron MT25QU02GCBB Serial NOR Flash Memory.
- *
- * @section qspi_pre Prerequisites
- * - A QSPI flash device shall be present in the QSPI bus
- *
- * @section qspi_param Configurable Parameters
- * - The memory address to write and read back can be configured in @c START_ADDRESS macro.
- * - The number of bytes to transfer can be configured in @c TEST_DATA_SIZE macro.
- *
- * @section qspi_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board.
- * 3. Observe the UART terminal for status messages.
- *
- * @section qspi_result Expected Results
- * - The read and written data are compared, and a success message is printed on match.
- */
+    Sample Application for QSPI Flash
+
+    Description:
+
+    This is a sample application to demonstrate the usage of QSPI flash
+    driver. It writes data to flash using QSPI, reads it back and then
+    verifies it.
+
+    This sample app was tested with Micron MT25QU02GCBB Serial NOR Flash
+    Memory.
+
+    Prerequisites:
+
+    - A QSPI flash device shall be present in the QSPI bus
+
+    Configurable Parameters:
+
+    - The memory address to write and read back can be configured in START_ADDRESS macro.
+    - The number of bytes to transfer can be configured in TEST_DATA_SIZE macro.
+
+    How to Run:
+
+    1. Follow the common README instructions to build and flash the application.
+    2. Run the application on the board.
+    3. Observe the UART terminal for status messages.
+
+    Expected Results:
+
+    - The read and written data are compared, and a success message is printed on match.
+*/
 
 /* The size of the data to be written and verified*/
 #define TEST_DATA_SIZE    ((4 * 1024 * 1024))
@@ -63,8 +69,10 @@ uint8_t w_buf[TEST_DATA_SIZE];
 uint8_t r_buf[TEST_DATA_SIZE];
 
 /*
- * @brief Initialize test data
- */
+    Function: init_test_data
+
+    Initialize test data
+*/
 void init_test_data() {
     for (int i = 0; i < TEST_DATA_SIZE; i++)
     {
@@ -72,6 +80,9 @@ void init_test_data() {
     }
 }
 
+/*
+    Function: qspi_task
+*/
 int qspi_task(void) {
     PRINT("QSPI flash driver example.");
     PRINT("Estimated Time for Completion: 50 Seconds.");

@@ -24,25 +24,39 @@
  *
  */
 
-/******************************************************************************
- * NOTE 1:  This project provides two demo applications.  A simple blinky
- * style project, and a more comprehensive test and demo application.  The
- * mainUSE_SIMPLE_BLINKY_DEMO_ONLY setting in main.c is used to select
- * between the two.  See the notes on using mainUSE_SIMPLE_BLINKY_DEMO_ONLY
- * in main.c.  This file implements the simply blinky style version.
- *
- * NOTE 2:  This file only contains the source code that is specific to the
- * full demo.  Generic functions, such FreeRTOS hook functions, and functions
- * required to configure the hardware are defined in main.c.
- ******************************************************************************
- *
- * main_full() does the following:
- * 1. Calls the vStartTests() provided by FreeRTOS template to do the tests.
- */
+/*
+    File: Main Full
+
+    NOTE 1: This project provides two demo applications.
+*/
+
+/*
+    ***************************************************************************
+    NOTE 1: This project provides two demo applications. A simple blinky style
+    project, and a more comprehensive test and demo application. The
+    mainUSE_SIMPLE_BLINKY_DEMO_ONLY setting in main.c is used to select
+    between the two. See the notes on using mainUSE_SIMPLE_BLINKY_DEMO_ONLY in
+    main.c. This file implements the simply blinky style version.
+
+    NOTE 2: This file only contains the source code that is specific to the
+    full demo. Generic functions, such FreeRTOS hook functions, and functions
+    required to configure the hardware are defined in main.c.
+    *****************************************************************************
+
+    main_full() does the following:
+    1. Calls the vStartTests() provided by FreeRTOS template to do the tests.
+*/
 #include "TestRunner.h"
 
 /*-----------------------------------------------------------*/
 
+/*
+    Function: main_full
+
+    Calls <vStartTests>.
+
+    It does not return; the body loops for the life of the task.
+*/
 void main_full( void )
 {
     /* Start tests. */

@@ -6,6 +6,99 @@
  * Header file for SoC FPGA PHY low-level driver
  */
 
+/*
+    File: Ethernet XGMAC PHY Low-Level Driver
+
+    Header file for SoC FPGA PHY low-level driver.
+*/
+
+/*
+    Constants: Ethernet XGMAC PHY constants
+
+    BIT                                        - Expands to (1UL << (nr)).
+    PHY_MIN_ADDRESS                            - Value: 0U.
+    PHY_MAX_ADDRESS                            - Value: 31U.
+    COPPER_CONTROL_REG                         - Value: 0.
+    COPPER_STATUS_REG                          - Value: 1.
+    PHYID1_REG                                 - Value: 2.
+    PHYID2_REG                                 - Value: 3.
+    COPPER_AUTONEG_ADV_REG                     - Value: 4.
+    COPPER_LINK_ABILITY_REG                    - Value: 5.
+    PHY_1GBASE_T_CONTROL_REG                   - Value: 9.
+    STATUS_1GBASE_T_REG                        - Value: 10.
+    COPPER_SPECIFIC_STATUS_REG1                - Value: 17.
+    GENERAL_CONTROL_REG_1                      - Value: 20.
+    MAC_SPECIFIC_CONTROL_REG_2                 - Value: 21.
+    PAGE_ADDRESS_SELECT_REG                    - Value: 22.
+    PHY_ID_MARVELL                             - Value: 0x0DD10141.
+    MMD_ACCESS_CONTROL_REG                     - Value: 13.
+    MMD_ACCESS_DATA_REG                        - Value: 14.
+    PHY_CONTROL_REG                            - Value: 31.
+    PHY_ID_MICROCHIP                           - Value: 0x16220022.
+    MICROCHIP_GTX_CLK_SKEW                     - Value: 18U.
+    MICROCHIP_RX_CLK_SKEW                      - Value: 13U.
+    SELECT_PAGE_ZERO                           - Value: 0.
+    SELECT_PAGE_EIGHTEEN                       - Value: 0x12.
+    SELECT_PAGE_TWO                            - Value: 2.
+    MIN_COUNT                                  - Value: 0.
+    MAX_GEN_TIMER_COUNT                        - Value: 100U.
+    MAX_COUNT_FOR_AUTONEG_COMPLETE             - Value: 1000.
+    FULL_DUPLEX_100M                           - Value: 14.
+    HALF_DUPLEX_100M                           - Value: 13.
+    COPPER_CONTROL_PHY_RESET_MASK              - Value: 0x8000U.
+    COPPER_REAL_TIME_LINK_STATUS_MASK          - Value: 0x0400U.
+    COPPER_LINK_STATUS_MASK                    - Value: 0x0004U.
+    COPPER_SPEED_SELECT_1000MBPS_MASK          - Value: 0x0040U.
+    COPPER_SPEED_SELECT_100MBPS_MASK           - Value: 0x2000U.
+    COPPER_SPEED_SELECT_10MBPS_MASK            - Value: 0x0000U.
+    COPPER_CONTROL_FULLDPLX_MASK               - Value: 0x0100U.
+    COPPER_CONTROL_ISOLATE_MASK                - Value: 0x0400U.
+    COPPER_CONTROL_AUTONEG_ENABLE_MASK         - Value: 0x1000U.
+    COPPER_CONTROL_AUTONEG_RESET_MASK          - Value: 0x0200U.
+    COPPER_STATUS_AUTONEG_COMPLETE_MASK        - Value: 0x0020U.
+    MAC_RGMII_RXTX_DELAY_MASK                  - Value: 0x0030U.
+    CSCR1_MDI_CROSSOVER_ENABLE_ALL_MASK        - Value: 0x0060U.
+    COPPER_STATUS_100BASE_TX_ALLDPLX_MASK      - Value: 0x6000U.
+    COPPER_STATUS_100BASE_TX_FULLDPLC_MASK     - Value: 0x4000U.
+    COPPER_STATUS_100BASE_TX_HALFDPLC_MASK     - Value: 0x2000U.
+    COPPER_STATUS_10BASE_TX_ALLDPLX_MASK       - Value: 0x1800U.
+    COPPER_STATUS_10BASE_TX_FULLDPLC_MASK      - Value: 0x1000U.
+    COPPER_STATUS_10BASE_TX_HALFDPLC_MASK      - Value: 0x0800U.
+    STATUS_1GBASE_TX_ALLDPLX_MASK              - Value: 0x0C00U.
+    STATUS_1GBASE_TX_FULLDPLX_MASK             - Value: 0x0800U.
+    STATUS_1GBASE_TX_HALFDPLX_MASK             - Value: 0x0400U.
+    COPPER_AUTONEG_ASYNC_PAUSE_MASK            - Value: 0x0800U.
+    COPPER_AUTONEG_PAUSE_MASK                  - Value: 0x0400U.
+    GENERAL_CONTROL_RGMII_COPPER_SELECT_MASK   - Value: 0x0007U.
+    GENERAL_CONTROL_RESET_MASK                 - Value: 0x8000U.
+    AUTONEG_ADVERTISE_1GBASE_TX_FULLDPLX_MASK  - Value: 0x0200U.
+    AUTONEG_ADVERTISE_1GBASE_TX_HALFDPLX_MASK  - Value: 0x0100U.
+    AUTONEG_ADVERTISE_100BASE_TX_FULLDPLX_MASK - Value: 0x0100U.
+    AUTONEG_ADVERTISE_100BASE_TX_HALFDPLX_MASK - Value: 0x0080U.
+    AUTONEG_ADVERTISE_10BASE_TX_FULLDPLX_MASK  - Value: 0x0040U.
+    AUTONEG_ADVERTISE_10BASE_TX_HALFDPLX_MASK  - Value: 0x0020U.
+    AUTONEG_ADV_1GBASE_TX_ALLDPLX_MASK         - Value: 0x0300U.
+    AUTONEG_ADV_100_10_TX_ALLDPLX_MASK         - Value: 0x01E0U.
+    AUTO_ADV_100_10_TX_FULLDPX_MASK            - Value: 0x0140U.
+    AUTONEG_ADV_100_10_TX_HALFDPLX_MASK        - Value: 0x00A0U.
+    REAL_TIME_LINK_STATUS                      - Value: 0U.
+    ADVERTISE_1GBASE_TX_ALLDPLX                - Value: 22U.
+    ADVERTISE_1GBASE_TX_FULLDPLX               - Value: 20U.
+    ADVERTISE_1GBASE_TX_HALFDPLX               - Value: 18U.
+    ADVERTISE_100_10_BASE_TX_ALLDPLX           - Value: 16U.
+    ADVERTISE_100_10_BASE_TX_FULLDPLX          - Value: 14U.
+    ADVERTISE_100_10_BASE_TX_HALFDPLX          - Value: 12U.
+    ADVERTISE_100BASE_TX_ALLDPLX               - Value: 10U.
+    ADVERTISE_100BASE_TX_FULLDPLX              - Value: 8U.
+    ADVERTISE_100BASE_TX_HALFDPLX              - Value: 6U.
+    ADVERTISE_10BASE_TX_ALLDPLX                - Value: 4U.
+    ADVERTISE_10BASE_TX_FULLDPLX               - Value: 2U.
+    ADVERTISE_10BASE_TX_HALFDPLX               - Value: 1U.
+    ENABLE_ASYNC_PAUSE                         - Value: 1U.
+    ENABLE_MAC_PAUSE                           - Value: 1U.
+    ETH_PHY                                    - Expands to MARVEL.
+*/
+
 #ifndef __SOCFPGA_XGMAC_PHY_LL_H__
 #define __SOCFPGA_XGMAC_PHY_LL_H__
 

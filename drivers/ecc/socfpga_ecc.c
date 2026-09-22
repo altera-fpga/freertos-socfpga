@@ -6,6 +6,12 @@
  * HAL driver implementation for ECC
  */
 
+/*
+    File: ECC Driver Implementation
+
+    HAL driver implementation for ECC.
+*/
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -60,6 +66,11 @@
 #define SMC_WR_REG32(address, val)    ecc_smc_io_write32(address, val)
 #define SMC_RD_REG32(address)         ecc_smc_io_read32(address)
 
+/*
+    Struct: ecc_blk_data_t
+
+    Data for the ECC driver, holding base_addr, sbe_err_cnt and dbe_err_cnt. Declared as ecc_instances[] in socfpga_ecc.c.
+*/
 typedef struct
 {
     uint32_t base_addr;
@@ -67,6 +78,11 @@ typedef struct
     uint32_t dbe_err_cnt;
 } ecc_blk_data_t;
 
+/*
+    Struct: ecc_handle_t
+
+    Handle for the ECC driver, holding ecc_instances, module_init and user_cb. Declared as hecc in socfpga_ecc.c.
+*/
 typedef struct
 {
     ecc_blk_data_t ecc_instances[ECC_MAX_INSTANCES];
@@ -77,6 +93,11 @@ typedef struct
 ecc_handle_t hecc;
 static bool ecc_initialized;
 
+/*
+    Function: ecc_smc_io_write32
+
+    Calls <smc_call>.
+*/
 static inline void ecc_smc_io_write32(uint32_t addr, uint32_t val)
 {
     uint64_t smc_args[8] = {0};
@@ -90,6 +111,11 @@ static inline void ecc_smc_io_write32(uint32_t addr, uint32_t val)
     }
 }
 
+/*
+    Function: ecc_smc_io_read32
+
+    Calls <smc_call>.
+*/
 static inline uint32_t ecc_smc_io_read32(uint32_t addr)
 {
     uint64_t smc_args[8] = {0};
@@ -98,6 +124,9 @@ static inline uint32_t ecc_smc_io_read32(uint32_t addr)
     return (uint32_t)smc_args[0];
 }
 
+/*
+    Function: ecc_process_sbe
+*/
 static void ecc_process_sbe(uint32_t module_id)
 {
     uint32_t err_addr;
@@ -132,6 +161,9 @@ static void ecc_process_sbe(uint32_t module_id)
     (void)err_addr;
     }
 }
+/*
+    Function: ecc_process_dbe
+*/
 static void ecc_process_dbe(uint32_t module_id)
 {
     uint32_t err_addr;
@@ -162,10 +194,13 @@ static void ecc_process_dbe(uint32_t module_id)
     (void)err_addr;
 }
 /*
- * For QSPI ECC all register access is performed via SMC calls, these
- * registers are secure registers and can all be accessed through the
- * ATF using secure register operations.
- */
+    Function: ecc_qspi_irq_handler
+
+    For QSPI ECC all register access is performed via SMC calls, these
+    registers are secure registers and can all be accessed through the
+    ATF using secure register operations.
+*/
+
 void ecc_qspi_irq_handler(void *param)
 {
     (void)param;
@@ -194,6 +229,9 @@ void ecc_qspi_irq_handler(void *param)
         return;
     }
 }
+/*
+    Function: ecc_irq_handler
+*/
 void ecc_irq_handler(void *param)
 {
     (void)param;
@@ -242,10 +280,13 @@ void ecc_irq_handler(void *param)
     }
 }
 /*
- * Providing a different implementation for enabling QSPI module as
- * the register access should be done using secure register read and
- * write
- */
+    Function: ecc_enable_qspi
+
+    Providing a different implementation for enabling QSPI module as
+    the register access should be done using secure register read and
+    write
+*/
+
 static int ecc_enable_qspi(void)
 {
     uint32_t reg_val, retry_count = 0;

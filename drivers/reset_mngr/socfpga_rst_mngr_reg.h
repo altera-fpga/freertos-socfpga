@@ -6,6 +6,12 @@
  * Reset manager register definitions
  */
 
+/*
+    File: Reset Manager Registers
+
+    Reset manager register definitions.
+*/
+
 #ifndef __SOCFPGA_RST_MNGR_REG_H__
 #define __SOCFPGA_RST_MNGR_REG_H__
 
@@ -378,6 +384,9 @@
 #define RESET_CPU3_RESET_BASE_HIGH_VECTOR_BASE_HIGH_MASK    0x000000FFU
 #define RESET_CPU3_RESET_BASE_HIGH_VECTOR_BASE_HIGH_POS     0U
 
+/*
+    Function: rstmgr_get_base_addr
+*/
 static inline uint32_t rstmgr_get_base_addr(uint32_t p)
 {
     if (p < 32U)
@@ -394,6 +403,9 @@ static inline uint32_t rstmgr_get_base_addr(uint32_t p)
     }
 }
 
+/*
+    Function: rstmgr_get_bit_pos
+*/
 static inline uint8_t rstmgr_get_bit_pos(uint32_t p)
 {
     if (p < 32U)

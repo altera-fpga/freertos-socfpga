@@ -6,6 +6,13 @@
  * Header file for Events sub-module of SoC FPGA USB3.1 XHCI low level driver
  */
 
+/*
+    File: xHCI Events Driver
+
+    Declares the xHCI Events driver interface: 13 functions, 6 types and 3
+    constants.
+*/
+
 #ifndef __XHCI_EVENTS_H__
 #define __XHCI_EVENTS_H__
 
@@ -16,10 +23,15 @@
 /* XHCI specific event completion codes */
 #define EVENT_SUCCESS         (1U)
 
-#define PORTSC_REG_OFFSET     (0x00000400UL)    /*!< XHCI PORTSC register offset */
+#define PORTSC_REG_OFFSET     (0x00000400UL)    /* XHCI PORTSC register offset */
 
-#define PORTSC_CLEAR_FLAGS    (0x80FF01FFU)     /*!< flag used to reset any of the PORTSC register status flags */
+#define PORTSC_CLEAR_FLAGS    (0x80FF01FFU)     /* flag used to reset any of the PORTSC register status flags */
 
+/*
+    Enum: xhci_completion_code_t
+
+    Values used by the xHCI Events driver: BABBLE_DETECTED_ERROR, USB_TRANSACTION_ERROR, TRB_ERROR and STALL_ERROR.
+*/
 typedef enum
 {
     DATA_BUFFER_ERROR = 2,              /* !< HC is unable to keep up with reception of data*/
@@ -36,7 +48,11 @@ typedef enum
                                            invalid*/
 }xhci_completion_code_t;
 
-/* XHCI specific EVENT Identification codes */
+/*
+    Enum: xhci_event_trb_type_t
+
+    XHCI specific EVENT Identification codes. Declared as trb_id in xhci_events.c.
+*/
 typedef enum
 {
     TRANSFER_EVENT = 32,                /* !< Transfer event TRB id */
@@ -44,9 +60,11 @@ typedef enum
     PORT_STATUS_CHANGE_EVENT,           /* !< PSCEG event TRB id */
 }xhci_event_trb_type_t;
 
-/* @struct  xtc_event_t
- * @brief   structure to store the transfer completion Event TRB data
- */
+/*
+    Struct: xtc_event_t
+
+    structure to store the transfer completion Event TRB data
+*/
 typedef struct __attribute__ ((packed))
 {
     uint64_t tr_trb_ptr;                /* !< address of the TRB that generated this event */
@@ -80,9 +98,11 @@ typedef struct __attribute__ ((packed))
 
 } xtc_event_t;
 
-/* @struct  xpsc_event_t
- * @brief   structure to store the PSC completion Event TRB data
- */
+/*
+    Struct: xpsc_event_t
+
+    structure to store the PSC completion Event TRB data
+*/
 typedef struct __attribute__ ((packed))
 {
     uint64_t buf;               /* !< Stores the port id of the port that generated this event */
@@ -109,9 +129,11 @@ typedef struct __attribute__ ((packed))
 
 } xpsc_event_t;
 
-/* @struct  generic_event_trb
- * @brief   generic structure template for event trb
- */
+/*
+    Struct: generic_event_trb
+
+    generic structure template for event trb
+*/
 struct generic_event_trb
 {
     uint64_t buffer;            /* !< buffer field of a trb */
@@ -129,6 +151,11 @@ struct generic_event_trb
     };
 };
 
+/*
+    Struct: xhci_event_trb_t
+
+    Transfer request block for the xHCI Events driver, holding cc_event, tr_event, psc_event and event_trb. Passed to get_xhc_event.
+*/
 typedef union
 {
     xcc_event_t cc_event;
@@ -137,7 +164,11 @@ typedef union
     struct generic_event_trb event_trb;
 }xhci_event_trb_t;
 
-/* Structure to store the event ring parameters */
+/*
+    Struct: xhci_psceg_params_t
+
+    Structure to store the event ring parameters. Passed to handle_psceg_event and update_device_rh_params.
+*/
 typedef struct
 {
     uint32_t rhport;        /* !< root hub port id of the device*/
@@ -145,84 +176,151 @@ typedef struct
 }xhci_psceg_params_t;
 
 /*
- * @brief  function to display the event ring TRBs
- * @param[in]  xhci reference to xhci data structure
- */
+    Function: display_event_trbs
+
+    function to display the event ring TRBs
+
+    Parameters:
+
+        xhci - reference to xhci data structure
+*/
 void display_event_trbs(struct xhci_data *xhci);
 
 /*
- * @brief get the xhci event from the event ring
- * @param[in]  xhci reference to xhci data structure
- * @return
- *   event ring parameters
- */
+    Function: get_xhc_event
+
+    get the xhci event from the event ring
+
+    Parameters:
+
+        xhci - reference to xhci data structure
+
+    Returns:
+
+        event ring parameters
+*/
 xhci_event_trb_t get_xhc_event(struct xhci_data *xhci_ptr);
 
 /*
- * @brief  Get the xhci RH port  link speed
- * @param[in] rhport rh port id of the corresponding port
- */
+    Function: get_xhc_port_speed
+
+    Get the xhci RH port link speed
+
+    Parameters:
+
+        rhport - rh port id of the corresponding port
+*/
 uint8_t get_xhc_port_speed(uint8_t rhport);
 
 /*
- * @brief  get the RH port conntect status
- * @param[in] rhport  rh port id of the corresponding port
- */
+    Function: xhci_port_status
+
+    get the RH port conntect status
+
+    Parameters:
+
+        rhport - rh port id of the corresponding port
+*/
 bool xhci_port_status(uint8_t rhport);
 
 /*
- * @brief  check if rh port reset is completed
- * @param[in] rhport  rh port id of the corresponding port
- * @return
- *  true  if port reset ends successfully
- *  false if port reset is unsuccessful
- */
+    Function: is_xhci_port_reset_end
+
+    check if rh port reset is completed
+
+    Parameters:
+
+        rhport - rh port id of the corresponding port
+
+    Returns:
+
+        true if port reset ends successfully
+        false if port reset is unsuccessful
+*/
 bool is_xhci_port_reset_end(uint8_t rhport);
 
 /*
- * @brief  reset the xhci RH port
- * @param[in] rhport  rh port id of the corresponding port
- */
+    Function: reset_xhci_port
+
+    reset the xhci RH port
+
+    Parameters:
+
+        rhport - rh port id of the corresponding port
+*/
 void reset_xhci_port(uint8_t rhport);
 
 /*
- * @brief handle all the PSCEG event
- * @param[in] psc_event PSCEG event TRB
- * @return port number and attach/detach flag
- */
+    Function: handle_psceg_event
+
+    handle all the PSCEG event
+
+    Parameters:
+
+        psc_event - PSCEG event TRB
+
+    Returns:
+
+        port number and attach/detach flag
+*/
 xhci_psceg_params_t handle_psceg_event(xpsc_event_t psc_event);
 
 /*
- * @brief update the device address in the xhci structure
- * @param[in]  xhci -  reference of xhci hcd controller
- */
+    Function: update_device_address
+
+    update the device address in the xhci structure
+
+    Parameters:
+
+        xhci - - reference of xhci hcd controller
+*/
 void update_device_address(struct xhci_data *xhci_ptr);
 
 /*
- * @brief update the device speed in the xhci structure
- * @param[in]  xhci_ptr -  reference of xhci hcd controller
- */
+    Function: update_device_dev_speed
+
+    update the device speed in the xhci structure
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+*/
 void update_device_dev_speed(struct xhci_data *xhci_ptr);
 
 /*
- * @brief update the device slot id  in the xhci structure
- * @param[in]  dev_data -  reference of xhci_device_data structure
- * @param[in]  slot_id  -  slot id of the attached device
- */
+    Function: update_device_slot_id
+
+    update the device slot id in the xhci structure
+
+    Parameters:
+
+        dev_data - - reference of xhci_device_data structure
+        slot_id - - slot id of the attached device
+*/
 void update_device_slot_id(struct xhci_device_data *dev_data, uint8_t slot_id);
 
 /*
- * @brief  update the device roothub parameters in the xhci structure
- * @param[in]  xhci_ptr   -  reference of xhci hcd controller
- * @param[in]  rh_params  -  roothub parameters
- */
+    Function: update_device_rh_params
+
+    update the device roothub parameters in the xhci structure
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+        rh_params - - roothub parameters
+*/
 void update_device_rh_params(struct xhci_data *xhci_ptr,
         xhci_psceg_params_t rh_params);
 
 /*
- * @brief Issue warm reset
- * @param[in] rhport The port id for which WR should be done
- */
+    Function: xhci_warm_reset
+
+    Issue warm reset
+
+    Parameters:
+
+        rhport - The port id for which WR should be done
+*/
 void xhci_warm_reset(uint8_t rhport);
 
 #endif  /* __XHCI_EVENTS_H__ */

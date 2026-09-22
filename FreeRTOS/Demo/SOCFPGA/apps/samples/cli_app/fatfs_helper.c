@@ -6,6 +6,23 @@
  * Helper functions to support CLI commands for FAT file system
  */
 
+/*
+    File: FatFs Helper Implementation
+
+    Helper functions to support CLI commands for FAT file system.
+*/
+
+/*
+    Constants: FatFs Helper constants
+
+    MOUNTED     - Value: 1.
+    UNMOUNTED   - Value: 0.
+    APPEND_MODE - Value: 0x08.
+    WRITE_MODE  - Value: 0x02.
+    CREATE_MODE - Value: 0x04.
+    READ_MODE   - Value: 0x01.
+*/
+
 #include "ff_sddisk.h"
 #include "FreeRTOS.h"
 #include "ff_sys.h"
@@ -26,6 +43,9 @@ FF_Disk_t *usb3Obj = NULL;
 uint8_t sdmmc_mount_status = UNMOUNTED;
 uint8_t usb3_mount_status = UNMOUNTED;
 
+/*
+    Function: ff_mount
+*/
 void ff_mount( const char *MountName, disk_type_t dtype)
 {
     if (MountName != NULL)
@@ -68,6 +88,9 @@ void ff_mount( const char *MountName, disk_type_t dtype)
     }
 }
 
+/*
+    Function: ff_read
+*/
 void ff_read( const char *FileName, disk_type_t dtype)
 {
     FF_Disk_t *DiskObj = NULL;
@@ -121,6 +144,11 @@ void ff_read( const char *FileName, disk_type_t dtype)
     }
 }
 
+/*
+    Function: ff_ls
+
+    Calls FF_FindFirst and FF_FindNext.
+*/
 void ff_ls( const char *path, disk_type_t dtype)
 {
     FF_Disk_t *DiskObj = NULL;
@@ -169,6 +197,9 @@ void ff_ls( const char *path, disk_type_t dtype)
     }
 }
 
+/*
+    Function: ff_mk_dir
+*/
 void ff_mk_dir( const char *dirPath, disk_type_t dtype)
 {
     FF_Disk_t *DiskObj = NULL;
@@ -205,6 +236,11 @@ void ff_mk_dir( const char *dirPath, disk_type_t dtype)
     }
 }
 
+/*
+    Function: ff_un_mount
+
+    Calls FF_Unmount and FF_SDDiskDelete.
+*/
 void ff_un_mount( disk_type_t dtype)
 {
     FF_Disk_t *DiskObj = NULL;
@@ -243,6 +279,9 @@ void ff_un_mount( disk_type_t dtype)
     }
 }
 
+/*
+    Function: ff_rm_dir
+*/
 void ff_rm_dir( const char *dirName, disk_type_t dtype)
 {
     FF_Disk_t *DiskObj = NULL;
@@ -279,6 +318,9 @@ void ff_rm_dir( const char *dirName, disk_type_t dtype)
     }
 }
 
+/*
+    Function: ff_write
+*/
 void ff_write( const char *FileName, const char *buffer, disk_type_t dtype)
 {
     FF_Disk_t *DiskObj = NULL;
@@ -339,6 +381,9 @@ void ff_write( const char *FileName, const char *buffer, disk_type_t dtype)
     }
 }
 
+/*
+    Function: ff_rm
+*/
 void ff_rm( const char *fileName, disk_type_t dtype)
 {
     FF_Disk_t *DiskObj = NULL;

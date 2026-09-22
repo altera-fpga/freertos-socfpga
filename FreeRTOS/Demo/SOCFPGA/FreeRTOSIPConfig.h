@@ -19,13 +19,107 @@
  * http://www.FreeRTOS.org
  */
 
+/*
+    File: FreeRTOS IP Config
 
-/*****************************************************************************
-*
-* See the following URL for configuration information.
-* http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Configuration.html
-*
-*****************************************************************************/
+    Compile-time settings: 82 definitions.
+*/
+
+/*
+    Constants: FreeRTOS IP constants
+
+    ipconfigUSE_DHCPv6                          - Value: 1.
+    ipconfigUSE_IPv6                            - Value: 1.
+    ipconfigUSE_RA                              - Value: 1.
+    ipconfigUSE_IPv4                            - Value: 1.
+    ipconfigIPv4_BACKWARD_COMPATIBLE            - Value: 0.
+    _static                                     - Build switch, defined with no replacement text.
+    ipconfigHAS_DEBUG_PRINTF                    - Value: 0.
+    FreeRTOS_debug_printf                       - Expands to configPRINTF( X ).
+    ipconfigHAS_PRINTF                          - Value: 1.
+    FreeRTOS_printf                             - Expands to configPRINTF( X ).
+    ipconfigBYTE_ORDER                          - Expands to pdFREERTOS_LITTLE_ENDIAN.
+    FreeRTOS_htons                              - Expands to (( uint16_t ) (((usIn) << 8U) | ((usIn) >> 8U))).
+    ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM      - Value: 1.
+    ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME     - Value: (10000).
+    ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME        - Value: (10000).
+    ipconfigUSE_DNS_CACHE                       - Value: (1).
+    ipconfigDNS_CACHE_ADDRESSES_PER_ENTRY       - Value: (2).
+    ipconfigDNS_REQUEST_ATTEMPTS                - Value: (2).
+    ipconfigDNS_CACHE_NAME_LENGTH               - Value: (254).
+    ipconfigIP_TASK_PRIORITY                    - Expands to (configMAX_PRIORITIES - 2).
+    ipconfigIP_TASK_STACK_SIZE_WORDS            - Expands to (configMINIMAL_STACK_SIZE * 5).
+    ipconfigUSE_NETWORK_EVENT_HOOK              - Value: 1.
+    ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS       - Expands to (5000U / portTICK_PERIOD_MS).
+    ipconfigUSE_DHCP                            - Value: 1.
+    ipconfigDHCP_REGISTER_HOSTNAME              - Value: 1.
+    ipconfigDHCP_USES_UNICAST                   - Value: 1.
+    ipconfigUSE_DHCP_HOOK                       - Value: 1.
+    ipconfigMAXIMUM_DISCOVER_TX_PERIOD          - Expands to (120000U / portTICK_PERIOD_MS).
+    ipconfigARP_CACHE_ENTRIES                   - Value: 10.
+    ipconfigMAX_ARP_RETRANSMISSIONS             - Value: (5).
+    ipconfigMAX_ARP_AGE                         - Value: 150.
+    ipconfigINCLUDE_FULL_INET_ADDR              - Value: 1.
+    ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS      - Value: 1024U.
+    ipconfigEVENT_QUEUE_LENGTH                  - Expands to (ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 20).
+    ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND      - Value: 1.
+    ipconfigUDP_TIME_TO_LIVE                    - Defines the Time To Live (TTL) values used in outgoing UDP packets.
+    ipconfigTCP_TIME_TO_LIVE                    - Also defined in FreeRTOSIPConfigDefaults.h.
+    ipconfigUSE_TCP                             - USE_TCP: Use TCP and all its features.
+    ipconfigUSE_TCP_WIN                         - USE_WIN: Let TCP use windowing mechanism.
+    ipconfigNETWORK_MTU                         - Value: 1500U.
+    ipconfigUSE_DNS                             - Value: 1.
+    ipconfigREPLY_TO_INCOMING_PINGS             - Value: 1.
+    ipconfigSUPPORT_OUTGOING_PINGS              - Value: 1.
+    ipconfigSUPPORT_SELECT_FUNCTION             - Value: 1.
+    ipconfigFILTER_OUT_NON_ETHERNET_II_FRAMES   - Value: 1.
+    ipconfigETHERNET_DRIVER_FILTERS_FRAME_TYPES - Value: 1.
+    configWINDOWS_MAC_INTERRUPT_SIMULATOR_DELAY - Expands to (20 / portTICK_PERIOD_MS).
+    ipconfigPACKET_FILLER_SIZE                  - Value: 2U.
+    ipconfigTCP_WIN_SEG_COUNT                   - From 2 to 120 -chrk.
+    ipconfigTCP_RX_BUFFER_LENGTH                - Value: (20000).
+    ipconfigTCP_TX_BUFFER_LENGTH                - Define the size of Tx buffer for TCP sockets.
+    ipconfigIS_VALID_PROG_ADDRESS               - Expands to ((x) != NULL).
+    ipconfigTCP_KEEP_ALIVE                      - Value: (1).
+    ipconfigTCP_KEEP_ALIVE_INTERVAL             - Value: (20).
+    ipconfigSOCKET_HAS_USER_SEMAPHORE           - The socket semaphore is used to unblock the MQTT task.
+    ipconfigSOCKET_HAS_USER_WAKE_CALLBACK       - Value: (1).
+    ipconfigUSE_CALLBACKS                       - Value: (1).
+    ipconfigUSE_NBNS                            - AGX5-Changed from 1 to 0.
+    ipconfigUSE_LLMNR                           - AGX5-Changed from 1 to 0.
+    ipconfigDNS_USE_CALLBACKS                   - Value: 1.
+    ipconfigUSE_ARP_REMOVE_ENTRY                - Value: 1.
+    ipconfigUSE_ARP_REVERSED_LOOKUP             - Value: 1.
+    ipconfigETHERNET_MINIMUM_PACKET_BYTES       - AGX5-Changed the value from 200 to 60 as per suggestion in IPconfigDefault.h.
+    ipconfigARP_STORES_REMOTE_ADDRESSES         - Value: (1).
+    ipconfigARP_USE_CLASH_DETECTION             - Value: (0).
+    ipconfigDHCP_FALL_BACK_AUTO_IP              - Value: (0).
+    ipconfigUDP_MAX_RX_PACKETS                  - Value: (1).
+    ipconfigSUPPORT_SIGNALS                     - Value: (1).
+    ipconfigDNS_CACHE_ENTRIES                   - Value: (2).
+    ipconfigBUFFER_PADDING                      - Value: (14).
+    ipconfigTCP_SRTT_MINIMUM_VALUE_MS           - Value: (34).
+    ipconfigTCP_HANG_PROTECTION                 - Value: (1).
+    ipconfigETHERNET_DRIVER_FILTERS_PACKETS     - Value: (0).
+    ipconfigTCP_MAY_LOG_PORT                    - Expands to ((xPort) != 23U).
+    ipconfigZERO_COPY_RX_DRIVER                 - Value: (0).
+    ipconfigZERO_COPY_TX_DRIVER                 - Value: (0).
+    ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM      - Agx5 HAL hardware checksum is enabled.
+    ipconfigETHERNET_USE_1000MB                 - Value: 1.
+    ipconfigETHERNET_USE_100MB                  - Value: 0.
+    ipconfigETHERNET_USE_FULL_DUPLEX            - Value: 1.
+    ipconfigNIC_LINKSPEED1000                   - Value: 1.
+    ipconfigUSE_LINKED_RX_MESSAGES              - Value: 1.
+*/
+
+/*
+    **************************************************************************
+
+    See the following URL for configuration information.
+    http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_IP_Configuration.html
+
+    ***************************************************************************
+*/
 
 #ifndef FREERTOS_IP_CONFIG_H
 #define FREERTOS_IP_CONFIG_H

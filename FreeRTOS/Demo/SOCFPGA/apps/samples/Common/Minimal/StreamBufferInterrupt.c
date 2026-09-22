@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Stream Buffer Interrupt Implementation
+
+    A simple example that shows a stream buffer being used to pass data from an interrupt to a task.
+*/
+
+/*
  * A simple example that shows a stream buffer being used to pass data from an
  * interrupt to a task.
  *
@@ -96,6 +102,14 @@ void vStartStreamBufferInterruptDemo( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvReceivingTask
+
+    Implements the task that receives a stream of bytes from the interrupt.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvReceivingTask( void * pvParameters )
 {
     char cRxBuffer[ 20 ];

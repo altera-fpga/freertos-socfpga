@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Comtest Strings
+
+    Declares the Comtest Strings interface: 2 functions.
+
+    They are vStartComTestStringsTasks and xAreComTestTasksStillRunning.
+*/
+
 #ifndef COMTEST_STRINGS_H
 #define COMTEST_STRINGS_H
 

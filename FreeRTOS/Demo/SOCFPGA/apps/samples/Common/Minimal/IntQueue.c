@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Int Queue Implementation
+
+    This file defines one of the more complex set of demo/test tasks.
+*/
+
+/*
  * This file defines one of the more complex set of demo/test tasks.  They are
  * designed to stress test the queue implementation though pseudo simultaneous
  * multiple reads and multiple writes from both tasks of varying priority and
@@ -223,6 +229,9 @@ void vStartInterruptQueueTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRecordValue_NormallyFull
+*/
 static void prvRecordValue_NormallyFull( UBaseType_t uxValue,
                                          UBaseType_t uxSource )
 {
@@ -241,6 +250,12 @@ static void prvRecordValue_NormallyFull( UBaseType_t uxValue,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRecordValue_NormallyEmpty
+
+    Used to mark the positions within the ucNormallyEmptyReceivedValues and
+    ucNormallyFullReceivedValues arrays, while checking for duplicates.
+*/
 static void prvRecordValue_NormallyEmpty( UBaseType_t uxValue,
                                           UBaseType_t uxSource )
 {
@@ -259,6 +274,11 @@ static void prvRecordValue_NormallyEmpty( UBaseType_t uxValue,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvQueueAccessLogError
+
+    Logs the line on which an error occurred.
+*/
 static void prvQueueAccessLogError( UBaseType_t uxLine )
 {
     /* Latch the line number that caused the error. */
@@ -267,6 +287,9 @@ static void prvQueueAccessLogError( UBaseType_t uxLine )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvHigherPriorityNormallyEmptyTask
+*/
 static void prvHigherPriorityNormallyEmptyTask( void * pvParameters )
 {
     UBaseType_t uxRxed, ux, uxTask1, uxTask2, uxInterrupts, uxErrorCount1 = 0, uxErrorCount2 = 0;
@@ -392,6 +415,9 @@ static void prvHigherPriorityNormallyEmptyTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvLowerPriorityNormallyEmptyTask
+*/
 static void prvLowerPriorityNormallyEmptyTask( void * pvParameters )
 {
     UBaseType_t uxValue, uxRxed;
@@ -440,6 +466,9 @@ static void prvLowerPriorityNormallyEmptyTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prv1stHigherPriorityNormallyFullTask
+*/
 static void prv1stHigherPriorityNormallyFullTask( void * pvParameters )
 {
     UBaseType_t uxValueToTx, ux, uxInterrupts;
@@ -543,6 +572,9 @@ static void prv1stHigherPriorityNormallyFullTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prv2ndHigherPriorityNormallyFullTask
+*/
 static void prv2ndHigherPriorityNormallyFullTask( void * pvParameters )
 {
     UBaseType_t uxValueToTx, ux;
@@ -589,6 +621,9 @@ static void prv2ndHigherPriorityNormallyFullTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvLowerPriorityNormallyFullTask
+*/
 static void prvLowerPriorityNormallyFullTask( void * pvParameters )
 {
     UBaseType_t uxValue, uxTxed = 9999;

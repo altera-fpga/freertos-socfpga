@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Static Allocation Implementation
+
+    Demonstrates how to create FreeRTOS objects using pre-allocated memory, rather than the normal dynamically allocated memory, and tests objects being created and deleted with both statically allocated memory and dynamically allocated memory.
+*/
 
 /*
  * Demonstrates how to create FreeRTOS objects using pre-allocated memory,
@@ -214,6 +219,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvStaticallyAllocatedCreator
+
+        The task that repeatedly creates and deletes statically allocated
+        tasks, and other RTOS objects.
+
+        Parameters:
+            pvParameters - Not used.
+    */
     static void prvStaticallyAllocatedCreator( void * pvParameters )
     {
         /* Avoid compiler warnings. */
@@ -251,6 +265,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedCountingSemaphores
+
+        A function that demonstrates and tests the API functions that create
+        and delete counting semaphores using both statically and dynamically
+        allocated RAM.
+
+        It calls <prvSanityCheckCreatedSemaphore>.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedCountingSemaphores( void )
     {
         SemaphoreHandle_t xSemaphore;
@@ -299,6 +322,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedRecursiveMutexes
+
+        A function that demonstrates and tests the API functions that create
+        and delete recursive mutexes using both statically and dynamically
+        allocated RAM.
+
+        It calls <prvSanityCheckCreatedRecursiveMutex>.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedRecursiveMutexes( void )
     {
         SemaphoreHandle_t xSemaphore;
@@ -345,6 +377,14 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedQueues
+
+        A function that demonstrates and tests the API functions that create
+        and delete queues using both statically and dynamically allocated RAM.
+
+        It calls <prvSanityCheckCreatedQueue>.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedQueues( void )
     {
         QueueHandle_t xQueue;
@@ -408,6 +448,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedMutexes
+
+        A function that demonstrates and tests the API functions that create
+        and delete mutexes using both statically and dynamically allocated
+        RAM.
+
+        It calls <prvSanityCheckCreatedSemaphore>.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedMutexes( void )
     {
         SemaphoreHandle_t xSemaphore;
@@ -479,6 +528,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedBinarySemaphores
+
+        A function that demonstrates and tests the API functions that create
+        and delete binary semaphores using both statically and dynamically
+        allocated RAM.
+
+        It calls <prvSanityCheckCreatedSemaphore>.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedBinarySemaphores( void )
     {
         SemaphoreHandle_t xSemaphore;
@@ -545,6 +603,13 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTimerCallback
+
+        The callback function used by the software timer that is repeatedly
+        created and deleted using both static and dynamically allocated
+        memory.
+    */
     static void prvTimerCallback( TimerHandle_t xExpiredTimer )
     {
         UBaseType_t * puxVariableToIncrement;
@@ -574,6 +639,13 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedTimers
+
+        A function that demonstrates and tests the API functions that create
+        and delete software timers using both statically and dynamically
+        allocated RAM.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedTimers( void )
     {
         TimerHandle_t xTimer;
@@ -679,6 +751,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedEventGroups
+
+        A function that demonstrates and tests the API functions that create
+        and delete event groups using both statically and dynamically
+        allocated RAM.
+
+        It calls <prvSanityCheckCreatedEventGroup>.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedEventGroups( void )
     {
         EventGroupHandle_t xEventGroup;
@@ -723,6 +804,13 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCreateAndDeleteStaticallyAllocatedTasks
+
+        A function that demonstrates and tests the API functions that create
+        and delete tasks using both statically and dynamically allocated TCBs
+        and stacks.
+    */
     static void prvCreateAndDeleteStaticallyAllocatedTasks( void )
     {
         TaskHandle_t xCreatedTask;
@@ -803,6 +891,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvStaticallyAllocatedTask
+
+        A task that is created and deleted multiple times, using both
+        statically and dynamically allocated stack and TCB.
+
+        Parameters:
+            pvParameters - Not used.
+    */
     static void prvStaticallyAllocatedTask( void * pvParameters )
     {
         ( void ) pvParameters;
@@ -814,6 +911,11 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvRand
+
+        Utility function to create pseudo random numbers.
+    */
     static UBaseType_t prvRand( void )
     {
         const uint32_t ulMultiplier = 0x015a4e35UL, ulIncrement = 1UL;
@@ -824,6 +926,15 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvGetNextDelayTime
+
+        The task that creates and deletes other tasks has to delay
+        occasionally to ensure lower priority tasks are not starved of
+        processing time. A pseudo random delay time is used just to add a
+        little bit of randomisation into the execution pattern.
+        prvGetNextDelayTime() generates the pseudo random delay.
+    */
     static TickType_t prvGetNextDelayTime( void )
     {
         TickType_t xNextDelay;
@@ -846,6 +957,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSanityCheckCreatedEventGroup
+
+        Checks the basic operation of an event group after it has been
+        created.
+    */
     static void prvSanityCheckCreatedEventGroup( EventGroupHandle_t xEventGroup )
     {
         EventBits_t xEventBits;
@@ -891,6 +1008,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSanityCheckCreatedSemaphore
+
+        Checks the basic operation of a binary semaphore after it has been
+        created.
+    */
     static void prvSanityCheckCreatedSemaphore( SemaphoreHandle_t xSemaphore,
                                                 UBaseType_t uxMaxCount )
     {
@@ -969,6 +1092,11 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSanityCheckCreatedQueue
+
+        Checks the basic operation of a queue after it has been created.
+    */
     static void prvSanityCheckCreatedQueue( QueueHandle_t xQueue )
     {
         uint64_t ull, ullRead;
@@ -1034,6 +1162,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSanityCheckCreatedRecursiveMutex
+
+        Checks the basic operation of a recursive mutex after it has been
+        created.
+    */
     static void prvSanityCheckCreatedRecursiveMutex( SemaphoreHandle_t xSemaphore )
     {
         const BaseType_t xLoops = 5;

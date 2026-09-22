@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Abort Delay Implementation
+
+    This file contains some test scenarios that ensure tasks respond correctly to xTaskAbortDelay() calls.
+*/
+
+/*
  * This file contains some test scenarios that ensure tasks respond correctly
  * to xTaskAbortDelay() calls.  It also ensures tasks return the correct state
  * of eBlocked when blocked indefinitely in both the case where a task is
@@ -146,6 +152,16 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvControllingTask
+
+        The two test tasks. The controlling task specifies which test to
+        executed. More information is provided in the comments within the
+        tasks.
+
+        Parameters:
+            pvParameters - Not used.
+    */
     static void prvControllingTask( void * pvParameters )
     {
         TaskHandle_t xBlockingTask;
@@ -210,6 +226,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvBlockingTask
+    */
     static void prvBlockingTask( void * pvParameters )
     {
         TaskHandle_t xControllingTask;
@@ -279,6 +298,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvPerformSingleTaskTests
+
+        Performs a few tests to cover code paths not otherwise covered by the
+        continuous tests.
+    */
     static void prvPerformSingleTaskTests( void )
     {
         TaskHandle_t xThisTask;
@@ -297,6 +322,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingTaskDelayUntil
+    */
     static void prvTestAbortingTaskDelayUntil( void )
     {
         TickType_t xTimeAtStart, xLastBlockTime;
@@ -342,6 +370,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingTaskDelay
+
+        Calls xTaskGetTickCount, vTaskDelay and
+        <prvCheckExpectedTimeIsWithinAnAcceptableMargin>.
+    */
     static void prvTestAbortingTaskDelay( void )
     {
         TickType_t xTimeAtStart;
@@ -370,6 +404,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingTaskNotifyTake
+    */
     static void prvTestAbortingTaskNotifyTake( void )
     {
         TickType_t xTimeAtStart;
@@ -417,6 +454,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingEventGroupWait
+    */
     static void prvTestAbortingEventGroupWait( void )
     {
         TickType_t xTimeAtStart;
@@ -483,6 +523,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingStreamBufferReceive
+    */
     static void prvTestAbortingStreamBufferReceive( void )
     {
         TickType_t xTimeAtStart;
@@ -558,6 +601,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingQueueSend
+    */
     static void prvTestAbortingQueueSend( void )
     {
         TickType_t xTimeAtStart;
@@ -636,6 +682,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingSemaphoreTake
+    */
     static void prvTestAbortingSemaphoreTake( void )
     {
         TickType_t xTimeAtStart;
@@ -701,6 +750,18 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestAbortingTaskNotifyWait
+
+        Test functions called by the blocking task. Each function follows the
+        same pattern, but the way the task blocks is different in each case.
+        In each function three blocking calls are made. The first and third
+        blocking call is expected to time out, while the middle blocking call
+        is expected to be aborted by the controlling task half way through the
+        block time.
+
+        It calls <prvCheckExpectedTimeIsWithinAnAcceptableMargin>.
+    */
     static void prvTestAbortingTaskNotifyWait( void )
     {
         TickType_t xTimeAtStart;
@@ -748,6 +809,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCheckExpectedTimeIsWithinAnAcceptableMargin
+
+        Checks the amount of time a task spent in the Blocked state is within
+        the expected bounds.
+    */
     static void prvCheckExpectedTimeIsWithinAnAcceptableMargin( TickType_t xStartTime,
                                                                 TickType_t xExpectedBlockTime )
     {

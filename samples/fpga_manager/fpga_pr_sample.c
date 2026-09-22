@@ -7,47 +7,43 @@
  */
 
 
-/**
- * @file fpga_pr_sample.c
- * @brief Sample Application for fpga partial reconfiguration.
- */
+/*
+    File: FPGA Manager PR Sample Implementation
 
-/**
- * @defgroup fpga_pr_sample FPGA Manager - Partial Reconfiguration
- * @ingroup samples
- *
- * Sample Application for Partial Reconfiguration.
- *
- * @details
- * @section fpga_desc Description
- * This is a sample application to demonstrate the use of the fpga freeze ip to
- * perform partial reconfiguration. The application initially loads the core.rbf
- * and configures the FPGA. Initially, the PR region contains persona0. Then it
- * freezes the particular PR region, and loads the persona1 bitstream. Now the PR
- * region contains persona1 bitstream.
- *
- * The same is confirmed by reading the sysid located at address 0x20020000
- *
- * @section fgpa_pre Prerequisites
- * The required rbf file should be available in the sdmmc before running the sample.
- * By default, the name of the core rbf file is core.rbf and persona1 rbf file is p0.rbf.
- * The below macros can be configured to use different rbf :
- * - @c CORE_RBF  - core rbf file
- * - @c PERSONA1_RBF - persona1 rbf file
- *
- * @section fpga_howto How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Copy all the required rbf file to the SD card, and run the sample. <br>
- * @note File names should conform to the 8.3 format (maximum 8 characters for the name and 3 for the extension).
- *
- * @section fpga_res Expected Results
- * If the bitstream configuration fails in the initial stage, the failure will be shown in the console
- * and the application exits. After persona1 is loaded, the sysid is validated to confirm the successful
- * loading of the persona1 rbf.
- * The success/failure logs are displayed in the console.
- * @{
- */
-/** @} */
+    Sample Application for fpga partial reconfiguration.
+
+    Sample Application for Partial Reconfiguration.
+    Group: Description
+
+    This is a sample application to demonstrate the use of the fpga freeze ip
+    to perform partial reconfiguration. The application initially loads the
+    core.rbf and configures the FPGA. Initially, the PR region contains
+    persona0. Then it freezes the particular PR region, and loads the persona1
+    bitstream. Now the PR region contains persona1 bitstream.
+
+    The same is confirmed by reading the sysid located at address 0x20020000
+
+    Group: Prerequisites
+
+    The required rbf file should be available in the sdmmc before running the
+    sample. By default, the name of the core rbf file is core.rbf and persona1
+    rbf file is p0.rbf. The below macros can be configured to use different
+    rbf :
+    - CORE_RBF  - core rbf file
+    - PERSONA1_RBF - persona1 rbf file
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Copy all the required rbf file to the SD card, and run the sample.
+
+    Group: Expected Results
+
+    If the bitstream configuration fails in the initial stage, the failure
+    will be shown in the console and the application exits. After persona1 is
+    loaded, the sysid is validated to confirm the successful loading of the
+    persona1 rbf. The success/failure logs are displayed in the console.
+*/
 
 #include "socfpga_defines.h"
 #include "osal_log.h"
@@ -60,6 +56,11 @@
 #define CORE_RBF        "/core.rbf"
 #define PERSONA1_RBF    "/p1.rbf"
 
+/*
+    Function: load_bitstream
+
+    Calls <mmc_read_file> and <load_fpga_bitstream>.
+*/
 static int load_bitstream(const char *rbf)
 {
     uint8_t *rbf_ptr;
@@ -85,6 +86,12 @@ static int load_bitstream(const char *rbf)
     return 1;
 }
 
+/*
+    Function: do_partial_reconfiguration
+
+    Calls <do_freeze_pr_region>, <load_bitstream>, osal_task_delay and
+    <do_unfreeze_pr_region>.
+*/
 static int do_partial_reconfiguration(const char *rbf)
 {
     if (do_freeze_pr_region() != 0)
@@ -108,6 +115,9 @@ static int do_partial_reconfiguration(const char *rbf)
     return 1;
 }
 
+/*
+    Function: partial_reconfiguration_sample
+*/
 void partial_reconfiguration_sample(void)
 {
     uint32_t sysid, freeze_reg_version;

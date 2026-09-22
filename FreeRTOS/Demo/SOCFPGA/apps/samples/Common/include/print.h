@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Print
+
+    Declares the Print interface: 3 functions.
+
+    They are pcPrintGetNextMessage, vPrintDisplayMessage and
+    vPrintInitialise.
+*/
+
 #ifndef PRINT_H
 #define PRINT_H
 

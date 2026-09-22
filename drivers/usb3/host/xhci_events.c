@@ -7,6 +7,12 @@
  * Events sub-module
  */
 
+/*
+    File: xHCI Events Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+*/
+
 #include <stdio.h>
 #include "xhci_events.h"
 #include "socfpga_defines.h"
@@ -48,9 +54,12 @@ uint8_t get_xhc_port_speed(uint8_t rhport)
 }
 
 /*
- * @note : Bit 0 of PORTSC register returns the device connect/disconnect
- * status
- */
+
+    Notes:
+
+        : Bit 0 of PORTSC register returns the device connect/disconnect
+        status
+*/
 bool xhci_port_status(uint8_t rhport)
 {
     uint32_t reg_val;
@@ -158,6 +167,11 @@ xhci_event_trb_t get_xhc_event(struct xhci_data *xhci_ptr)
     return event;
 }
 
+/*
+    Function: erdp_register_update
+
+    Calls RD_REG32 and WR_REG64.
+*/
 static void erdp_register_update(xer_event_ring_t *xer_ring)
 {
     uint32_t trb_count;

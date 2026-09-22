@@ -25,6 +25,13 @@
  * This file is part of the TinyUSB stack.
  */
 
+/*
+    File: OSAL
+
+    Declares the OSAL interface: 30 inline functions, 11 types and 11
+    constants.
+*/
+
 #ifndef TUSB_OSAL_FREERTOS_H_
 #define TUSB_OSAL_FREERTOS_H_
 
@@ -109,6 +116,11 @@ typedef void (*osal_task_routine_t)( void* );
 // TASK API
 //--------------------------------------------------------------------+
 
+/*
+    Function: osal_task_create
+
+    Calls xTaskCreate.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_task_create(
         osal_task_routine_t routine, const char *const name,
         void *const argument, int priority )
@@ -122,6 +134,9 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_task_create(
     return pdTRUE;
 }
 
+/*
+    Function: _osal_ms2tick
+*/
 TU_ATTR_ALWAYS_INLINE static inline uint64_t _osal_ms2tick( uint64_t msec )
 {
 
@@ -140,11 +155,21 @@ TU_ATTR_ALWAYS_INLINE static inline uint64_t _osal_ms2tick( uint64_t msec )
     return ticks;
 }
 
+/*
+    Function: osal_task_delay
+
+    Wrapper around vTaskDelay.
+*/
 TU_ATTR_ALWAYS_INLINE static inline void osal_task_delay( uint64_t msec )
 {
     vTaskDelay(pdMS_TO_TICKS(msec));
 }
 
+/*
+    Function: osal_task_delete
+
+    Wrapper around vTaskDelete.
+*/
 TU_ATTR_ALWAYS_INLINE static inline void osal_task_delete( void )
 {
 	vTaskDelete(NULL);
@@ -153,6 +178,12 @@ TU_ATTR_ALWAYS_INLINE static inline void osal_task_delete( void )
 // Semaphore API
 //--------------------------------------------------------------------+
 
+/*
+    Function: osal_semaphore_create
+
+    Calls xSemaphoreCreateBinaryStatic or xSemaphoreCreateBinary, depending on
+    configSUPPORT_STATIC_ALLOCATION.
+*/
 TU_ATTR_ALWAYS_INLINE static inline osal_semaphore_t osal_semaphore_create(
         osal_semaphore_def_t *semdef )
 {
@@ -164,6 +195,12 @@ TU_ATTR_ALWAYS_INLINE static inline osal_semaphore_t osal_semaphore_create(
 #endif
 }
 
+/*
+    Function: osal_semaphore_counting_create
+
+    Calls xSemaphoreCreateCountingStatic or xSemaphoreCreateCounting,
+    depending on configSUPPORT_STATIC_ALLOCATION.
+*/
 TU_ATTR_ALWAYS_INLINE static inline osal_semaphore_t osal_semaphore_counting_create(
 	osal_semaphore_def_t *semdef, UBaseType_t uxMaxCount,
 	UBaseType_t uxInitialCount)
@@ -176,6 +213,11 @@ TU_ATTR_ALWAYS_INLINE static inline osal_semaphore_t osal_semaphore_counting_cre
 #endif
 }
 
+/*
+    Function: osal_semaphore_delete
+
+    Calls vSemaphoreDelete.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_semaphore_delete(
         osal_semaphore_t semd_hdl )
 {
@@ -183,6 +225,11 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_semaphore_delete(
     return true;
 }
 
+/*
+    Function: osal_semaphore_post
+
+    Calls xPortIsInsideInterrupt, xSemaphoreGive and xSemaphoreGiveFromISR.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_semaphore_post(
         osal_semaphore_t sem_hdl )
 {
@@ -202,6 +249,12 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_semaphore_post(
     }
 }
 
+/*
+    Function: osal_semaphore_wait
+
+    Calls xPortIsInsideInterrupt, xSemaphoreTake, <_osal_ms2tick> and
+    xSemaphoreTakeFromISR.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_semaphore_wait(
         osal_semaphore_t sem_hdl, uint64_t msec )
 {
@@ -220,6 +273,11 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_semaphore_wait(
     }
 }
 
+/*
+    Function: osal_semaphore_reset
+
+    Wrapper around xQueueReset.
+*/
 TU_ATTR_ALWAYS_INLINE static inline void osal_semaphore_reset(
         osal_semaphore_t const sem_hdl )
 {
@@ -230,6 +288,12 @@ TU_ATTR_ALWAYS_INLINE static inline void osal_semaphore_reset(
 // MUTEX API (priority inheritance)
 //--------------------------------------------------------------------+
 
+/*
+    Function: osal_mutex_create
+
+    Calls xSemaphoreCreateMutexStatic or xSemaphoreCreateMutex, depending on
+    configSUPPORT_STATIC_ALLOCATION.
+*/
 TU_ATTR_ALWAYS_INLINE static inline osal_mutex_t osal_mutex_create(
         osal_mutex_def_t *mdef )
 {
@@ -241,6 +305,11 @@ TU_ATTR_ALWAYS_INLINE static inline osal_mutex_t osal_mutex_create(
 #endif
 }
 
+/*
+    Function: osal_mutex_delete
+
+    Calls vSemaphoreDelete.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_mutex_delete(
         osal_mutex_t mutex_hdl )
 {
@@ -248,12 +317,22 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_mutex_delete(
     return true;
 }
 
+/*
+    Function: osal_mutex_lock
+
+    Wrapper around <osal_semaphore_wait>.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_mutex_lock(
         osal_mutex_t mutex_hdl, uint64_t msec )
 {
     return osal_semaphore_wait(mutex_hdl, msec);
 }
 
+/*
+    Function: osal_mutex_unlock
+
+    Wrapper around <osal_semaphore_post>.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_mutex_unlock(
         osal_mutex_t mutex_hdl )
 {
@@ -264,6 +343,11 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_mutex_unlock(
 // QUEUE API
 //--------------------------------------------------------------------+
 
+/*
+    Function: osal_queue_create
+
+    Calls xQueueCreateStatic or xQueueCreate, then vQueueAddToRegistry.
+*/
 TU_ATTR_ALWAYS_INLINE static inline osal_queue_t osal_queue_create(
         osal_queue_def_t *qdef )
 {
@@ -282,18 +366,34 @@ TU_ATTR_ALWAYS_INLINE static inline osal_queue_t osal_queue_create(
     return q;
 }
 
+/*
+    Function: osal_queue_delete
+
+    Calls vQueueDelete.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_queue_delete( osal_queue_t qhdl )
 {
     vQueueDelete(qhdl);
     return true;
 }
 
+/*
+    Function: osal_queue_receive
+
+    Calls xQueueReceive and <_osal_ms2tick>.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_queue_receive( osal_queue_t qhdl,
         void *data, uint64_t msec )
 {
     return xQueueReceive(qhdl, data, _osal_ms2tick(msec));
 }
 
+/*
+    Function: osal_queue_send
+
+    Calls xPortIsInsideInterrupt, xQueueSendToBack and
+    xQueueSendToBackFromISR.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_queue_send( osal_queue_t qhdl,
         void const *data )
 {
@@ -313,17 +413,32 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_queue_send( osal_queue_t qhdl,
     }
 }
 
+/*
+    Function: osal_queue_empty
+
+    Wrapper around uxQueueMessagesWaiting.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_queue_empty( osal_queue_t qhdl )
 {
     return uxQueueMessagesWaiting(qhdl) == 0;
 }
 
+/*
+    Function: osal_pipe_create
+
+    Wrapper around xStreamBufferCreateWithCallback.
+*/
 TU_ATTR_ALWAYS_INLINE static inline osal_pipe_t osal_pipe_create(uint32_t stream_size,
                             osal_pipe_cb_t read_cb, osal_pipe_cb_t write_cb)
 {
     return xStreamBufferCreateWithCallback(stream_size, 1, write_cb, read_cb);
 }
 
+/*
+    Function: osal_pipe_delete
+
+    Calls vStreamBufferDelete.
+*/
 TU_ATTR_ALWAYS_INLINE static inline bool osal_pipe_delete(osal_pipe_t phndl)
 {
     if (phndl == NULL)
@@ -334,6 +449,12 @@ TU_ATTR_ALWAYS_INLINE static inline bool osal_pipe_delete(osal_pipe_t phndl)
     return true;
 }
 
+/*
+    Function: osal_pipe_send
+
+    Calls xPortIsInsideInterrupt, xStreamBufferSend and
+    xStreamBufferSendFromISR.
+*/
 TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_pipe_send(osal_pipe_t phndl, uint8_t * data, uint32_t size)
 {
     int bytes_written = 0;
@@ -351,6 +472,12 @@ TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_pipe_send(osal_pipe_t phndl, u
     return bytes_written;
 }
 
+/*
+    Function: osal_pipe_receive
+
+    Calls xPortIsInsideInterrupt, xStreamBufferReceive and
+    xStreamBufferReceiveFromISR.
+*/
 TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_pipe_receive(osal_pipe_t phndl, uint8_t * buffer, uint32_t size)
 {
     int bytes_read = 0;
@@ -368,19 +495,33 @@ TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_pipe_receive(osal_pipe_t phndl
     return bytes_read;
 }
 
+/*
+    Function: osal_pipe_bytes_available
+
+    Wrapper around xStreamBufferBytesAvailable.
+*/
 TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_pipe_bytes_available(osal_pipe_t phndl)
 {
     return xStreamBufferBytesAvailable(phndl);
 }
 
+/*
+    Function: osal_pipe_space_available
+
+    Wrapper around xStreamBufferSpacesAvailable.
+*/
 TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_pipe_space_available(osal_pipe_t phndl)
 {
     return xStreamBufferSpacesAvailable(phndl);
 }
 
-/* When calling within a task,
- * wrap the call inside a critical section
- * */
+/*
+    Function: osal_get_kernel_state
+
+    When calling within a task,
+    wrap the call inside a critical section
+*/
+
 TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_get_kernel_state()
 {
     uint32_t state;
@@ -409,11 +550,17 @@ TU_ATTR_ALWAYS_INLINE static inline uint32_t osal_get_kernel_state()
     return state;
 }
 
+/*
+    Function: osal_enter_critical
+*/
 TU_ATTR_ALWAYS_INLINE static inline void osal_enter_critical()
 {
     taskENTER_CRITICAL();
 }
 
+/*
+    Function: osal_exit_critical
+*/
 TU_ATTR_ALWAYS_INLINE static inline void osal_exit_critical()
 {
     taskEXIT_CRITICAL();
@@ -422,11 +569,19 @@ TU_ATTR_ALWAYS_INLINE static inline void osal_exit_critical()
 // DELAY API
 //--------------------------------------------------------------------+
 
+/*
+    Function: osal_delay_ms
+
+    Wrapper around vTaskDelay.
+*/
 TU_ATTR_ALWAYS_INLINE static inline void osal_delay_ms( uint64_t msec )
 {
     vTaskDelay(pdMS_TO_TICKS(msec));
 }
 
+/*
+    Function: osal_assert
+*/
 TU_ATTR_ALWAYS_INLINE static inline void osal_assert( bool expression )
 {
     configASSERT(expression);

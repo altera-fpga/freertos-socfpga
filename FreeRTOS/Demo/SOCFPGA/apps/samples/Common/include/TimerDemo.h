@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Timer Demo
+
+    Declares the Timer demo interface: 4 functions.
+
+    They are vStartTimerDemoTask, vTimerDemoIncludeBacklogTests,
+    vTimerPeriodicISRTests and xAreTimerDemoTasksStillRunning.
+*/
+
 #ifndef TIMER_DEMO_H
 #define TIMER_DEMO_H
 

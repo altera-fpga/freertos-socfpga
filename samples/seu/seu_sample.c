@@ -6,45 +6,39 @@
  * sample implementation for SEU
  */
 
-/**
- * @file seu_sample.c
- * @brief Sample Application for seu operations.
- */
+/*
+    File: SEU Sample
 
-/**
- * @defgroup seu_sample SEU
- * @ingroup samples
- *
- * Sample Application for SEU (Single Event Upset) Injection and Validation
- *
- * @details
- * @section seu_desc Description
- * This sample demonstrates the ability of the system to handle SEU (Single Event Upset)
- * scenarios. It performs operations such as injecting SEU-safe errors, reading back
- * error-injected data, and retrieving SEU-related error statistics for system validation.
- *
- * @section seu_pre Prerequisites
- * - A system or FPGA image (SOF) with SEU feature enabled.
- * - Properly initialized SEU-related hardware or memory regions.
- *
- * @section seu_howto How to Run
- * 1. Follow the common README for building and flashing instructions.
- * 2. Ensure that the board is running a SEU-enabled SOF image.
- * 3. Run the sample binary. The application will:
- *    - Inject known SEU-safe errors into memory.
- *    - Read back and verify that the error injection is as expected.
- *    - Fetch and display SEU error detection statistics.
- *
- * @section seu_res Expected Results
- * - Successful injection and detection of SEU events.
- * - Accurate reporting of SEU statistics and error types.
- * - Demonstrates the system's capability to detect, report, and tolerate SEU faults.
- *
- * @{
- */
-/** @} */
+    Sample Application for seu operations.
 
+    Sample Application for SEU (Single Event Upset) Injection and Validation
+    Group: Description
 
+    This sample demonstrates the ability of the system to handle SEU (Single
+    Event Upset) scenarios. It performs operations such as injecting SEU-safe
+    errors, reading back error-injected data, and retrieving SEU-related error
+    statistics for system validation.
+
+    Group: Prerequisites
+
+    - A system or FPGA image (SOF) with SEU feature enabled.
+    - Properly initialized SEU-related hardware or memory regions.
+
+    Group: How to Run
+
+    - Follow the common README for building and flashing instructions.
+    - Ensure that the board is running a SEU-enabled SOF image.
+    - Run the sample binary. The application will:
+       - Inject known SEU-safe errors into memory.
+       - Read back and verify that the error injection is as expected.
+       - Fetch and display SEU error detection statistics.
+
+    Group: Expected Results
+
+    - Successful injection and detection of SEU events.
+    - Accurate reporting of SEU statistics and error types.
+    - Demonstrates the system's capability to detect, report, and tolerate SEU faults.
+*/
 
 #include <stdint.h>
 #include "socfpga_seu.h"
@@ -64,11 +58,19 @@
 osal_semaphore_def_t seu_semphr_def_inject;
 osal_semaphore_t seu_semphr_inject;
 
+/*
+    Function: seu_injection_done
+
+    Calls osal_semaphore_post.
+*/
 void seu_injection_done()
 {
     osal_semaphore_post(seu_semphr_inject);
 }
 
+/*
+    Function: seu_task
+*/
 void seu_task(void)
 {
     uint8_t ret;

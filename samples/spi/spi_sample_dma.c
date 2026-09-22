@@ -6,10 +6,11 @@
  * Sample application for SPI (DMA)
  */
 
-/**
- * @file spi_sample_dma.c
- * @brief Sample Application for SPI (DMA)
- */
+/*
+    File: SPI DMA Sample
+
+    Sample Application for SPI (DMA)
+*/
 
 #include <string.h>
 #include <stdio.h>
@@ -22,39 +23,42 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup spi_sample_dma SPI (DMA)
- * @ingroup samples
- *
- * Sample Application for SPI using DMA
- *
- * @details
- * @section spi_dma_desc Description
- * This sample demonstrates using the SPI driver in DMA mode to write data to
- * an SPI EEPROM and read it back for verification.
- *
- * @section spi_dma_pre Prerequisites
- * - A serial EEPROM with SPI interface must be connected to the SPI bus.
- * - DMA must be available and the selected DMA channels must be free.
- *
- * @section spi_dma_param Configurable Parameters
- * - SPI instance: @c SPI_INSTANCE
- * - Slave select: @c SLAVE_SELECT_NUM
- * - SPI frequency: @c SPI_FREQ
- * - EEPROM address and transfer size: @c EEPROM_ADDR, @c XFER_SIZE
- * - DMA channel selection:
- *   - TX: @c SPI_DMA_TX_INSTANCE, @c SPI_DMA_TX_CHANNEL, @c SPI_DMA_TX_PRIO
- *   - RX: @c SPI_DMA_RX_INSTANCE, @c SPI_DMA_RX_CHANNEL, @c SPI_DMA_RX_PRIO
- *
- * @section spi_dma_how_to How to Run
- * 1. Build and flash the application.
- * 2. Run on the board with the EEPROM connected.
- * 3. Observe the UART terminal for status and timing output.
- *
- * @section spi_dma_result Expected Results
- * - Data written to the EEPROM is read back and compared.
- * - A success message is printed when the buffers match.
- */
+/*
+    Group: SPI (DMA)
+
+    Sample Application for SPI using DMA
+
+    Description:
+
+    This sample demonstrates using the SPI driver in DMA mode to write data to
+    an SPI EEPROM and read it back for verification.
+
+    Prerequisites:
+
+    - A serial EEPROM with SPI interface must be connected to the SPI bus.
+    - DMA must be available and the selected DMA channels must be free.
+
+    Configurable Parameters:
+
+    - SPI instance: SPI_INSTANCE
+    - Slave select: SLAVE_SELECT_NUM
+    - SPI frequency: SPI_FREQ
+    - EEPROM address and transfer size: EEPROM_ADDR, XFER_SIZE
+    - DMA channel selection:
+      - TX: SPI_DMA_TX_INSTANCE, SPI_DMA_TX_CHANNEL, SPI_DMA_TX_PRIO
+      - RX: SPI_DMA_RX_INSTANCE, SPI_DMA_RX_CHANNEL, SPI_DMA_RX_PRIO
+
+    How to Run:
+
+    1. Build and flash the application.
+    2. Run on the board with the EEPROM connected.
+    3. Observe the UART terminal for status and timing output.
+
+    Expected Results:
+
+    - Data written to the EEPROM is read back and compared.
+    - A success message is printed when the buffers match.
+*/
 
 /*
  * A) Peripheral DMA limitation:
@@ -103,9 +107,11 @@
  *         +--
  */
 
-/**
- * EEPROM commands
- */
+/*
+    Constant: EEPROM_READ
+
+    EEPROM commands
+*/
 #define EEPROM_READ            0x03
 #define EEPROM_WRITE           0x02
 #define EEPROM_WR_DISABLE      0x04
@@ -115,25 +121,30 @@
 #define EEPROM_WIP_MASK        0x01
 #define EEPROM_WIP_TIMEOUT_MS  100
 
-/**
- * Configurable parameters for EEPROM data transfer
- * The EEPROM page size is 64 bytes.
- * Valid address range is 0x00 to 0x3FFF.
- */
+/*
+    Constant: EEPROM_ADDR
+
+    Configurable parameters for EEPROM data transfer The EEPROM page size is
+    64 bytes. Valid address range is 0x00 to 0x3FFF.
+*/
 #define EEPROM_ADDR            0x2780
 #define EEPROM_PAGE_SIZE       64U
 #define XFER_SIZE              1536U
 
-/**
- * Configurable parameters for SPI controller
- */
+/*
+    Constant: SPI_INSTANCE
+
+    Configurable parameters for SPI controller
+*/
 #define SPI_INSTANCE           0
 #define SLAVE_SELECT_NUM       1
 #define SPI_FREQ               500000U
 
-/**
- * Configurable parameters for SPI DMA transfer
- */
+/*
+    Constant: SPI_DMA_TX_INSTANCE
+
+    Configurable parameters for SPI DMA transfer
+*/
 #define SPI_DMA_TX_INSTANCE    DMA_INSTANCE0
 #define SPI_DMA_TX_CHANNEL     DMA_CH1
 #define SPI_DMA_TX_PRIO        0U
@@ -142,16 +153,20 @@
 #define SPI_DMA_RX_CHANNEL     DMA_CH2
 #define SPI_DMA_RX_PRIO        1U
 
-/**
- * Timer configuration used to measure transfer time.
- * The timer counts down; we measure elapsed time using the delta of remaining
- * microseconds.
- */
+/*
+    Constant: TIMER_INSTANCE
+
+    Timer configuration used to measure transfer time. The timer counts down;
+    we measure elapsed time using the delta of remaining microseconds.
+*/
 #define TIMER_INSTANCE         TIMER_SYS0
 #define TIMER_PERIOD_US        0xFFFFFFFFU
 
 static spi_handle_t spi_handle;
 
+/*
+    Function: timer_elapsed_us
+*/
 static uint32_t timer_elapsed_us(uint32_t start_rem_us, uint32_t end_rem_us,
         uint32_t wrap_us)
 {
@@ -162,14 +177,20 @@ static uint32_t timer_elapsed_us(uint32_t start_rem_us, uint32_t end_rem_us,
     return start_rem_us + (wrap_us - end_rem_us);
 }
 
+/*
+    Function: min_size
+*/
 static uint32_t min_size(uint32_t a, uint32_t b)
 {
     return (a < b) ? a : b;
 }
 
-/**
- * @brief Send Write Enable command to EEPROM
- */
+/*
+    Function: eeprom_enable_write
+
+    Send Write Enable command to EEPROM
+*/
+
 static int32_t eeprom_enable_write(void)
 {
     /* DMA buffers need to be cache line aligned */
@@ -185,9 +206,12 @@ static int32_t eeprom_enable_write(void)
     return 0;
 }
 
-/**
- * @brief Read EEPROM status register
- */
+/*
+    Function: eeprom_read_status
+
+    Read EEPROM status register
+*/
+
 static int32_t eeprom_read_status(uint8_t *status)
 {
     /* DMA buffers need to be cache line aligned */
@@ -211,9 +235,12 @@ static int32_t eeprom_read_status(uint8_t *status)
     return 0;
 }
 
-/**
- * @brief Wait until EEPROM write cycle completes
- */
+/*
+    Function: eeprom_wait_ready
+
+    Wait until EEPROM write cycle completes
+*/
+
 static int32_t eeprom_wait_ready(void)
 {
     uint8_t status = 0;
@@ -240,6 +267,9 @@ static int32_t eeprom_wait_ready(void)
     return -ETIMEDOUT;
 }
 
+/*
+    Function: eeprom_write_page
+*/
 static int32_t eeprom_write_page(const uint8_t *buf, uint32_t size,
         uint16_t mem_addr)
 {
@@ -285,6 +315,11 @@ static int32_t eeprom_write_page(const uint8_t *buf, uint32_t size,
     return eeprom_wait_ready();
 }
 
+/*
+    Function: eeprom_write
+
+    Calls <min_size> and <eeprom_write_page>.
+*/
 static int32_t eeprom_write(const uint8_t *buf, uint32_t size,
         uint16_t mem_addr)
 {
@@ -308,6 +343,9 @@ static int32_t eeprom_write(const uint8_t *buf, uint32_t size,
     return 0;
 }
 
+/*
+    Function: eeprom_read_chunk
+*/
 static int32_t eeprom_read_chunk(uint8_t *buf, uint32_t size,
         uint16_t mem_addr)
 {
@@ -348,6 +386,11 @@ static int32_t eeprom_read_chunk(uint8_t *buf, uint32_t size,
     return 0;
 }
 
+/*
+    Function: eeprom_read
+
+    Calls <min_size> and <eeprom_read_chunk>.
+*/
 static int32_t eeprom_read(uint8_t *buf, uint32_t size, uint16_t mem_addr)
 {
     uint32_t offset = 0;
@@ -370,6 +413,9 @@ static int32_t eeprom_read(uint8_t *buf, uint32_t size, uint16_t mem_addr)
     return 0;
 }
 
+/*
+    Function: spi_dma_task
+*/
 void spi_dma_task(void)
 {
     static uint8_t rd_buf[XFER_SIZE];

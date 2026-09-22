@@ -6,6 +6,15 @@
  * Header file for GIC low level functions
  */
 
+/*
+    File: GIC Registers
+
+    Header file for GIC low level functions.
+
+    They are gic_reg_enable_group0_interrupts,
+    gic_reg_enable_group1_interrupts, gic_reg_get_cpu_affinity,
+    gic_reg_set_priority_mask and gic_reg_write_group1_end_of_interrupt.
+*/
 
 #ifndef __ARM_GIC_REG_H__
 #define __ARM_GIC_REG_H__

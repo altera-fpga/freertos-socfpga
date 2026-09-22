@@ -29,9 +29,17 @@ static struct gic_v3_rdist_if *gic_rdist;
 static uint32_t gic_max_rd = 0U;
 
 /*
- * @func gic_enable_gic
- * @brief Function to enable the GIC and configure the base address of GIC controller
- */
+    File: GIC Driver Implementation
+
+    Implements the GIC driver: 13 functions, 1 of them local to this file.
+*/
+
+/*
+    Function: gic_enable_gic
+
+    Function to enable the GIC and configure the base address of GIC
+    controller
+*/
 int32_t gic_enable_gic(void)
 {
 
@@ -67,10 +75,9 @@ int32_t gic_enable_gic(void)
 
     return INTERRUPT_RETURN_SUCCESS;
 }
-
 /*
- * @brief
- */
+    Function: gic_get_redist_id
+*/
 int32_t gic_get_redist_id(uint32_t affinity)
 {
     int32_t index = 0;
@@ -91,10 +98,9 @@ int32_t gic_get_redist_id(uint32_t affinity)
 
     return INTERRUPT_RETURN_ERROR; /* return -1 to signal not RD found */
 }
-
 /*
- * @brief
- */
+    Function: gic_wakeup_redist
+*/
 int32_t gic_wakeup_redist(uint32_t rd)
 {
     uint32_t tmp;
@@ -119,6 +125,9 @@ int32_t gic_wakeup_redist(uint32_t rd)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
+/*
+    Function: gic_is_valid_ext_spi
+*/
 static uint32_t gic_is_valid_ext_spi(uint32_t id)
 {
     uint32_t max_spi;
@@ -157,8 +166,10 @@ static uint32_t gic_is_valid_ext_spi(uint32_t id)
     (dest) |= GIC_PRIORITY_SHIFT_OFFSET((val), (offset))
 
 /*
- * @brief Set the GIC interrupt priority
- */
+    Function: gic_set_int_priority
+
+    Set the GIC interrupt priority
+*/
 int32_t gic_set_int_priority(uint32_t id, uint32_t rd, uint8_t priority)
 {
     /* Check if the priority is within the bounds */
@@ -216,6 +227,9 @@ int32_t gic_set_int_priority(uint32_t id, uint32_t rd, uint8_t priority)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
+/*
+    Function: gic_set_int_group
+*/
 int32_t gic_set_int_group(uint32_t id, uint32_t rd, uint32_t security)
 {
     uint32_t bank, group, mod, ret = 0U;
@@ -333,12 +347,17 @@ int32_t gic_set_int_group(uint32_t id, uint32_t rd, uint32_t security)
 #define GICV3_ROUTE_AFF3_SHIFT    (8)
 
 /*
- * @brief Sets the target CPUs of the specified uID
- * For 'target' use one of the above defines
- * @param[in] id  INTuID of interrupt (id must be less than 1020)
- * @param[in] mode Routing mode
- * @param[in] affinity  Affinity co-ordinate of target
- */
+    Function: gic_set_int_route
+
+    Sets the target CPUs of the specified uID For 'target' use one of the
+    above defines
+
+    Parameters:
+
+        id - INTuID of interrupt (id must be less than 1020)
+        mode - Routing mode
+        affinity - Affinity co-ordinate of target
+*/
 int32_t gic_set_int_route(uint32_t id, uint32_t mode, uint32_t affinity)
 {
     uint64_t tmp;
@@ -383,7 +402,12 @@ int32_t gic_set_int_route(uint32_t id, uint32_t mode, uint32_t affinity)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
-/* Interrupt configuration */
+/*
+    Function: gic_enable_int
+
+    Interrupt configuration
+*/
+
 
 int32_t gic_enable_int(uint32_t id, uint32_t rd)
 {
@@ -439,6 +463,9 @@ int32_t gic_enable_int(uint32_t id, uint32_t rd)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
+/*
+    Function: gic_disable_int
+*/
 int32_t gic_disable_int(uint32_t id, uint32_t rd)
 {
     uint32_t bank;
@@ -488,6 +515,9 @@ int32_t gic_disable_int(uint32_t id, uint32_t rd)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
+/*
+    Function: gic_set_int_type
+*/
 int32_t gic_set_int_type(uint32_t id, uint32_t rd, uint32_t type)
 {
     uint32_t bank, tmp, conf;
@@ -543,6 +573,9 @@ int32_t gic_set_int_type(uint32_t id, uint32_t rd, uint32_t type)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
+/*
+    Function: gic_clear_int_pending
+*/
 int32_t gic_clear_int_pending(uint32_t id, uint32_t rd)
 {
     uint32_t bank;
@@ -586,7 +619,12 @@ int32_t gic_clear_int_pending(uint32_t id, uint32_t rd)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
-/* Interrupt state */
+/*
+    Function: gic_set_int_pending
+
+    Interrupt state
+*/
+
 
 int32_t gic_set_int_pending(uint32_t id, uint32_t rd)
 {
@@ -638,6 +676,11 @@ int32_t gic_set_int_pending(uint32_t id, uint32_t rd)
     return INTERRUPT_RETURN_SUCCESS;
 }
 
+/*
+    Function: gic_enable_interrupts
+
+    Wrapper around volatile.
+*/
 void gic_enable_interrupts(void)
 {
     __asm__ volatile ("msr DAIFClr, #0xF" ::: "memory");

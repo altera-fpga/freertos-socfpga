@@ -24,6 +24,18 @@
  *
  */
 
+/*
+    File: Partest
+
+    Declares the Partest interface: 3 functions and 1 constant.
+*/
+
+/*
+    Constants: Partest constants
+
+    partstDEFAULT_PORT_ADDRESS - Expands to ( ( uint16_t ) 0x378 ).
+*/
+
 #ifndef PARTEST_H
 #define PARTEST_H
 

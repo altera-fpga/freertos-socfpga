@@ -6,6 +6,12 @@
  * Header file for Interrupts sub-module of SoC FPGA USB3.1 XHCI low level driver
  */
 
+/*
+    File: xHCI Interrupts Driver
+
+    Declares the xHCI Interrupts driver interface: 3 functions and 2 types.
+*/
+
 #ifndef __XHCI_INTERRUPTS_H__
 #define __XHCI_INTERRUPTS_H__
 
@@ -14,27 +20,41 @@
 /* Function pointer for tinyusb interrupt handler */
 typedef void (*tusb_int_ptr)(uint8_t rhport, bool in_isr);
 
-/* descriptor to pass to interrupt handler */
+/*
+    Struct: xhci_int_desc
+
+    Descriptor to pass to interrupt handler. Callers reach it through xhci_int_ptr_t.
+*/
 struct xhci_int_desc
 {
     tusb_int_ptr int_handler; /* !< pointer to tinyusb interrupt handler */
 };
 
 typedef struct xhci_int_desc *xhci_int_ptr_t;
+
 /*
- * @brief  enable xhci interrupts
- */
+    Function: enable_xhci_interrupts
+
+    enable xhci interrupts
+*/
 void enable_xhci_interrupts(void);
 
 /*
- * @brief  disable the xhci interrupts
- */
+    Function: disable_xhci_interrupts
+
+    disable the xhci interrupts
+*/
 void disable_xhci_interrupts(void);
 
 /*
- * @brief  register USB3 ISR
- * @param[in] int_handler - pointer to tinyusb interrupt handler
- */
+    Function: register_usb3ISR
+
+    register USB3 ISR
+
+    Parameters:
+
+        int_handler - - pointer to tinyusb interrupt handler
+*/
 bool register_usb3ISR(xhci_int_ptr_t int_handler);
 
 #endif  /* __XHCI_INTERRUPTS_H__ */

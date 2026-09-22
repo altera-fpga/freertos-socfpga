@@ -6,10 +6,11 @@
  * Sample application for SPI
  */
 
-/**
- * @file spi_sample.c
- * @brief Sample Application for SPI
- */
+/*
+    File: SPI Sample
+
+    Sample Application for SPI
+*/
 
 #include <string.h>
 #include <stdio.h>
@@ -21,46 +22,54 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup spi_sample SPI
- * @ingroup samples
- *
- * Sample Application for SPI
- *
- * @details
- * @section spi_desc Description
- * This is a sample application to demonstrate the usage of SPI driver.
- * It writes data to an EEPROM using SPI and then reads it back.
- *
- * @section spi_pre Prerequisites
- * - A serial EEPROM with SPI interface must be connected to the SPI bus.
- *
- * @section spi_param Configurable Parameters
- * - SPI instance can be configured in @c SPI_INSTANCE macro.
- * - The memory address to write and read back can be configured in
- *   @c EEPROM_ADDR macro.
- * - The number of bytes to transfer can be configured in @c XFER_SIZE
- *   macro.
- * - Slave select can be configured in @c SLAVE_SELECT_NUM macro.
- * @note Ensure the instance and slave select are valid.
- * The EEPROM commands and address can vary depending on the EEPROM used.
- *
- * @section spi_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board with the EEPROM connected.
- * 3. Observe the UART terminal for status messages.
- *
- * @section spi_result Expected Results
- * - The application sends the Write Enable and Write commands to store data in
- *   EEPROM.
- * - It then reads the data back using the Read command.
- * - The read and written data are compared, and a success message is printed
- *   on match.
- */
+/*
+    Group: SPI
 
-/**
- * EEPROM commands
- */
+    Sample Application for SPI
+
+    Description:
+
+    This is a sample application to demonstrate the usage of SPI driver. It
+    writes data to an EEPROM using SPI and then reads it back.
+
+    Prerequisites:
+
+    - A serial EEPROM with SPI interface must be connected to the SPI bus.
+
+    Configurable Parameters:
+
+    - SPI instance can be configured in SPI_INSTANCE macro.
+    - The memory address to write and read back can be configured in
+    EEPROM_ADDR macro.
+    - The number of bytes to transfer can be configured in XFER_SIZE
+    macro.
+    - Slave select can be configured in SLAVE_SELECT_NUM macro.
+
+    How to Run:
+
+    1. Follow the common README instructions to build and flash the application.
+    2. Run the application on the board with the EEPROM connected.
+    3. Observe the UART terminal for status messages.
+
+    Expected Results:
+
+    - The application sends the Write Enable and Write commands to store data in
+    EEPROM.
+    - It then reads the data back using the Read command.
+    - The read and written data are compared, and a success message is printed
+    on match.
+
+    Notes:
+
+        Ensure the instance and slave select are valid.
+        The EEPROM commands and address can vary depending on the EEPROM used.
+*/
+
+/*
+    Constant: EEPROM_READ
+
+    EEPROM commands
+*/
 #define EEPROM_READ          0x03
 #define EEPROM_WRITE         0x02
 #define EEPROM_WR_DISABLE    0x04
@@ -70,28 +79,37 @@
 #define EEPROM_WIP_MASK      0x01
 #define EEPROM_WIP_TIMEOUT_MS 10
 
-/**
- * Configurable parameters for EEPROM data transfer
- * The EEPROM page size is 64 bytes.
- * Valid address range is 0x00 to 0x3FFF.
- */
+/*
+    Constant: EEPROM_ADDR
+
+    Configurable parameters for EEPROM data transfer The EEPROM page size is
+    64 bytes. Valid address range is 0x00 to 0x3FFF.
+*/
 #define EEPROM_ADDR          0x2780
 #define EEPROM_PAGE_SIZE     64U
 #define XFER_SIZE            64U
 
-/**
- * Configurable parameters for SPI controller
- */
+/*
+    Constant: SPI_INSTANCE
+
+    Configurable parameters for SPI controller
+*/
 #define SPI_INSTANCE         0
 #define SLAVE_SELECT_NUM     1
 #define SPI_FREQ             500000U
 spi_handle_t spi_handle;
 
+/*
+    Function: min_size
+*/
 static uint32_t min_size(uint32_t a, uint32_t b)
 {
     return (a < b) ? a : b;
 }
 
+/*
+    Function: print_buf
+*/
 static void print_buf(const char *label, const uint8_t *buf, uint32_t len)
 {
     uint32_t i;
@@ -112,11 +130,14 @@ static void print_buf(const char *label, const uint8_t *buf, uint32_t len)
     printf("\r\n");
 }
 
-/**
- * @brief Send Write Enable command to EEPROM
- *
- * Write enable command should be sent before any write operation.
- */
+/*
+    Function: eeprom_enable_write
+
+    Send Write Enable command to EEPROM
+
+    Write enable command should be sent before any write operation.
+*/
+
 static int32_t eeprom_enable_write(void)
 {
     uint8_t cmd = EEPROM_WR_ENABLE;
@@ -129,9 +150,12 @@ static int32_t eeprom_enable_write(void)
     return 0;
 }
 
-/**
- * @brief Read EEPROM status register
- */
+/*
+    Function: eeprom_read_status
+
+    Read EEPROM status register
+*/
+
 static int32_t eeprom_read_status(uint8_t *status)
 {
     uint8_t cmd[2] = { EEPROM_RD_SR, 0x00 };
@@ -151,9 +175,12 @@ static int32_t eeprom_read_status(uint8_t *status)
     return 0;
 }
 
-/**
- * @brief Wait until EEPROM write cycle completes
- */
+/*
+    Function: eeprom_wait_ready
+
+    Wait until EEPROM write cycle completes
+*/
+
 static int32_t eeprom_wait_ready(void)
 {
     uint8_t status = 0;
@@ -180,13 +207,15 @@ static int32_t eeprom_wait_ready(void)
     return -ETIMEDOUT;
 }
 
-/**
- * @brief Send write command followed by address and data to EEPROM
- *
- * Only one page can be written at a time.
- * writing more than one page at a time will result in wrapping around
- * and overwriting the previous data.
- */
+/*
+    Function: eeprom_write_page
+
+    Send write command followed by address and data to EEPROM
+
+    Only one page can be written at a time. writing more than one page at a
+    time will result in wrapping around and overwriting the previous data.
+*/
+
 static int32_t eeprom_write_page(const uint8_t *buf, uint32_t size,
         uint16_t mem_addr)
 {
@@ -223,6 +252,11 @@ static int32_t eeprom_write_page(const uint8_t *buf, uint32_t size,
     return eeprom_wait_ready();
 }
 
+/*
+    Function: eeprom_write_buf
+
+    Calls <min_size> and <eeprom_write_page>.
+*/
 static int32_t eeprom_write_buf(const uint8_t *buf, uint32_t size,
         uint16_t mem_addr)
 {
@@ -247,14 +281,16 @@ static int32_t eeprom_write_buf(const uint8_t *buf, uint32_t size,
     return 0;
 }
 
-/**
- * @brief Read data from EEPROM
- *
- * The read command is followed by address and dummy bytes.
- * The number of dummy bytes is equal to the number of bytes to be read.
- * The first three bytes of the read data will be dummy bytes and should be
- * ignored.
- */
+/*
+    Function: eeprom_read_chunk
+
+    Read data from EEPROM
+
+    The read command is followed by address and dummy bytes. The number of
+    dummy bytes is equal to the number of bytes to be read. The first three
+    bytes of the read data will be dummy bytes and should be ignored.
+*/
+
 static int32_t eeprom_read_chunk(uint8_t *buf, uint32_t size,
         uint16_t mem_addr)
 {
@@ -286,6 +322,11 @@ static int32_t eeprom_read_chunk(uint8_t *buf, uint32_t size,
     return 0;
 }
 
+/*
+    Function: eeprom_read_buf
+
+    Calls <min_size> and <eeprom_read_chunk>.
+*/
 static int32_t eeprom_read_buf(uint8_t *buf, uint32_t size, uint16_t mem_addr)
 {
     uint32_t offset = 0;
@@ -309,6 +350,9 @@ static int32_t eeprom_read_buf(uint8_t *buf, uint32_t size, uint16_t mem_addr)
     return 0;
 }
 
+/*
+    Function: spi_task
+*/
 void spi_task(void)
 {
     uint8_t rd_buf[XFER_SIZE] = { 0 };

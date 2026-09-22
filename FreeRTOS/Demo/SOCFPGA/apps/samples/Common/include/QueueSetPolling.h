@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Queue Set Polling
+
+    Declares the Queue Set Polling interface: 3 functions.
+
+    They are vQueueSetPollingInterruptAccess, vStartQueueSetPollingTask and
+    xAreQueueSetPollTasksStillRunning.
+*/
+
 #ifndef QUEUE_SET_POLLING_H
 #define QUEUE_SET_POLLING_H
 

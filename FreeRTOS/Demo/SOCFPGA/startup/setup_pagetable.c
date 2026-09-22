@@ -4,6 +4,13 @@
  * SPDX-License-Identifier: MIT-0
  */
 
+/*
+    File: Setup Pagetable
+
+    Implements the Setup Pagetable: 7 functions, all of them local to this
+    file.
+*/
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -44,6 +51,11 @@ uint64_t l0_pagetable[ 2 ] __attribute__( ( section( ".data" ), aligned( 4096 ) 
 uint64_t l1_pagetable[ NUM_L1_PT ] __attribute__( ( section( ".data" ), aligned( 4096 ) ) ) = { 0 };
 uint64_t l2_pagetable[ NUM_L2_PT ] __attribute__( ( section( ".data" ), aligned( 4096 ) ) ) = { 0 };
 
+/*
+    Function: invalidte_tlb
+
+    Calls volatile.
+*/
 static inline void invalidte_tlb()
 {
     /* Invalidate the TLB and flush the instruction cache*/
@@ -53,6 +65,11 @@ static inline void invalidte_tlb()
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: invalidate_cache
+
+    Calls READ_SYS_REG and volatile.
+*/
 static inline void invalidate_cache( void * address,
                                      size_t length )
 {
@@ -75,6 +92,11 @@ uintptr_t end_addr = ( uintptr_t ) address + length;
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prepare_l0_pages
+
+    Calls PT_MAIR_IDX.
+*/
 void prepare_l0_pages( void )
 {
     /* The system has 40bit address space. So PT starts with l0
@@ -86,6 +108,11 @@ void prepare_l0_pages( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prepare_l1_pages
+
+    Calls MEM_OFFSET_L1_IDX and PT_MAIR_IDX.
+*/
 void prepare_l1_pages( void )
 {
     /* l1 page table has 512 entries
@@ -115,6 +142,11 @@ void prepare_l1_pages( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prepare_l2_pages
+
+    Calls MEM_OFFSET_L1_IDX, MEM_OFFSET_L2_IDX and PT_MAIR_IDX.
+*/
 void prepare_l2_pages( int offset )
 {
     /*l2 page table has yet another 512 entries
@@ -128,6 +160,11 @@ void prepare_l2_pages( int offset )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: config_page_caching
+
+    Calls PT_MAIR_IDX, volatile and <invalidte_tlb>.
+*/
 void config_page_caching( void * addr,
                           int mode )
 {
@@ -156,6 +193,9 @@ int mair_idx;
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: _mmu_configure
+*/
 void _mmu_configure( uint64_t setup )
 {
 uint64_t mair;

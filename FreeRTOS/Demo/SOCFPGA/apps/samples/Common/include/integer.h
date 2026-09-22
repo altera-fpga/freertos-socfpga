@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Integer
+
+    Declares the Integer interface: 2 functions.
+
+    They are vStartIntegerMathTasks and xAreIntegerMathsTaskStillRunning.
+*/
+
 #ifndef INTEGER_TASKS_H
 #define INTEGER_TASKS_H
 

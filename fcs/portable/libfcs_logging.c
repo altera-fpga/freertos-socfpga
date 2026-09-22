@@ -1,4 +1,13 @@
 // SPDX-License-Identifier: MIT-0
+
+/*
+    File: FCS Library Logging Definitions
+
+    Implements the FCS Library Logging definitions: 2 functions.
+
+    They are fcs_set_logging and fcs_logging_init.
+*/
+
 /*
  * Copyright (C) 2025 Altera
  */

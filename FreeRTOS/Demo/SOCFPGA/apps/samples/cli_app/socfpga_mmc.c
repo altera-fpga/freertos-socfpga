@@ -6,6 +6,12 @@
  * Helper functions to read files from storage
  */
 
+/*
+    File: MMC Implementation
+
+    Helper functions to read files from storage.
+*/
+
 #include "osal_log.h"
 #include "ff_sddisk.h"
 #include "socfpga_mmc.h"

@@ -6,6 +6,33 @@
  * Interrupt priority configurations for hardware blocks
  */
 
+/*
+    File: GIC Interrupt Priority Driver
+
+    Interrupt priority configurations for hardware blocks.
+*/
+
+/*
+    Constants: GIC Interrupt Priority constants
+
+    GIC_INTERRUPT_PRIORITY_GPIO  - Value: 14.
+    GIC_INTERRUPT_PRIORITY_WDOG  - Value: 14.
+    GIC_INTERRUPT_PRIORITY_I2C   - Value: 14.
+    GIC_INTERRUPT_PRIORITY_UART  - Value: 14.
+    GIC_INTERRUPT_PRIORITY_TIMER - Value: 14.
+    GIC_INTERRUPT_PRIORITY_DMA   - Value: 14.
+    GIC_INTERRUPT_PRIORITY_IOSSM - Value: 14.
+    GIC_INTERRUPT_PRIORITY_SDMMC - Value: 14.
+    GIC_INTERRUPT_PRIORITY_SPI   - Value: 14.
+    GIC_INTERRUPT_PRIORITY_SEU   - Value: 14.
+    GIC_INTERRUPT_PRIORITY_USB3  - Value: 14.
+    GIC_INTERRUPT_PRIORITY_QSPI  - Value: 14.
+    GIC_INTERRUPT_PRIORITY_ENET  - Value: 14.
+    GIC_INTERRUPT_PRIORITY_I3C   - Value: 14.
+    GIC_INTERRUPT_PRIORITY_EDAC  - Value: 14.
+    GIC_INTERRUPT_PRIORITY_USB2  - Value: 14.
+*/
+
 #ifndef __SOCFPGA_INTERRUPT_PRIORITY_H__
 #define __SOCFPGA_INTERRUPT_PRIORITY_H__
 

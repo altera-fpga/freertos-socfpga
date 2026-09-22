@@ -6,90 +6,94 @@
  * Implementation of CLI commands for RSU
  */
 
-/**
- * @defgroup cli_rsu RSU
- * @ingroup cli
- *
- * Perform operations on RSU
- *
- * @details
- * It supports the following commands:
- * -rsu count
- * -rsu log
- * -rsu info    &lt;slot&gt;
- * -rsu erase   &lt;slot&gt;
- * -rsu program &lt;slot&gt; &lt;file&gt;
- * -rsu verify  &lt;slot&gt; &lt;file&gt;
- * -rsu load    &lt;slot&gt;
- * -rsu help
- *
- * Typical usage:
- * - Use  'rsu count' command to get the number of slots..
- * - Use  'rsu log'   command to get current slot details.
- * - Use  'rsu erase' command to erase a slot.
- * - Use  'rsu program' command to program a slot with sdcard file..
- * - Use  'rsu verify'  command to verify a slot with a sdcard file.
- * - Use  'rsu load'    command to load a slot after reboot..
- * @section rsu_commands Commands
- * @subsection rsu_count rsu count
- * Count the number of rsu slots  <br>
- *
- * Usage:  <br>
- *   rsu count  <br>
- *
- * No arguments.  <br>
- *
- * @subsection rsu_log rsu log
- * List the details of current slot  <br>
- *
- * Usage:  <br>
- *   rsu log <br>
- *
- * No arguments
- *
- * @subsection rsu_info rsu info
- * Get the information about the slot number  <br>
- *
- * Usage:  <br>
- *   rsu info &lt;slot_num&gt;  <br>
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- *
- * @subsection rsu_erase rsu erase
- * Erase the content of the slot  <br>
- *
- * Usage:  <br>
- *   rsu erase &lt;slot_num&gt;  <br>
- *
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- *
- * @subsection rsu_program rsu program
- * Write image to a given slot  <br>
- *
- * Usage:  <br>
- *   rsu program &lt;slot_num&gt; &lt;file&gt; <br>
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- * - file    -      The name of the sdcard image(use absolute path).  <br>
- *
- * @subsection rsu_verify rsu verify
- * Verify image in the slot to the file  <br>
- *
- * Usage:  <br>
- *   rsu verify &lt;slot_num&gt; &lt;file&gt; <br>
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- * - file    -      The name of the sdcard image(use absolute path).  <br>
- *
- * @subsection rsu_load rsu load
- * Load the image in the given slot after reboot  <br>
- *
- * Usage:  <br>
- *   rsu load &lt;slot_num&gt; <br>
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- */
+/*
+    File: RSU CLI Commands
+
+    Perform operations on RSU
+
+    It supports the following commands: -rsu count -rsu log -rsu info
+    &lt;slot&gt; -rsu erase &lt;slot&gt; -rsu program &lt;slot&gt;
+    &lt;file&gt; -rsu verify &lt;slot&gt; &lt;file&gt; -rsu load &lt;slot&gt;
+    -rsu help
+
+    Typical usage:
+    - Use  'rsu count' command to get the number of slots..
+    - Use  'rsu log'   command to get current slot details.
+    - Use  'rsu erase' command to erase a slot.
+    - Use  'rsu program' command to program a slot with sdcard file..
+    - Use  'rsu verify'  command to verify a slot with a sdcard file.
+    - Use  'rsu load'    command to load a slot after reboot..
+    Group: Commands
+
+    rsu count:
+
+    Count the number of rsu slots
+
+    Usage: rsu count
+
+    No arguments.
+
+    rsu log:
+
+    List the details of current slot
+
+    Usage: rsu log
+
+    No arguments
+
+    rsu info:
+
+    Get the information about the slot number
+
+    Usage: rsu info &lt;slot_num&gt; It requires the following arguments:
+    - slot_num -      The slot number
+
+    rsu erase:
+
+    Erase the content of the slot
+
+    Usage: rsu erase &lt;slot_num&gt;
+
+    It requires the following arguments:
+    - slot_num -      The slot number
+
+    rsu program:
+
+    Write image to a given slot
+
+    Usage: rsu program &lt;slot_num&gt; &lt;file&gt; It requires the following
+    arguments:
+    - slot_num -      The slot number
+    - file    -      The name of the sdcard image(use absolute path).
+
+    rsu verify:
+
+    Verify image in the slot to the file
+
+    Usage: rsu verify &lt;slot_num&gt; &lt;file&gt; It requires the following
+    arguments:
+    - slot_num -      The slot number
+    - file    -      The name of the sdcard image(use absolute path).
+
+    rsu load:
+
+    Load the image in the given slot after reboot
+
+    Usage: rsu load &lt;slot_num&gt; It requires the following arguments:
+    - slot_num -      The slot number
+*/
+
+/*
+    Constants: RSU constants
+
+    SLOT_COUNT_CMD - Expands to ("count").
+    SLOT_INFO_CMD  - Expands to ("info").
+    SLOT_ERASE_CMD - Expands to ("erase").
+    SLOT_PRGM_CMD  - Expands to ("program").
+    SLOT_LOAD_CMD  - Expands to ("load").
+    STATUS_LOG_CMD - Expands to ("log").
+    SLOT_VRFY_CMD  - Expands to ("verify").
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,6 +115,12 @@
 #define SLOT_VRFY_CMD     ("verify")
 
 
+/*
+    Function: cmd_rsu
+
+    Implements the rsu command of the CLI sample: perform rsu operations(NOTE:
+    needs RSU sopported image for this).
+*/
 BaseType_t cmd_rsu( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

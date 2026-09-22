@@ -1,10 +1,16 @@
-/**
- * SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
- *
- * SPDX-License-Identifier: MIT-0
- *
- * Low level driver implementation for I3C
- */
+/*
+    SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
+
+    SPDX-License-Identifier: MIT-0
+
+    Low level driver implementation for I3C
+*/
+
+/*
+    File: I3C Low-Level Driver Implementation
+
+    Low level driver implementation for I3C.
+*/
 
 #include <errno.h>
 #include <stddef.h>
@@ -25,6 +31,11 @@
 static bool i3c_dat_slot_in_use[I3C_NUM_INSTANCES][I3C_MAX_DEVICES] =
 { false };
 
+/*
+    Struct: i3c_cmd_obj
+
+    Command for the I3C low-level driver, holding cmd_word, arg_word, data and 8 more. Declared as cmd_obj in socfpga_i3c_ll.c.
+*/
 struct i3c_cmd_obj
 {
     uint32_t cmd_word;
@@ -49,12 +60,22 @@ static int32_t i3c_ll_build_xfer_word(struct i3c_cmd_obj *cmd_obj, uint8_t tid,
 static int32_t i3c_ll_build_addr_assign_word(struct i3c_cmd_obj *cmd_obj,
         uint8_t tid, uint8_t cmd_id, uint8_t dev_index, uint8_t dev_count);
 
+/*
+    Struct: i3c_ll_dasa_req_t
+
+    Request for the I3C low-level driver, holding dat_index and requested_dynamic_addr. Declared as req in socfpga_i3c_ll.c.
+*/
 typedef struct
 {
     uint8_t dat_index;
     uint8_t requested_dynamic_addr;
 } i3c_ll_dasa_req_t;
 
+/*
+    Struct: i3c_ll_daa_req_t
+
+    Request for the I3C low-level driver, holding start_dat_index, device_count, assigned_dynamic_addrs and assigned_buf_len. Declared as req in socfpga_i3c_ll.c.
+*/
 typedef struct
 {
     uint8_t start_dat_index;
@@ -98,13 +119,21 @@ static int32_t i3c_ll_execute_entdaa(uint32_t base_addr,
         struct i3c_cmd_obj *cmd_obj,
         const i3c_ll_daa_req_t *req);
 
-/**
- * @brief Allocate a free DAT slot for a controller instance.
- *
- * @param[in] instance I3C controller instance.
- * @param[out] dat_index Allocated DAT index.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_ll_alloc_dat_slot
+
+    Allocate a free DAT slot for a controller instance.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    dat_index - Allocated DAT index.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_ll_alloc_dat_slot(uint8_t instance, uint32_t *dat_index)
 {
     uint32_t i;
@@ -127,12 +156,20 @@ static int32_t i3c_ll_alloc_dat_slot(uint8_t instance, uint32_t *dat_index)
     return -ENOMEM;
 }
 
-/**
- * @brief Get transfer command storage for an instance.
- *
- * @param[in] instance I3C controller instance.
- * @return Command object storage pointer, or NULL on invalid instance.
- */
+/*
+    Function: i3c_ll_get_cmd_obj
+
+    Get transfer command storage for an instance.
+
+    Parameters:
+
+    instance - I3C controller instance.
+
+    Returns:
+
+    Command object storage pointer, or NULL on invalid instance.
+*/
+
 static struct i3c_cmd_obj *i3c_ll_get_cmd_obj(uint8_t instance)
 {
     if (instance >= I3C_NUM_INSTANCES)
@@ -146,6 +183,9 @@ static struct i3c_cmd_obj *i3c_ll_get_cmd_obj(uint8_t instance)
 /* HAL-accessible DAT management APIs. */
 
 
+/*
+    Function: i3c_ll_reset_dat_slots
+*/
 void i3c_ll_reset_dat_slots(uint8_t instance)
 {
     if (instance < I3C_NUM_INSTANCES)
@@ -156,13 +196,16 @@ void i3c_ll_reset_dat_slots(uint8_t instance)
 }
 
 
-/**
- *
- * @brief Configure SCL timing registers for I3C and I2C bus modes.
- *
- * @param[in] base_addr I3C controller register base address.
- *
- */
+/*
+    Function: i3c_ll_configure_scl
+
+    Configure SCL timing registers for I3C and I2C bus modes.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+*/
+
 static void i3c_ll_configure_scl(uint32_t base_addr)
 {
     uint32_t core_clk, core_period;
@@ -274,7 +317,12 @@ static void i3c_ll_configure_scl(uint32_t base_addr)
     WR_REG32(base_addr + I3C_SCL_I2C_FMP_TIMING, value);
 }
 
-/* HAL-accessible controller lifecycle APIs. */
+/*
+    Function: i3c_ll_init
+
+    HAL-accessible controller lifecycle APIs.
+*/
+
 
 int32_t i3c_ll_init(uint8_t instance, uint8_t own_da, uint32_t *base_addr,
         uint32_t *dat_base, uint32_t *dct_base, uint32_t *cmd_fifo_depth,
@@ -351,7 +399,12 @@ int32_t i3c_ll_init(uint8_t instance, uint8_t own_da, uint32_t *base_addr,
     return 0;
 }
 
-/* HAL-accessible FIFO APIs. */
+/*
+    Function: i3c_ll_push_tx_fifo
+
+    HAL-accessible FIFO APIs.
+*/
+
 
 uint16_t i3c_ll_push_tx_fifo(uint32_t base_addr, uint8_t *data,
         uint16_t length)
@@ -402,6 +455,9 @@ uint16_t i3c_ll_push_tx_fifo(uint32_t base_addr, uint8_t *data,
     return bytes_written;
 }
 
+/*
+    Function: i3c_ll_read_rx_fifo
+*/
 uint16_t i3c_ll_read_rx_fifo(uint32_t base_addr, uint8_t *data,
         uint16_t length)
 {
@@ -453,6 +509,9 @@ uint16_t i3c_ll_read_rx_fifo(uint32_t base_addr, uint8_t *data,
     return bytes_read;
 }
 
+/*
+    Function: i3c_ll_service_transfer_thresholds
+*/
 void i3c_ll_service_transfer_thresholds(uint8_t instance, uint32_t base_addr,
         uint8_t num_cmds, uint32_t intr_status)
 {
@@ -495,6 +554,11 @@ void i3c_ll_service_transfer_thresholds(uint8_t instance, uint32_t base_addr,
     }
 }
 
+/*
+    Function: i3c_ll_complete_read_transfers
+
+    Calls <i3c_ll_get_cmd_obj> and <i3c_ll_read_rx_fifo>.
+*/
 void i3c_ll_complete_read_transfers(uint8_t instance, uint32_t base_addr,
         uint8_t num_cmds)
 {
@@ -522,12 +586,20 @@ void i3c_ll_complete_read_transfers(uint8_t instance, uint32_t base_addr,
     }
 }
 
-/**
- * @brief Get number of available response entries.
- *
- * @param[in] base_addr I3C controller register base address.
- * @return Response queue entry count.
- */
+/*
+    Function: i3c_ll_get_response_count
+
+    Get number of available response entries.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+
+    Returns:
+
+    Response queue entry count.
+*/
+
 static uint8_t i3c_ll_get_response_count(uint32_t base_addr)
 {
     uint32_t value;
@@ -537,12 +609,20 @@ static uint8_t i3c_ll_get_response_count(uint32_t base_addr)
             I3C_QUEUE_STATUS_LEVEL_RESP_BUF_BLR_POS);
 }
 
-/**
- * @brief Read one response entry from response queue.
- *
- * @param[in] base_addr I3C controller register base address.
- * @return Response queue word.
- */
+/*
+    Function: i3c_ll_get_response
+
+    Read one response entry from response queue.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+
+    Returns:
+
+    Response queue word.
+*/
+
 static uint32_t i3c_ll_get_response(uint32_t base_addr)
 {
     uint32_t value;
@@ -551,12 +631,17 @@ static uint32_t i3c_ll_get_response(uint32_t base_addr)
     return value;
 }
 
-/**
- * @brief Configure response threshold for response-ready interrupt.
- *
- * @param[in] base_addr I3C controller register base address.
- * @param[in] threshold Response queue threshold.
- */
+/*
+    Function: i3c_ll_set_response_threshold
+
+    Configure response threshold for response-ready interrupt.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+    threshold - Response queue threshold.
+*/
+
 static void i3c_ll_set_response_threshold(uint32_t base_addr, uint8_t threshold)
 {
     uint32_t value;
@@ -568,13 +653,18 @@ static void i3c_ll_set_response_threshold(uint32_t base_addr, uint8_t threshold)
     WR_REG32(base_addr + I3C_QUEUE_THLD_CTRL, value);
 }
 
-/**
- * @brief Submit command objects to command queue.
- *
- * @param[in] base_addr I3C controller register base address.
- * @param[in] cmd_obj Command object array.
- * @param[in] num_cmds Number of commands.
- */
+/*
+    Function: i3c_ll_queue_xfer_cmd
+
+    Submit command objects to command queue.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+    cmd_obj - Command object array.
+    num_cmds - Number of commands.
+*/
+
 static void i3c_ll_queue_xfer_cmd(uint32_t base_addr,
         struct i3c_cmd_obj *cmd_obj, uint8_t num_cmds)
 {
@@ -590,6 +680,11 @@ static void i3c_ll_queue_xfer_cmd(uint32_t base_addr,
 /* HAL-accessible DAT attach/detach APIs. */
 
 
+/*
+    Function: i3c_ll_attach_dat_i2c
+
+    Calls <i3c_ll_alloc_dat_slot> and WR_REG32.
+*/
 int32_t i3c_ll_attach_dat_i2c(uint8_t instance, uint32_t base_addr,
         uint32_t dat_base, uint8_t addr, uint32_t *dat_index)
 {
@@ -613,6 +708,9 @@ int32_t i3c_ll_attach_dat_i2c(uint8_t instance, uint32_t base_addr,
     return 0;
 }
 
+/*
+    Function: i3c_ll_attach_dat_i3c
+*/
 int32_t i3c_ll_attach_dat_i3c(uint8_t instance, uint32_t base_addr,
         uint32_t dat_base, uint8_t addr, uint32_t *dat_index)
 {
@@ -646,6 +744,9 @@ int32_t i3c_ll_attach_dat_i3c(uint8_t instance, uint32_t base_addr,
     return 0;
 }
 
+/*
+    Function: i3c_ll_detach_dat
+*/
 int32_t i3c_ll_detach_dat(uint8_t instance, uint32_t base_addr,
         uint32_t dat_base, uint32_t dat_index, uint8_t addr)
 {
@@ -684,21 +785,32 @@ int32_t i3c_ll_detach_dat(uint8_t instance, uint32_t base_addr,
     return 0;
 }
 
-/**
- *
- * @brief Compute bit index for IBI reject register from IBI identifier.
- *
- * @param[in] ibi_id IBI identifier.
- * @return Reject register bit index.
- *
- */
+/*
+    Function: get_ibi_reject_bit_index
+
+    Compute bit index for IBI reject register from IBI identifier.
+
+    Parameters:
+
+    ibi_id - IBI identifier.
+
+    Returns:
+
+    Reject register bit index.
+*/
+
 static uint8_t get_ibi_reject_bit_index(uint8_t ibi_id)
 {
     uint8_t sum = (uint8_t)((ibi_id & 0x1FU) + ((ibi_id >> 5U) & 0x3U));
     return (uint8_t)(sum & 0x1FU);
 }
 
-/* HAL-accessible IBI configuration APIs. */
+/*
+    Function: i3c_ll_configure_ibi
+
+    HAL-accessible IBI configuration APIs.
+*/
+
 
 int32_t i3c_ll_configure_ibi(uint32_t base_addr, uint32_t dat_base,
         uint32_t dat_index, uint8_t dynamic_addr, bool enable,
@@ -747,7 +859,12 @@ int32_t i3c_ll_configure_ibi(uint32_t base_addr, uint32_t dat_base,
     return 0;
 }
 
-/* HAL-accessible interrupt control APIs. */
+/*
+    Function: i3c_ll_get_intr_status
+
+    HAL-accessible interrupt control APIs.
+*/
+
 
 uint32_t i3c_ll_get_intr_status(uint32_t base_addr)
 {
@@ -781,12 +898,20 @@ uint32_t i3c_ll_get_intr_status(uint32_t base_addr)
     return status;
 }
 
-/**
- * @brief Convert HAL interrupt IDs to hardware status register bits.
- *
- * @param[in] mask HAL interrupt ID mask.
- * @return Hardware status-mask bits.
- */
+/*
+    Function: i3c_ll_intr_status_mask_from_ids
+
+    Convert HAL interrupt IDs to hardware status register bits.
+
+    Parameters:
+
+    mask - HAL interrupt ID mask.
+
+    Returns:
+
+    Hardware status-mask bits.
+*/
+
 static uint32_t i3c_ll_intr_status_mask_from_ids(uint32_t mask)
 {
     uint32_t value = 0U;
@@ -815,12 +940,20 @@ static uint32_t i3c_ll_intr_status_mask_from_ids(uint32_t mask)
     return value;
 }
 
-/**
- * @brief Convert HAL interrupt IDs to hardware signal-enable bits.
- *
- * @param[in] mask HAL interrupt ID mask.
- * @return Hardware signal-enable bits.
- */
+/*
+    Function: i3c_ll_intr_signal_mask_from_ids
+
+    Convert HAL interrupt IDs to hardware signal-enable bits.
+
+    Parameters:
+
+    mask - HAL interrupt ID mask.
+
+    Returns:
+
+    Hardware signal-enable bits.
+*/
+
 static uint32_t i3c_ll_intr_signal_mask_from_ids(uint32_t mask)
 {
     uint32_t value = 0U;
@@ -849,12 +982,23 @@ static uint32_t i3c_ll_intr_signal_mask_from_ids(uint32_t mask)
     return value;
 }
 
+/*
+    Function: i3c_ll_clear_intr_status
+
+    Calls WR_REG32 and <i3c_ll_intr_status_mask_from_ids>.
+*/
 void i3c_ll_clear_intr_status(uint32_t base_addr, uint32_t mask)
 {
     WR_REG32(base_addr + I3C_INTR_STATUS,
             i3c_ll_intr_status_mask_from_ids(mask));
 }
 
+/*
+    Function: i3c_ll_enable_interrupt
+
+    Calls <i3c_ll_intr_status_mask_from_ids>,
+    <i3c_ll_intr_signal_mask_from_ids>, RD_REG32 and WR_REG32.
+*/
 void i3c_ll_enable_interrupt(uint32_t base_addr, uint32_t mask)
 {
     uint32_t status_value;
@@ -875,6 +1019,12 @@ void i3c_ll_enable_interrupt(uint32_t base_addr, uint32_t mask)
     WR_REG32(base_addr + I3C_INTR_SIGNAL_EN, signal_value);
 }
 
+/*
+    Function: i3c_ll_disable_interrupt
+
+    Calls <i3c_ll_intr_status_mask_from_ids>,
+    <i3c_ll_intr_signal_mask_from_ids>, RD_REG32 and WR_REG32.
+*/
 void i3c_ll_disable_interrupt(uint32_t base_addr, uint32_t mask)
 {
     uint32_t status_value;
@@ -895,7 +1045,12 @@ void i3c_ll_disable_interrupt(uint32_t base_addr, uint32_t mask)
     WR_REG32(base_addr + I3C_INTR_SIGNAL_EN, signal_value);
 }
 
-/* HAL-accessible queue recovery APIs. */
+/*
+    Function: i3c_ll_reset_queues
+
+    HAL-accessible queue recovery APIs.
+*/
+
 
 void i3c_ll_reset_queues(uint32_t base_addr)
 {
@@ -906,6 +1061,11 @@ void i3c_ll_reset_queues(uint32_t base_addr)
             I3C_RESET_CTRL_CMD_QUEUE_RST_MASK));
 }
 
+/*
+    Function: i3c_ll_resume
+
+    Reads the I3C_DEVICE_CTRL register, updates it and writes it back.
+*/
 void i3c_ll_resume(uint32_t base_addr)
 {
     uint32_t value;
@@ -919,6 +1079,11 @@ void i3c_ll_resume(uint32_t base_addr)
 /* HAL-accessible IBI queue APIs. */
 
 
+/*
+    Function: i3c_ll_get_ibi_status
+
+    Reads the I3C_IBI_QUEUE_STATUS register.
+*/
 uint32_t i3c_ll_get_ibi_status(uint32_t base_addr)
 {
     uint32_t value;
@@ -927,12 +1092,20 @@ uint32_t i3c_ll_get_ibi_status(uint32_t base_addr)
     return value;
 }
 
-/**
- * @brief Read one IBI payload word from IBI queue.
- *
- * @param[in] base_addr I3C controller register base address.
- * @return IBI queue data word.
- */
+/*
+    Function: i3c_ll_get_ibi_data
+
+    Read one IBI payload word from IBI queue.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+
+    Returns:
+
+    IBI queue data word.
+*/
+
 static uint32_t i3c_ll_get_ibi_data(uint32_t base_addr)
 {
     uint32_t value;
@@ -941,6 +1114,11 @@ static uint32_t i3c_ll_get_ibi_data(uint32_t base_addr)
     return value;
 }
 
+/*
+    Function: i3c_ll_get_ibi_count
+
+    Reads the I3C_QUEUE_STATUS_LEVEL register.
+*/
 uint32_t i3c_ll_get_ibi_count(uint32_t base_addr)
 {
     uint32_t queue_level;
@@ -952,6 +1130,9 @@ uint32_t i3c_ll_get_ibi_count(uint32_t base_addr)
     return count;
 }
 
+/*
+    Function: i3c_ll_get_ibi_fields
+*/
 void i3c_ll_get_ibi_fields(uint32_t value, uint8_t *ibi_sts,
         uint8_t *ibi_id, uint8_t *data_len)
 {
@@ -968,6 +1149,9 @@ void i3c_ll_get_ibi_fields(uint32_t value, uint8_t *ibi_sts,
             I3C_IBI_QUEUE_STATUS_DATA_LENGTH_POS);
 }
 
+/*
+    Function: i3c_ll_read_ibi_payload
+*/
 uint8_t i3c_ll_read_ibi_payload(uint32_t base_addr, uint8_t *payload,
         uint8_t data_len, uint8_t payload_size)
 {
@@ -1001,13 +1185,18 @@ uint8_t i3c_ll_read_ibi_payload(uint32_t base_addr, uint8_t *payload,
     return read_len;
 }
 
-/**
- * @brief Program RX/TX threshold values.
- *
- * @param[in] base_addr I3C controller register base address.
- * @param[in] rx_thld RX threshold.
- * @param[in] tx_thld TX threshold.
- */
+/*
+    Function: i3c_ll_set_data_thresholds
+
+    Program RX/TX threshold values.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+    rx_thld - RX threshold.
+    tx_thld - TX threshold.
+*/
+
 static void i3c_ll_set_data_thresholds(uint32_t base_addr, uint32_t rx_thld,
         uint32_t tx_thld)
 {
@@ -1023,12 +1212,22 @@ static void i3c_ll_set_data_thresholds(uint32_t base_addr, uint32_t rx_thld,
     WR_REG32(base_addr + I3C_DATA_BUFFER_THLD_CTRL, value);
 }
 
+/*
+    Function: i3c_ll_set_default_data_thresholds
+
+    Wrapper around <i3c_ll_set_data_thresholds>.
+*/
 void i3c_ll_set_default_data_thresholds(uint32_t base_addr)
 {
     i3c_ll_set_data_thresholds(base_addr, I3C_DATA_BUFFER_THLD_CTRL_LVL16,
             I3C_DATA_BUFFER_THLD_CTRL_LVL16);
 }
 
+/*
+    Function: i3c_ll_set_ibi_defaults
+
+    Calls WR_REG32.
+*/
 void i3c_ll_set_ibi_defaults(uint32_t base_addr)
 {
     WR_REG32((base_addr + I3C_IBI_SIR_REQ_REJECT), SIR_REQ_REJECT_MASK);
@@ -1041,17 +1240,25 @@ void i3c_ll_set_ibi_defaults(uint32_t base_addr)
 
 /* HAL-accessible transfer command APIs. */
 
-/**
- * @brief Build one transfer command object from payload data.
- *
- * @param[in,out] cmd_obj Command object output.
- * @param[in] tid Transfer ID.
- * @param[in] dev_index DAT index.
- * @param[in] payload Transfer payload.
- * @param[in] is_i2c True for I2C transfer formatting.
- * @param[in] is_last True for final command in batch.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_ll_prepare_xfer_cmd
+
+    Build one transfer command object from payload data.
+
+    Parameters:
+
+    cmd_obj - Command object output.
+    tid - Transfer ID.
+    dev_index - DAT index.
+    payload - Transfer payload.
+    is_i2c - True for I2C transfer formatting.
+    is_last - True for final command in batch.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_ll_prepare_xfer_cmd(struct i3c_cmd_obj *cmd_obj, uint8_t tid,
         uint8_t dev_index, const struct i3c_cmd_payload *payload, bool is_i2c,
         bool is_last)
@@ -1068,16 +1275,24 @@ static int32_t i3c_ll_prepare_xfer_cmd(struct i3c_cmd_obj *cmd_obj, uint8_t tid,
             is_i2c, is_last);
 }
 
-/**
- * @brief Build one address-assignment command object.
- *
- * @param[in,out] cmd_obj Command object output.
- * @param[in] tid Transfer ID.
- * @param[in] cmd_id CCC command ID.
- * @param[in] dev_index DAT index.
- * @param[in] dev_count Device count.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_ll_prepare_addr_assign_cmd
+
+    Build one address-assignment command object.
+
+    Parameters:
+
+    cmd_obj - Command object output.
+    tid - Transfer ID.
+    cmd_id - CCC command ID.
+    dev_index - DAT index.
+    dev_count - Device count.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_ll_prepare_addr_assign_cmd(struct i3c_cmd_obj *cmd_obj,
         uint8_t tid, uint8_t cmd_id, uint8_t dev_index, uint8_t dev_count)
 {
@@ -1085,14 +1300,19 @@ static int32_t i3c_ll_prepare_addr_assign_cmd(struct i3c_cmd_obj *cmd_obj,
             dev_count);
 }
 
-/**
- * @brief Submit prepared command objects to hardware.
- *
- * @param[in] base_addr I3C controller register base address.
- * @param[in] cmd_obj Command object array.
- * @param[in] num_cmds Number of commands.
- * @param[in] is_addr_cmd True for address-assignment flow.
- */
+/*
+    Function: i3c_ll_submit_cmds
+
+    Submit prepared command objects to hardware.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+    cmd_obj - Command object array.
+    num_cmds - Number of commands.
+    is_addr_cmd - True for address-assignment flow.
+*/
+
 static void i3c_ll_submit_cmds(uint32_t base_addr, struct i3c_cmd_obj *cmd_obj,
         uint8_t num_cmds, bool is_addr_cmd)
 {
@@ -1106,6 +1326,9 @@ static void i3c_ll_submit_cmds(uint32_t base_addr, struct i3c_cmd_obj *cmd_obj,
     i3c_ll_queue_xfer_cmd(base_addr, cmd_obj, num_cmds);
 }
 
+/*
+    Function: i3c_ll_read_cmd_responses
+*/
 uint8_t i3c_ll_read_cmd_responses(uint8_t instance, uint32_t base_addr,
         i3c_ll_cmd_response_t *responses, uint8_t max_responses)
 {
@@ -1145,6 +1368,9 @@ uint8_t i3c_ll_read_cmd_responses(uint8_t instance, uint32_t base_addr,
     return count;
 }
 
+/*
+    Function: i3c_ll_prepare_transfer_batch
+*/
 int32_t i3c_ll_prepare_transfer_batch(uint8_t instance,
         const struct i3c_cmd_payload *payloads,
         const uint8_t *dat_indices, uint8_t num_cmds, bool is_i2c)
@@ -1188,6 +1414,11 @@ int32_t i3c_ll_prepare_transfer_batch(uint8_t instance,
     return 0;
 }
 
+/*
+    Function: i3c_ll_start_transfer_batch
+
+    Calls <i3c_ll_get_cmd_obj> and <i3c_ll_submit_cmds>.
+*/
 void i3c_ll_start_transfer_batch(uint8_t instance, uint32_t base_addr,
         uint8_t num_cmds)
 {
@@ -1219,6 +1450,11 @@ void i3c_ll_start_transfer_batch(uint8_t instance, uint32_t base_addr,
     i3c_ll_submit_cmds(base_addr, cmd_obj, num_cmds, false);
 }
 
+/*
+    Function: i3c_ll_get_transfer_rx_length
+
+    Calls <i3c_ll_get_cmd_obj>.
+*/
 uint16_t i3c_ll_get_transfer_rx_length(uint8_t instance, uint8_t tid)
 {
     struct i3c_cmd_obj *cmd_obj;
@@ -1232,14 +1468,22 @@ uint16_t i3c_ll_get_transfer_rx_length(uint8_t instance, uint8_t tid)
     return cmd_obj[tid].rx_length;
 }
 
-/**
- * @brief Execute SETDASA command using request descriptor.
- *
- * @param[in] base_addr I3C controller register base address.
- * @param[in,out] cmd_obj Command object output.
- * @param[in] req SETDASA request data.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_ll_execute_setdasa
+
+    Execute SETDASA command using request descriptor.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+    cmd_obj - Command object output.
+    req - SETDASA request data.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_ll_execute_setdasa(uint32_t base_addr,
         struct i3c_cmd_obj *cmd_obj,
         const i3c_ll_dasa_req_t *req)
@@ -1275,14 +1519,22 @@ static int32_t i3c_ll_execute_setdasa(uint32_t base_addr,
     return 0;
 }
 
-/**
- * @brief Execute ENTDAA command using request descriptor.
- *
- * @param[in] base_addr I3C controller register base address.
- * @param[in,out] cmd_obj Command object output.
- * @param[in] req ENTDAA request data.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_ll_execute_entdaa
+
+    Execute ENTDAA command using request descriptor.
+
+    Parameters:
+
+    base_addr - I3C controller register base address.
+    cmd_obj - Command object output.
+    req - ENTDAA request data.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_ll_execute_entdaa(uint32_t base_addr,
         struct i3c_cmd_obj *cmd_obj,
         const i3c_ll_daa_req_t *req)
@@ -1308,7 +1560,12 @@ static int32_t i3c_ll_execute_entdaa(uint32_t base_addr,
     return 0;
 }
 
-/* HAL-accessible address-assignment APIs. */
+/*
+    Function: i3c_ll_submit_addr_assign
+
+    HAL-accessible address-assignment APIs.
+*/
+
 
 int32_t i3c_ll_submit_addr_assign(uint32_t base_addr,
         uint8_t instance, const i3c_ll_addr_assign_req_t *req)
@@ -1363,6 +1620,11 @@ int32_t i3c_ll_submit_addr_assign(uint32_t base_addr,
     return 0;
 }
 
+/*
+    Function: i3c_ll_complete_addr_assign
+
+    Calls <i3c_ll_get_cmd_obj> and <i3c_ll_read_rx_fifo>.
+*/
 int32_t i3c_ll_complete_addr_assign(uint32_t base_addr,
         uint8_t instance, uint8_t num_cmds)
 {
@@ -1403,17 +1665,25 @@ int32_t i3c_ll_complete_addr_assign(uint32_t base_addr,
 /* Static command-word builder helpers. */
 
 
-/**
- * @brief Build command and argument words for transfer command.
- *
- * @param[in,out] cmd_obj Command object output.
- * @param[in] tid Transfer ID.
- * @param[in] dev_index DAT index.
- * @param[in,out] payload Transfer payload.
- * @param[in] is_i2c True for I2C transfer formatting.
- * @param[in] is_last True for final command in batch.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_ll_build_xfer_word
+
+    Build command and argument words for transfer command.
+
+    Parameters:
+
+    cmd_obj - Command object output.
+    tid - Transfer ID.
+    dev_index - DAT index.
+    payload - Transfer payload.
+    is_i2c - True for I2C transfer formatting.
+    is_last - True for final command in batch.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_ll_build_xfer_word(struct i3c_cmd_obj *cmd_obj, uint8_t tid,
         uint8_t dev_index, struct i3c_cmd_payload *payload, bool is_i2c,
         bool is_last)
@@ -1453,16 +1723,24 @@ static int32_t i3c_ll_build_xfer_word(struct i3c_cmd_obj *cmd_obj, uint8_t tid,
     return 0;
 }
 
-/**
- * @brief Build command and argument words for address-assignment command.
- *
- * @param[in,out] cmd_obj Command object output.
- * @param[in] tid Transfer ID.
- * @param[in] cmd_id CCC command ID.
- * @param[in] dev_index DAT index.
- * @param[in] dev_count Device count.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_ll_build_addr_assign_word
+
+    Build command and argument words for address-assignment command.
+
+    Parameters:
+
+    cmd_obj - Command object output.
+    tid - Transfer ID.
+    cmd_id - CCC command ID.
+    dev_index - DAT index.
+    dev_count - Device count.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_ll_build_addr_assign_word(struct i3c_cmd_obj *cmd_obj,
         uint8_t tid, uint8_t cmd_id, uint8_t dev_index, uint8_t dev_count)
 {
@@ -1492,7 +1770,12 @@ static int32_t i3c_ll_build_addr_assign_word(struct i3c_cmd_obj *cmd_obj,
     return 0;
 }
 
-/* HAL-accessible controller teardown API. */
+/*
+    Function: i3c_ll_deinit
+
+    HAL-accessible controller teardown API.
+*/
+
 
 int32_t i3c_ll_deinit(uint8_t instance, uint32_t base_addr)
 {

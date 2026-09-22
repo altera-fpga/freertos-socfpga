@@ -11,36 +11,38 @@
 #include <task.h>
 #include "socfpga_i2c.h"
 
-/**
- * @defgroup i2c_temp_sample I2C Temperature Sensor
- * @ingroup samples
- *
- * Sample application for the I2C driver using a temperature sensor
- *
- * @details
- * @section i2c_temp_desc Description
- * This sample reads temperature from an NXP P3T1755 (LM75-style) sensor over
- * the I2C bus. It sets continuous conversion, writes the THIGH/TLOW limit
- * registers to 80/75 C and reads them back to confirm, then prints the
- * ambient temperature a few times.
- *
- * @section i2c_temp_pre Prerequisites
- * - A P3T1755 (or LM75-compatible) sensor on the I2C bus.
- *
- * @section i2c_temp_param Configurable Parameters
- * - I2C bus instance: @c I2CBUS
- * - Sensor slave address: @c DEV_ADDR
- * - Number of readings: @c NUM_READINGS
- *
- * @section i2c_temp_how_to How to Run
- * 1. Build with the @c i2c_temp_sample target and flash the application.
- * 2. Run the application on the board.
- * 3. Observe the results in the console.
- *
- * @section i2c_temp_result Expected Results
- * - THIGH 80 C and TLOW 75 C are written, confirmed, and a plausible ambient
- *   temperature is printed.
- */
+/*
+    File: I2C Temp Sample
+
+    Sample application for the I2C driver using a temperature sensor
+    Group: Description
+
+    This sample reads temperature from an NXP P3T1755 (LM75-style) sensor over
+    the I2C bus. It sets continuous conversion, writes the THIGH/TLOW limit
+    registers to 80/75 C and reads them back to confirm, then prints the
+    ambient temperature a few times.
+
+    Group: Prerequisites
+
+    - A P3T1755 (or LM75-compatible) sensor on the I2C bus.
+
+    Group: Configurable Parameters
+
+    - I2C bus instance: I2CBUS
+    - Sensor slave address: DEV_ADDR
+    - Number of readings: NUM_READINGS
+
+    Group: How to Run
+
+    - Build with the i2c_temp_sample target and flash the application.
+    - Run the application on the board.
+    - Observe the results in the console.
+
+    Group: Expected Results
+
+    - THIGH 80 C and TLOW 75 C are written, confirmed, and a plausible ambient
+    temperature is printed.
+*/
 
 /* I2C controller instance */
 #define I2CBUS    0
@@ -66,17 +68,25 @@
 /* delay between samples in ms */
 #define READ_DELAY_MS   500U
 
-/**
- * @brief Read a sensor register.
- *
- * Sets the pointer register to @p reg, then reads @p n bytes.
- *
- * @param[in]  handle Open I2C handle.
- * @param[in]  reg    Pointer register value.
- * @param[out] buf    Destination buffer.
- * @param[in]  n      Number of bytes to read.
- * @return 0 on success, negative error code otherwise.
- */
+/*
+    Function: temp_read_reg
+
+    Read a sensor register.
+
+    Sets the pointer register to reg, then reads n bytes.
+
+    Parameters:
+
+    handle - Open I2C handle.
+    reg - Pointer register value.
+    buf - Destination buffer.
+    n - Number of bytes to read.
+
+    Returns:
+
+    0 on success, negative error code otherwise.
+*/
+
 static int temp_read_reg(i2c_handle_t handle, uint8_t reg, uint8_t *buf,
         uint32_t n)
 {
@@ -88,15 +98,23 @@ static int temp_read_reg(i2c_handle_t handle, uint8_t reg, uint8_t *buf,
     return i2c_read_sync(handle, buf, n);
 }
 
-/**
- * @brief Write a 16-bit value to a sensor register.
- *
- * @param[in] handle Open I2C handle.
- * @param[in] reg    Pointer register value.
- * @param[in] msb    Most significant byte.
- * @param[in] lsb    Least significant byte.
- * @return 0 on success, negative error code otherwise.
- */
+/*
+    Function: temp_write_reg
+
+    Write a 16-bit value to a sensor register.
+
+    Parameters:
+
+    handle - Open I2C handle.
+    reg - Pointer register value.
+    msb - Most significant byte.
+    lsb - Least significant byte.
+
+    Returns:
+
+    0 on success, negative error code otherwise.
+*/
+
 static int temp_write_reg(i2c_handle_t handle, uint8_t reg, uint8_t msb,
         uint8_t lsb)
 {
@@ -108,15 +126,20 @@ static int temp_write_reg(i2c_handle_t handle, uint8_t reg, uint8_t msb,
     return i2c_write_sync(handle, b, 3U);
 }
 
-/**
- * @brief Decode and print a temperature register value.
- *
- * Interprets @p b as a 12-bit left-justified two's-complement value with a
- * resolution of 0.0625 C per LSB.
- *
- * @param[in] label Text label for the printed line.
- * @param[in] b     Two register bytes, most significant first.
- */
+/*
+    Function: temp_print
+
+    Decode and print a temperature register value.
+
+    Interprets b as a 12-bit left-justified two's-complement value with a
+    resolution of 0.0625 C per LSB.
+
+    Parameters:
+
+    label - Text label for the printed line.
+    b - Two register bytes, most significant first.
+*/
+
 static void temp_print(const char *label, const uint8_t *b)
 {
     int16_t raw = (int16_t)(((uint16_t)b[0] << 8) | (uint16_t)b[1]);
@@ -132,16 +155,24 @@ static void temp_print(const char *label, const uint8_t *b)
             (long)(u % 10000));
 }
 
-/**
- * @brief Program a limit register and read it back to confirm the write.
- *
- * @param[in] handle Open I2C handle.
- * @param[in] reg    Pointer register value.
- * @param[in] label  Text label for the printed line.
- * @param[in] msb    Most significant byte to write.
- * @param[in] lsb    Least significant byte to write.
- * @return 0 on success, negative error code otherwise.
- */
+/*
+    Function: temp_set_limit
+
+    Program a limit register and read it back to confirm the write.
+
+    Parameters:
+
+    handle - Open I2C handle.
+    reg - Pointer register value.
+    label - Text label for the printed line.
+    msb - Most significant byte to write.
+    lsb - Least significant byte to write.
+
+    Returns:
+
+    0 on success, negative error code otherwise.
+*/
+
 static int temp_set_limit(i2c_handle_t handle, uint8_t reg, const char *label,
         uint8_t msb, uint8_t lsb)
 {
@@ -168,9 +199,11 @@ static int temp_set_limit(i2c_handle_t handle, uint8_t reg, const char *label,
     return 0;
 }
 
-/**
- * @brief I2C sample task: read temperature from a P3T1755 sensor.
- */
+/*
+    Function: i2c_temp_task
+
+    I2C sample task: read temperature from a P3T1755 sensor.
+*/
 void i2c_temp_task(void)
 {
     int retval;

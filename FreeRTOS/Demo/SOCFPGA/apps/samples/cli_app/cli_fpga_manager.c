@@ -6,59 +6,57 @@
  * Implementation of CLI commands for FPGA configuration manager
  */
 
-/**
- * @defgroup cli_fpga_manager FPGA Manager
- * @ingroup cli
- *
- * Perform FPGA operations
- *
- * @details
- * It supports the following subcommands:
- * - fpga load &lt;bitstream_file&gt; [file_source]
- * - fpga pr   &lt;bitstream_file&gt; [file_source]
- * - fpga read &lt;address&gt;
- * - fpga help
- *
- * Typical usage:
- * - Use 'fpga load' command to load the FPGA bitstream.
- * - Use 'fpga pr'   command to perform partial reconfiguration of an FPGA PR region.
- * - Use 'fpga read' command to read data from the FPGA memory region.
- *
- * @section fpga_commands Commands
- * @subsection fpga_load fpga load
- * Load FPGA bitstream  <br>
- *
- * Usage:  <br>
- *   fpga load &lt;bitstream_file&gt; [file_source]  <br>
- *
- * It requires the following arguments:
- * - bitstream_file - The bitstream file name (rbf).  <br>
- * - file_source    - The RBF file source location [default: sdmmc]. Other valid options are:  <br>
- *   - 0 - SDMMC  <br>
- *   - 1 - USB3 disk  <br>
- *
- * @subsection fpga_pr fpga pr
- * Perform partial reconfiguration  <br>
- *
- * Usage:  <br>
- *   fpga pr &lt;bitstream_file&gt; [file_source]  <br>
- *
- * It requires the following arguments:
- * - bitstream_file - The bitstream file name (rbf).  <br>
- * - file_source    - The RBF file source location [default: sdmmc]. Other valid options are:  <br>
- *   - 0 - SDMMC  <br>
- *   - 1 - USB3 disk  <br>
- *   - 2 - USB2 disk  <br>
- *
- * @subsection fpga_read fpga read
- * Read data from FPGA memory region  <br>
- *
- * Usage:  <br>
- *   fpga read &lt;address&gt;  <br>
- *
- * It requires the following arguments:
- * - address - The memory address in the FPGA region.  <br>
- */
+/*
+    File: FPGA Manager CLI Commands
+
+    Perform FPGA operations
+
+    It supports the following subcommands:
+    - fpga load &lt;bitstream_file&gt; [file_source]
+    - fpga pr   &lt;bitstream_file&gt; [file_source]
+    - fpga read &lt;address&gt;
+    - fpga help
+
+    Typical usage:
+    - Use 'fpga load' command to load the FPGA bitstream.
+    - Use 'fpga pr'   command to perform partial reconfiguration of an FPGA PR region.
+    - Use 'fpga read' command to read data from the FPGA memory region.
+    Group: Commands
+
+    fpga load:
+
+    Load FPGA bitstream
+
+    Usage: fpga load &lt;bitstream_file&gt; [file_source]
+
+    It requires the following arguments:
+    - bitstream_file - The bitstream file name (rbf).
+    - file_source    - The RBF file source location [default: sdmmc]. Other valid options are:
+      - 0 - SDMMC
+      - 1 - USB3 disk
+
+    fpga pr:
+
+    Perform partial reconfiguration
+
+    Usage: fpga pr &lt;bitstream_file&gt; [file_source]
+
+    It requires the following arguments:
+    - bitstream_file - The bitstream file name (rbf).
+    - file_source    - The RBF file source location [default: sdmmc]. Other valid options are:
+      - 0 - SDMMC
+      - 1 - USB3 disk
+      - 2 - USB2 disk
+
+    fpga read:
+
+    Read data from FPGA memory region
+
+    Usage: fpga read &lt;address&gt;
+
+    It requires the following arguments:
+    - address - The memory address in the FPGA region.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,9 +75,10 @@ BaseType_t cmd_fpga_manager( char *write_buffer, size_t write_buffer_len,
         const char *command_string );
 
 /*
- * @func  : cmd_fpga_manager
- * @brief : fpga manager CLI
- */
+    Function: cmd_fpga_manager
+
+    : fpga manager CLI
+*/
 BaseType_t cmd_fpga_manager( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

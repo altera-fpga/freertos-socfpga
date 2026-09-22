@@ -34,58 +34,60 @@
 
 #include "main_freertosplus_basic.h"
 
-/**
- * @file basic_freertosplus_tcp.c
- * @brief Sample Application for TCP server.
- */
+/*
+    File: Basic FreeRTOS Plus TCP
 
-/**
- * @defgroup tcp_sample Ethernet - TCP Server
- * @ingroup samples
- *
- * Sample Application for FreeRTOS+TCP Server
- *
- * @details
- * @section tcp_desc Description
- * This is a simple program that demonstrates how to create a TCP server using FreeRTOS+TCP.
- * The server waits for incoming TCP client connections on a specified port. Once a client
- * connects, it sends back a periodic message in the format:
- * `Message no.%d: Hello, This is FreeRTOS TCP server!`
- *
- * Each message is sent with an incrementing count. This demonstrates socket handling,
- * connection acceptance, message formatting, and transmission over TCP using the FreeRTOS+TCP stack.
- *
- * @section tcp_pre Prerequisites
- * - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
- * - Network PHY and MAC drivers must be initialized and functioning.
- * - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
- *
- * @section tcp_howto How to Run
- * 1. Follow the platform-specific README to build and flash the application.
- * 2. Connect the device to a LAN where the host PC resides.
- * 3. Run a TCP client tool (e.g., `netcat` or `telnet`) from a host PC to connect to the server:
- *    - Example: `nc <board-ip> <port>`
- * 4. Once connected, observe the periodic server messages on the client terminal.
- *
- * @section tcp_res Expected Results
- * - The TCP server starts listening on the configured port.
- * - Upon connection from a client, the server starts sending messages like:
- *   - `Message no.1: Hello, This is FreeRTOS TCP server!`
- *   - `Message no.2: Hello, This is FreeRTOS TCP server!`
- *   - ...
- *
- * @section tcp_custom Customization
- * - Modify the `ulPort` variable to change the server port.
- * - Can be extended to support multiple concurrent client connections with minor enhancements.
- * @{
- */
-/** @} */
+    Sample Application for TCP server.
+
+    Sample Application for FreeRTOS+TCP Server
+    Group: Description
+
+    This is a simple program that demonstrates how to create a TCP server
+    using FreeRTOS+TCP. The server waits for incoming TCP client connections
+    on a specified port. Once a client connects, it sends back a periodic
+    message in the format: `Message no.%d: Hello, This is FreeRTOS TCP
+    server!`
+
+    Each message is sent with an incrementing count. This demonstrates socket
+    handling, connection acceptance, message formatting, and transmission over
+    TCP using the FreeRTOS+TCP stack.
+
+    Group: Prerequisites
+
+    - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
+    - Network PHY and MAC drivers must be initialized and functioning.
+    - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
+
+    Group: How to Run
+
+    - Follow the platform-specific README to build and flash the application.
+    - Connect the device to a LAN where the host PC resides.
+    - Run a TCP client tool (e.g., `netcat` or `telnet`) from a host PC to connect to the server:
+       - Example: `nc <board-ip> <port>`
+    - Once connected, observe the periodic server messages on the client terminal.
+
+    Group: Expected Results
+
+    - The TCP server starts listening on the configured port.
+    - Upon connection from a client, the server starts sending messages like:
+      - `Message no.1: Hello, This is FreeRTOS TCP server!`
+      - `Message no.2: Hello, This is FreeRTOS TCP server!`
+      - ...
+
+    Group: Customization
+
+    - Modify the `ulPort` variable to change the server port.
+    - Can be extended to support multiple concurrent client connections with minor enhancements.
+*/
 
 /* TCP server */
 
 static int8_t ucRxBuffer[BUFFER_SIZE];
 static int8_t ucTxBuffer[BUFFER_SIZE];
 
+/*
+    Function: vTCPServerTask
+*/
 void vTCPServerTask(void *pvParameters)
 {
 	(void)pvParameters;

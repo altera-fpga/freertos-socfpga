@@ -38,10 +38,21 @@
 #define EP_DEFAULT_TRB_LEN          (8U) /* !< xhci default trb len */
 
 /*
- * @struct : slot xhci_slot_context_t
- * @brief  : slot context data structure
- * @note   : Refer page 444 of xhci Document
- */
+    File: xHCI Context Driver
+
+    Declares the xHCI Context driver interface: 3 functions, 5 types and 14
+    constants.
+*/
+
+/*
+    Struct: xhci_slot_context_t
+
+    : slot context data structure
+
+    Notes:
+
+        : Refer page 444 of xhci Document
+*/
 typedef struct __attribute__ ((packed)){
     uint64_t xsc_info1;
     uint64_t xsc_info2;
@@ -49,9 +60,10 @@ typedef struct __attribute__ ((packed)){
 } xhci_slot_context_t;
 
 /*
- * @struct : xhci_endpoint_context_t
- * @brief  : endpoint context data structure
- */
+    Struct: xhci_endpoint_context_t
+
+    : endpoint context data structure
+*/
 typedef struct __attribute__ ((packed)){
     uint64_t xec_info;
     uint64_t xec_dequeue;
@@ -60,18 +72,20 @@ typedef struct __attribute__ ((packed)){
 } xhci_endpoint_context_t;
 
 /*
- * @struct : xhci_input_control_context_t
- * @brief  : input control context data structure
- */
+    Struct: xhci_input_control_context_t
+
+    : input control context data structure
+*/
 typedef struct __attribute__ ((packed)){
     uint64_t xic_context_flags;     /* drop/add flags for contexts */
     uint64_t xic_reserved[7];
 } xhci_input_control_context_t;
 
 /*
- * @struct : xhci_ip_device_context_t
- * @brief  : Input Device Context data structure
- */
+    Struct: xhci_ip_device_context_t
+
+    : Input Device Context data structure
+*/
 typedef struct __attribute__ ((packed))
 {
     xhci_input_control_context_t xi_context;
@@ -80,9 +94,10 @@ typedef struct __attribute__ ((packed))
 } xhci_ip_device_context_t;
 
 /*
- * @struct : xhci_op_device_context_t
- * @brief  : Output Device Context Data Structure
- */
+    Struct: xhci_op_device_context_t
+
+    : Output Device Context Data Structure
+*/
 typedef struct __attribute__ ((packed))
 {
     xhci_slot_context_t slot_context;    /* slot context followed by endpoint context */
@@ -92,34 +107,47 @@ typedef struct __attribute__ ((packed))
 
 /* Device Context Base Address Array */
 /*
- * @struct : xhci_device_context_array
- * @brief  : device context base address array structure
- */
+    Struct: xhci_device_context_array
+
+    : device context base address array structure
+*/
 struct xhci_device_context_array {
     uint64_t dev_context_ptrs[256];
 };
 
 /*
- * @func  : update_endpoint_packetsize
- * @brief : update the endpoint context with max packet size
- * @param[in] ip_ctx reference to input context data structure
- * @param[in] max_pkt_size max packet size
- */
+    Function: update_endpoint_packetsize
+
+    : update the endpoint context with max packet size
+
+    Parameters:
+
+        ip_ctx - reference to input context data structure
+        max_pkt_size - max packet size
+*/
 void update_endpoint_packetsize(xhci_ip_device_context_t *ip_ctx,
         uint16_t max_pkt_size);
 
 /*
- * @func  : display_op_context
- * @brief : Display the output context data structure
- * @param[in] op_ctx reference to output context data structure
- */
+    Function: display_op_context
+
+    : Display the output context data structure
+
+    Parameters:
+
+        op_ctx - reference to output context data structure
+*/
 void display_op_context(xhci_op_device_context_t *op_ctx);
 
 /*
- * @func  : display_ip_context
- * @brief : Display the input context data structure
- * @param[in] ip_ctx reference to input context data structure
- */
+    Function: display_ip_context
+
+    : Display the input context data structure
+
+    Parameters:
+
+        ip_ctx - reference to input context data structure
+*/
 void display_ip_context(xhci_ip_device_context_t *ip_ctx);
 
 #endif  /* __XCHI_CONTEXT_H__ */

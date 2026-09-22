@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Task Notify Implementation
+
+    Tests the behaviour of direct task notifications.
+*/
 
 /*
  * Tests the behaviour of direct task notifications.
@@ -125,6 +130,12 @@ void vStartTaskNotifyTask( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSingleTaskTests
+
+    Performs a few initial tests that can be done prior to creating the second
+    task.
+*/
 static void prvSingleTaskTests( void )
 {
     const TickType_t xTicksToWait = pdMS_TO_TICKS( 100UL );
@@ -152,8 +163,6 @@ static void prvSingleTaskTests( void )
     configASSERT( ulNotifiedValue == 0UL );
     ( void ) xReturned; /* In case configASSERT() is not defined. */
     ( void ) ulNotifiedValue;
-
-
 
     /* ------------------------------------------------------------------------
      * Check no blocking when notifications are pending.  First notify itself -
@@ -189,8 +198,6 @@ static void prvSingleTaskTests( void )
     /* Incremented to show the task is still running. */
     ulNotifyCycleCount++;
 
-
-
     /*-------------------------------------------------------------------------
      * Check the non-overwriting functionality.  The notification is done twice
      * using two different notification values.  The action says don't overwrite so
@@ -213,8 +220,6 @@ static void prvSingleTaskTests( void )
     ( void ) xReturned; /* In case configASSERT() is not defined. */
     ( void ) ulNotifiedValue;
 
-
-
     /*-------------------------------------------------------------------------
      * Do the same again, only this time use the overwriting version.  This time
      * both notifications should pass, and the value written the second time should
@@ -231,8 +236,6 @@ static void prvSingleTaskTests( void )
     ( void ) xReturned; /* In case configASSERT() is not defined. */
     configASSERT( ulNotifiedValue == ulSecondNotifiedValueConst );
     ( void ) ulNotifiedValue;
-
-
 
     /*-------------------------------------------------------------------------
      * Check notifications with no action pass without updating the value.  Even
@@ -268,8 +271,6 @@ static void prvSingleTaskTests( void )
     ( void ) xReturned; /* In case configASSERT() is not defined. */
     ( void ) ulNotifiedValue;
 
-
-
     /*-------------------------------------------------------------------------
      * Check all bits can be set by notifying the task with one additional bit	set
      * on each notification, and exiting the loop when all the bits are found to be
@@ -303,8 +304,6 @@ static void prvSingleTaskTests( void )
      * all the bits were set. */
     configASSERT( ulLoop == 32 );
 
-
-
     /*-------------------------------------------------------------------------
      * Check bits are cleared on entry but not on exit when a notification fails
      * to arrive before timing out - both with and without a timeout value.  Wait
@@ -328,8 +327,6 @@ static void prvSingleTaskTests( void )
     configASSERT( ulNotifiedValue == ( notifyUINT32_MAX & ~ulBit0 ) );
     ( void ) xReturned; /* In case configASSERT() is not defined. */
 
-
-
     /*-------------------------------------------------------------------------
      * Now try clearing the bit on exit.  For that to happen a notification must be
      * received, so the task is notified first. */
@@ -348,8 +345,6 @@ static void prvSingleTaskTests( void )
     configASSERT( xReturned == pdFAIL );
     configASSERT( ulNotifiedValue == ( notifyUINT32_MAX & ~( ulBit0 | ulBit1 ) ) );
     ( void ) xReturned; /* In case configASSERT() is not defined. */
-
-
 
     /*-------------------------------------------------------------------------
      * Now try querying the previous value while notifying a task. */
@@ -390,8 +385,6 @@ static void prvSingleTaskTests( void )
     configASSERT( xTaskNotifyStateClear( NULL ) == pdTRUE );
     configASSERT( xTaskNotifyStateClear( NULL ) == pdFALSE );
 
-
-
     /* ------------------------------------------------------------------------
      * Clear bits in the notification value. */
 
@@ -420,8 +413,6 @@ static void prvSingleTaskTests( void )
      * possible to clear the notification state. */
     configASSERT( xTaskNotifyStateClear( NULL ) == pdTRUE );
     configASSERT( xTaskNotifyStateClear( NULL ) == pdFALSE );
-
-
 
     /* ------------------------------------------------------------------------
      * Create a timer that will try notifying this task while it is suspended. */
@@ -479,6 +470,17 @@ static void prvSingleTaskTests( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSuspendedTaskTimerTestCallback
+
+    Callback for a timer that is used during preliminary testing. The timer
+    tests the behaviour when 1: a task waiting for a notification is suspended
+    and then resumed without ever receiving a notification, and 2: when a task
+    waiting for a notification receives a notification while it is suspended.
+
+    Parameters:
+        xExpiredTimer - Not used.
+*/
 static void prvSuspendedTaskTimerTestCallback( TimerHandle_t xExpiredTimer )
 {
     static uint32_t ulCallCount = 0;
@@ -516,6 +518,14 @@ static void prvSuspendedTaskTimerTestCallback( TimerHandle_t xExpiredTimer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNotifyingTimer
+
+    Software timer callback function from which xTaskNotify() is called.
+
+    Parameters:
+        xNotUsed - Not used.
+*/
 static void prvNotifyingTimer( TimerHandle_t xNotUsed )
 {
     ( void ) xNotUsed;
@@ -531,6 +541,16 @@ static void prvNotifyingTimer( TimerHandle_t xNotUsed )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNotifiedTask
+
+    Implementation of the task that gets notified.
+
+    It calls <prvSingleTaskTests>.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvNotifiedTask( void * pvParameters )
 {
     const TickType_t xMaxPeriod = pdMS_TO_TICKS( 90 ), xMinPeriod = pdMS_TO_TICKS( 10 ), xDontBlock = 0;
@@ -709,6 +729,11 @@ BaseType_t xAreTaskNotificationTasksStillRunning( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRand
+
+    Utility function to create pseudo random numbers.
+*/
 static UBaseType_t prvRand( void )
 {
     const size_t uxMultiplier = ( size_t ) 0x015a4e35, uxIncrement = ( size_t ) 1;

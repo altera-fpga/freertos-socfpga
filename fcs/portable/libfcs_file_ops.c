@@ -2,6 +2,14 @@
  * Copyright (C) 2025 Altera
  * SPDX-License-Identifier: MIT-0
  */
+
+/*
+    File: FCS Library File Ops Implementation
+
+    Implements the FCS Library File Ops: 8 functions, 7 of them local to
+    this file.
+*/
+
 #include <libfcs_filesys_ops.h>
 #include <libfcs_logging.h>
 #include <sys/stat.h>
@@ -10,6 +18,9 @@
 #include <errno.h>
 #include <unistd.h>
 
+/*
+    Function: fcs_filesys_open
+*/
 static FCS_OSAL_FILE *fcs_filesys_open(FCS_OSAL_CHAR *filename,
 					     fcs_filesys_flags_t flag)
 {
@@ -42,6 +53,11 @@ static FCS_OSAL_FILE *fcs_filesys_open(FCS_OSAL_CHAR *filename,
 	return file;
 }
 
+/*
+    Function: fcs_filesys_read
+
+    Calls fread.
+*/
 static FCS_OSAL_INT fcs_filesys_read(FCS_OSAL_VOID *buf, FCS_OSAL_SIZE len, FCS_OSAL_FILE *file)
 {
 	if (!buf || len <= 0 || !file) {
@@ -55,6 +71,11 @@ static FCS_OSAL_INT fcs_filesys_read(FCS_OSAL_VOID *buf, FCS_OSAL_SIZE len, FCS_
 	return ret;
 }
 
+/*
+    Function: fcs_filesys_write
+
+    Calls fwrite.
+*/
 static FCS_OSAL_INT fcs_filesys_write(FCS_OSAL_VOID *buf, FCS_OSAL_SIZE len, FCS_OSAL_FILE *file)
 {
 	if (!buf || len <= 0 || !file) {
@@ -68,6 +89,11 @@ static FCS_OSAL_INT fcs_filesys_write(FCS_OSAL_VOID *buf, FCS_OSAL_SIZE len, FCS
 	return ret;
 }
 
+/*
+    Function: fcs_filesys_fseek
+
+    Calls fseek, <FCS_LOG_ERR> and strerror.
+*/
 static FCS_OSAL_INT fcs_filesys_fseek(FCS_OSAL_OFFSET offset, fcs_filesys_whence_t whence,
 	FCS_OSAL_FILE *file)
 {
@@ -94,6 +120,11 @@ static FCS_OSAL_INT fcs_filesys_fseek(FCS_OSAL_OFFSET offset, fcs_filesys_whence
 	return ret;
 }
 
+/*
+    Function: fcs_filesys_fgets
+
+    Calls fgets.
+*/
 static FCS_OSAL_INT fcs_filesys_fgets(FCS_OSAL_CHAR *str, FCS_OSAL_SIZE len, FCS_OSAL_FILE *file)
 {
 	if (str == NULL || len == 0 || file == NULL) {
@@ -112,6 +143,11 @@ static FCS_OSAL_INT fcs_filesys_fgets(FCS_OSAL_CHAR *str, FCS_OSAL_SIZE len, FCS
 	}
 }
 
+/*
+    Function: fcs_filesys_close
+
+    Calls fclose.
+*/
 static FCS_OSAL_INT fcs_filesys_close(FCS_OSAL_FILE *file)
 {
 	if (!file) {
@@ -125,6 +161,11 @@ static FCS_OSAL_INT fcs_filesys_close(FCS_OSAL_FILE *file)
 	return ret;
 }
 
+/*
+    Function: fcs_filesys_get_size
+
+    Calls fileno and fstat.
+*/
 static FCS_OSAL_INT fcs_filesys_get_size(FCS_OSAL_FILE *file, FCS_OSAL_SIZE *size)
 {
 	struct stat file_stat;

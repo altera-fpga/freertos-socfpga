@@ -72,6 +72,7 @@ __pycache__/
 # Build dir
 *build*
 
-# Natural Docs generated output + project working dir
-docs_naturaldocs/
-.naturaldocs/
+# Natural Docs regenerates these; Topics.txt, Languages.txt and Menu.txt carry
+# project configuration and the hand-ordered sidebar, so they stay tracked.
+docs/naturaldocs/html/
+docs/naturaldocs/project/Data/

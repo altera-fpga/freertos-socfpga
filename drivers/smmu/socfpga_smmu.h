@@ -6,70 +6,61 @@
  * Header file for SMMU configuration
  */
 
-/******************************************************************************
-*                         SDM VA → PA Translation
-*                     Address Space: 512 MB | Granule: 4 KB
-******************************************************************************
+/*
+    ***************************************************************************
+    SDM VA → PA Translation Address Space: 512 MB | Granule: 4 KB
+    *****************************************************************************
 
-      Virtual Address (29 bits total)
-+------------------------------+
-| Bits  0–11  |  Granule Offset|  --> Ignored (4 KB pages)
-+------------------------------+
-| Bits 12–20  |  L1 Index (9b) |  --> 512 entries
-+------------------------------+
-| Bits 21–28  |  L0 Index (8b) |  --> 256 entries
-+------------------------------+
+    Virtual Address (29 bits total) +------------------------------+ | Bits
+    0–11 | Granule Offset| --> Ignored (4 KB pages)
+    +------------------------------+ | Bits 12–20 | L1 Index (9b) | --> 512
+    entries +------------------------------+ | Bits 21–28 | L0 Index (8b) |
+    --> 256 entries +------------------------------+
 
-      Flow:
-+----------+      +----------+      +-------------------+
-|   L0     |----->|   L1     |----->| Physical Address  |
-|  Table   |      |  Table   |      |                   |
-+----------+      +----------+      +-------------------+
+    Flow: +----------+ +----------+ +-------------------+ | L0 |----->| L1
+    |----->| Physical Address | | Table | | Table | | | +----------+
+    +----------+ +-------------------+
 
+    ****************************************************************************
+*/
 
-******************************************************************************/
+/*
+    ***************************************************************************
+    Peripheral VA → PA Translation Address Space: 1 TB | Granule: 4 KB
+    *****************************************************************************
 
-/******************************************************************************
-*                   Peripheral VA → PA Translation
-*                  Address Space: 1 TB | Granule: 4 KB
-******************************************************************************
+    Virtual Address (40 bits total) +------------------------------+ | Bits
+    0–11 | Granule Offset | --> Ignored (4 KB pages)
+    +------------------------------+ | Bits 12–20 | 2 MB Offset | --> Ignored
+    (using 2 MB blocks) +------------------------------+ | Bits 21–29 | L2
+    Index (9b) | --> 512 entries +------------------------------+ | Bits 30–38
+    | L1 Index (9b) | --> 512 entries +------------------------------+ | Bit
+    39 | L0 Index (1b) | --> 2 entries +------------------------------+
 
-      Virtual Address (40 bits total)
-+------------------------------+
-| Bits  0–11  | Granule Offset |  --> Ignored (4 KB pages)
-+------------------------------+
-| Bits 12–20  |  2 MB Offset   |  --> Ignored (using 2 MB blocks)
-+------------------------------+
-| Bits 21–29  |  L2 Index (9b) |  --> 512 entries
-+------------------------------+
-| Bits 30–38  |  L1 Index (9b) |  --> 512 entries
-+------------------------------+
-| Bit   39    |  L0 Index (1b) |  --> 2 entries
-+------------------------------+
+    Flow: +----------+ +----------+ +----------+ +-------------------+ | L0
+    |----->| L1 |----->| L2 |----->| Physical Address | | Table | | Table | |
+    Table | | | +----------+ +----------+ +----------+ +-------------------+
 
-      Flow:
-+----------+      +----------+      +----------+      +-------------------+
-|   L0     |----->|   L1     |----->|   L2     |----->|  Physical Address |
-|  Table   |      |  Table   |      |  Table   |      |                   |
-+----------+      +----------+      +----------+      +-------------------+
+    L0 Table (2 entries): [0] → 0x0000_0000_00 to 0x7FFF_FFFF_FF (in use) [1]
+    → 0x8000_0000_00 to 0xFFFF_FFFF_FF (unused)
 
-      L0 Table (2 entries):
-        [0] → 0x0000_0000_00 to 0x7FFF_FFFF_FF (in use)
-        [1] → 0x8000_0000_00 to 0xFFFF_FFFF_FF (unused)
+    L1 Example Mappings: [0] → device_mem [1] → device_mem [2] → normal_mem
+    [3] → device_mem
 
-      L1 Example Mappings:
-        [0] → device_mem
-        [1] → device_mem
-        [2] → normal_mem
-        [3] → device_mem
+    Summary:
+    - 3-level page table walk
+    - L0: 2 entries, L1: 512 entries, L2: 512 entries
+    - 2 MB block mappings (21 LSBs ignored)
 
-      Summary:
-        - 3-level page table walk
-        - L0: 2 entries, L1: 512 entries, L2: 512 entries
-        - 2 MB block mappings (21 LSBs ignored)
+    ****************************************************************************
+*/
 
-******************************************************************************/
+/*
+    File: SMMU Driver
 
+    Declares the SMMU driver interface: 1 function, 4 types and 11
+    constants.
+*/
 
 #ifndef __SOCFPGA_SMMU__
 #define __SOCFPGA_SMMU__
@@ -86,8 +77,6 @@
 #define SMMU_STREAM_ID_DMA0     0x8
 #define SMMU_STREAM_ID_DMA1     0x9
 #define SMMU_STREAM_ID_SDM      0xA
-
-
 
 typedef struct __attribute__((aligned(64), packed))
 {
@@ -209,6 +198,11 @@ typedef struct __attribute__((aligned(8), packed))
     uint32_t W3;
 } command_desc_t;
 
+/*
+    Struct: smmu_descriptors_t
+
+    Descriptors for the SMMU driver, holding stream_table, context_desc_1tb, context_desc_512mb and 6 more. Declared as smmu_descriptors in socfpga_smmu.c.
+*/
 typedef struct
 {
     stream_table_t stream_table[SMMU_MAX_STREAM_ID + 1U] __attribute__((aligned(
@@ -227,11 +221,15 @@ typedef struct
     uint64_t lvl2_page_table_1tb[512] __attribute__((aligned(4096)));
 } smmu_descriptors_t;
 
-/**
- * @brief Enable the SMMU.
- *
- * @return 0 on success, negative error code on failure.
- */
+/*
+    Function: smmu_enable
+
+    Enable the SMMU.
+
+    Returns:
+
+        0 on success, negative error code on failure.
+*/
 int32_t smmu_enable(void);
 
 #endif

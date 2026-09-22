@@ -6,16 +6,25 @@
  * Common RSU helper routines shared across the RSU samples.
  */
 
+/*
+    File: RSU Helpers Implementation
+
+    Common RSU helper routines shared across the RSU samples.
+*/
+
 #include "rsu_helper.h"
 
 /*
- * Find the slot that is currently highest priority (priority == 1, i.e. the
- * slot the decision firmware boots first).
- *
- * On success returns 0 and writes the slot number into *top_slot, or -1 into
- * *top_slot if no slot is currently in the CPB. On failure returns a negative
- * libRSU error code.
- */
+    Function: rsu_find_top_slot
+
+    Find the slot that is currently highest priority (priority == 1, i.e. the
+    slot the decision firmware boots first).
+
+    On success returns 0 and writes the slot number into *top_slot, or -1 into
+    *top_slot if no slot is currently in the CPB. On failure returns a negative
+    libRSU error code.
+*/
+
 static RSU_OSAL_INT rsu_find_top_slot(RSU_OSAL_INT *top_slot)
 {
 	RSU_OSAL_INT s, count;
@@ -38,10 +47,13 @@ static RSU_OSAL_INT rsu_find_top_slot(RSU_OSAL_INT *top_slot)
 }
 
 /*
- * After a slot has been programmed (which makes it the new top priority),
- * restore the previous top slot back to the top - this demotes the freshly
- * programmed slot to priority 2, giving the "not top" behaviour.
- */
+    Function: rsu_restore_top_slot
+
+    After a slot has been programmed (which makes it the new top priority),
+    restore the previous top slot back to the top - this demotes the freshly
+    programmed slot to priority 2, giving the "not top" behaviour.
+*/
+
 static RSU_OSAL_INT rsu_restore_top_slot(RSU_OSAL_INT keep_slot, RSU_OSAL_INT programmed_slot)
 {
 	if (keep_slot >= 0 && keep_slot != programmed_slot) {

@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Flop Implementation
+
+    Creates eight tasks, each of which loops continuously performing a floating point calculation.
+*/
+
+/*
  * Creates eight tasks, each of which loops continuously performing a floating
  * point calculation.
  *
@@ -76,6 +82,9 @@ void vStartMathTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask1
+*/
 static portTASK_FUNCTION( vCompetingMathTask1, pvParameters )
 {
     volatile portDOUBLE d1, d2, d3, d4;
@@ -133,6 +142,9 @@ static portTASK_FUNCTION( vCompetingMathTask1, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask2
+*/
 static portTASK_FUNCTION( vCompetingMathTask2, pvParameters )
 {
     volatile portDOUBLE d1, d2, d3, d4;
@@ -191,6 +203,9 @@ static portTASK_FUNCTION( vCompetingMathTask2, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask3
+*/
 static portTASK_FUNCTION( vCompetingMathTask3, pvParameters )
 {
     volatile portDOUBLE * pdArray, dTotal1, dTotal2, dDifference;
@@ -255,6 +270,9 @@ static portTASK_FUNCTION( vCompetingMathTask3, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask4
+*/
 static portTASK_FUNCTION( vCompetingMathTask4, pvParameters )
 {
     volatile portDOUBLE * pdArray, dTotal1, dTotal2, dDifference;

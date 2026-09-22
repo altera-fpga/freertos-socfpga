@@ -6,10 +6,44 @@
  * Sample application for uart
  */
 
-/**
- * @file uart_sample.c
- * @brief Sample Application for UART
- */
+/*
+    File: UART Sample
+
+    Sample application for the UART: 2 functions, all of them local to this
+    file.
+    Group: Description
+
+    This is a simple program to demonstrate the use of uart driver. It will
+    receive characters one at a time and store them until a new line character
+    is received. Once it receives the new line character, it will send back
+    all the stored characters.
+
+    Group: Prerequisites
+
+    - Configuration:
+    - To prevent conflict with console output, ensure the macro below is configured as follows
+    FreeRTOS/Demo/SOCFPGA/FreeRTOSConfig.h: \define
+    configENABLE_CONSOLE_UART 0
+    - This disables the default console UART, allowing this sample to use the UART exclusively.
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Connect a serial terminal to the board's UART interface.
+    - Configure the terminal with the following settings:
+    - Baud rate: 115200
+    - Data bits: 8
+    - Parity: None
+    - Stop bits: 1
+    - Flow control: None
+    4. Type text into the terminal and press Enter.
+
+    Group: Expected Results
+
+    - Characters typed on the terminal are buffered and not echoed immediately.
+    - When Enter is pressed (newline received), all previously typed characters are echoed back.
+    - If the entered string is "exit" it will exit the program
+*/
 #include <string.h>
 #include <stdint.h>
 
@@ -17,45 +51,6 @@
 #include <task.h>
 
 #include "socfpga_uart.h"
-
-/**
- * @defgroup uart_sample UART
- * @ingroup samples
- *
- * Sample Application for UART
- *
- * @details
- * @section uart_desc Description
- * This is a simple program to demonstrate the use of uart driver. It will receive
- * characters one at a time and store them until a new line character is received.
- * Once it receives the new line character, it will send back all the stored
- * characters.
- *
- * @section uart_pre Prerequisites
- * - Configuration:
- * - To prevent conflict with console output, ensure the macro below is configured as follows
- * @c FreeRTOS/Demo/SOCFPGA/FreeRTOSConfig.h: <br>
- * @c \#define @c configENABLE_CONSOLE_UART @c 0
- * - This disables the default console UART, allowing this sample to use the UART exclusively.
- *
- * @section uart_howto How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Connect a serial terminal to the board's UART interface.
- * 3. Configure the terminal with the following settings:
- * - Baud rate: 115200
- * - Data bits: 8
- * - Parity: None
- * - Stop bits: 1
- * - Flow control: None
- * 4. Type text into the terminal and press Enter.
- *
- * @section uart_res Expected Results
- * - Characters typed on the terminal are buffered and not echoed immediately.
- * - When Enter is pressed (newline received), all previously typed characters are echoed back.
- * - If the entered string is "exit" it will exit the program
- * @{
- */
-/** @} */
 
 /* test configurations */
 #define RX_TASK_PRIORITY    (configMAX_PRIORITIES - 2)
@@ -85,11 +80,13 @@ uint8_t read_buf[1000] = { 0 };
 
 uint8_t write_buf[1000] = { 0 };
 
-/**
- * @brief read and store rx bytes
- *
- * Once new line is received signals the write thread.
- */
+/*
+    Function: read_thread
+
+    read and store rx bytes
+
+    Once new line is received signals the write thread.
+*/
 void read_thread()
 {
     uint32_t read_pos = 0;
@@ -126,10 +123,11 @@ void read_thread()
     vTaskDelete(NULL);
 }
 
-/**
- * @brief Open UART and configure it
- * Write back the received characters
- */
+/*
+    Function: uart_task
+
+    Open UART and configure it Write back the received characters
+*/
 void uart_task(void)
 {
     eol_sem = osal_semaphore_create(&eol_sem_mem);

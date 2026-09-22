@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Q Peek
+
+    Declares the Q Peek interface: 2 functions.
+
+    They are vStartQueuePeekTasks and xAreQueuePeekTasksStillRunning.
+*/
+
 #ifndef Q_PEEK_TEST_H
 #define Q_PEEK_TEST_H
 

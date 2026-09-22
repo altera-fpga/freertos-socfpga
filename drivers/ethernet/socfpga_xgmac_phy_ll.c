@@ -5,6 +5,14 @@
  *
  * Low level driver implementation for SoC FPGA PHY
  */
+
+/*
+    File: Ethernet XGMAC PHY Low-Level Driver Implementation
+
+    Implements the Ethernet XGMAC PHY low-level driver: 9 functions, 3 of
+    them local to this file.
+*/
+
 #include "socfpga_defines.h"
 #include "socfpga_xgmac_phy_ll.h"
 #include "socfpga_xgmac_reg.h"
@@ -24,6 +32,11 @@
 #define MICROCHIP_PHY_CONTROL_SPEED_100     0x20U
 #define MICROCHIP_PHY_CONTROL_DPLX_MASK     0x8U
 
+/*
+    Function: check_mdio_busy
+
+    Reads the XGMAC_MDIO_SINGLE_COMMAND_CONTROL_DATA register.
+*/
 static inline bool check_mdio_busy(uint32_t base_address)
 {
     /* Read the mdio cmd control register */
@@ -42,6 +55,9 @@ static inline bool check_mdio_busy(uint32_t base_address)
     }
 }
 
+/*
+    Function: read_phy_reg
+*/
 uint16_t read_phy_reg(uint32_t base_address, uint32_t phy_address, uint8_t phy_reg)
 {
     uint32_t data;
@@ -130,6 +146,9 @@ uint16_t read_phy_reg(uint32_t base_address, uint32_t phy_address, uint8_t phy_r
     return least_bits;
 }
 
+/*
+    Function: write_phy_reg
+*/
 int8_t write_phy_reg(uint32_t base_address, uint32_t phy_address, uint8_t phy_reg, uint16_t reg_val)
 {
     uint32_t data;
@@ -210,8 +229,11 @@ int8_t write_phy_reg(uint32_t base_address, uint32_t phy_address, uint8_t phy_re
 }
 
 /*
- * @brief Perform a register read on MMD registers
- */
+    Function: phy_read_reg_mmd
+
+    Perform a register read on MMD registers
+*/
+
 static uint16_t phy_read_reg_mmd(uint32_t base_address, uint32_t phy_address, uint8_t mmd_addr, uint8_t mmd_reg)
 {
     uint16_t val;
@@ -223,8 +245,11 @@ static uint16_t phy_read_reg_mmd(uint32_t base_address, uint32_t phy_address, ui
 }
 
 /*
- * @brief Perform a register write on MMD registers
- */
+    Function: phy_write_reg_mmd
+
+    Perform a register write on MMD registers
+*/
+
 static void phy_write_reg_mmd(uint32_t base_address, uint32_t phy_address, uint8_t mmd_addr, uint8_t mmd_reg, uint16_t reg_val)
 {
     (void)write_phy_reg(base_address, phy_address, MMD_ACCESS_CONTROL_REG, mmd_addr);
@@ -232,10 +257,11 @@ static void phy_write_reg_mmd(uint32_t base_address, uint32_t phy_address, uint8
     (void)write_phy_reg(base_address, phy_address, MMD_ACCESS_CONTROL_REG, 0x4000 | mmd_addr);
     (void)write_phy_reg(base_address, phy_address, MMD_ACCESS_DATA_REG, reg_val);
 }
-
 /*
- * @brief PHY initialization for Microchip KSZ9031RNX PHY.
- */
+    Function: phy_setup_microchip
+
+    PHY initialization for Microchip KSZ9031RNX PHY.
+*/
 BaseType_t phy_setup_microchip(uint32_t base_address, xgmac_phy_config_t *pphy_config)
 {
     /*
@@ -263,8 +289,10 @@ BaseType_t phy_setup_microchip(uint32_t base_address, xgmac_phy_config_t *pphy_c
 }
 
 /*
- * @brief PHY initialization for Marvell 88E151X PHY.
- */
+    Function: phy_setup_marvell
+
+    PHY initialization for Marvell 88E151X PHY.
+*/
 BaseType_t phy_setup_marvell(uint32_t base_address, xgmac_phy_config_t *pphy_config)
 {
     uint32_t data;
@@ -341,6 +369,11 @@ BaseType_t phy_setup_marvell(uint32_t base_address, xgmac_phy_config_t *pphy_con
     return true;
 }
 
+/*
+    Function: phy_cfg_link_microchip
+
+    Calls <read_phy_reg>.
+*/
 void phy_cfg_link_microchip(uint32_t xgmac_base_addr, xgmac_phy_config_t *pphy_config)
 {
     uint32_t val = (uint32_t)read_phy_reg(xgmac_base_addr, pphy_config->phy_address,
@@ -370,6 +403,11 @@ void phy_cfg_link_microchip(uint32_t xgmac_base_addr, xgmac_phy_config_t *pphy_c
         pphy_config->duplex = ETH_HALF_DUPLEX;
     }
 }
+/*
+    Function: phy_cfg_link_marvell
+
+    Calls <read_phy_reg>.
+*/
 void phy_cfg_link_marvell(uint32_t xgmac_base_addr, xgmac_phy_config_t *pphy_config)
 {
     /* Read 1G status register */

@@ -6,10 +6,11 @@
  * Sample application for gpio
  */
 
-/**
- * @file gpio_sample.c
- * @brief Sample Application for GPIO
- */
+/*
+    File: GPIO Sample
+
+    Sample Application for GPIO
+*/
 
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
@@ -19,39 +20,42 @@
 #include "socfpga_gpio_reg.h"
 #include "socfpga_defines.h"
 
-/**
- * @defgroup gpio_sample GPIO
- * @ingroup samples
- *
- * Sample application for GPIO driver
- *
- * @details
- * @section gpio_desc Description
- * This sample application demonstrates the functionality of the GPIO driver
- * with human interaction. It configures a GPIO pin as an input connected to
- * a push button and another GPIO pin as an output connected to an LED.
- * When the user presses and holds the push button, the application detects
- * the input signal and turns on the LED. Releasing the button turns the LED off.
- *
- * @section gpio_pre Prerequisites
- * - The GPIO pins used as input and output shall be set in respective macros
- * - The Arm Trusted Firmware (ATF) must configure the pinmux registers such that
- * the pins connected to the LED and push button are configured as GPIO.
- *
- * @section gpio_param Configurable Parameters
- * - The led pin can be configured in @c LED_PIN macro.
- * - The push button pin can be configured in @c PB_PIN macro.
- *
- * @section gpio_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board.
- * 3. Output can be observed in the UART terminal.
- * 4. Press and hold the push button.
- * 5. Release the push button and repeat the step 4.
- *
- * @section gpio_result Expected Results
- * - The LED should turn ON while the button is pressed.
- */
+/*
+    Group: GPIO
+
+    Sample application for GPIO driver
+
+    Description:
+
+    This sample application demonstrates the functionality of the GPIO driver
+    with human interaction. It configures a GPIO pin as an input connected to
+    a push button and another GPIO pin as an output connected to an LED. When
+    the user presses and holds the push button, the application detects the
+    input signal and turns on the LED. Releasing the button turns the LED off.
+
+    Prerequisites:
+
+    - The GPIO pins used as input and output shall be set in respective macros
+    - The Arm Trusted Firmware (ATF) must configure the pinmux registers such that
+    the pins connected to the LED and push button are configured as GPIO.
+
+    Configurable Parameters:
+
+    - The led pin can be configured in LED_PIN macro.
+    - The push button pin can be configured in PB_PIN macro.
+
+    How to Run:
+
+    1. Follow the common README instructions to build and flash the application.
+    2. Run the application on the board.
+    3. Output can be observed in the UART terminal.
+    4. Press and hold the push button.
+    5. Release the push button and repeat the step 4.
+
+    Expected Results:
+
+    - The LED should turn ON while the button is pressed.
+*/
 
 /* Test configurations */
 
@@ -61,8 +65,11 @@
 #define PINMUX_MASK    (0x0FU)
 
 /*
- * @brief Check if the pin is configured as gpio in pinmux
- */
+    Function: is_pin_gpio
+
+    Check if the pin is configured as gpio in pinmux
+*/
+
 static bool is_pin_gpio(uint8_t pin)
 {
     uint32_t val;
@@ -72,8 +79,11 @@ static bool is_pin_gpio(uint8_t pin)
 }
 
 /*
- * @brief Configure the pin as gpio in pinmux
- */
+    Function: config_pinmux
+
+    Configure the pin as gpio in pinmux
+*/
+
 static void config_pinmux(uint8_t pin)
 {
     uint32_t reg_val;
@@ -87,10 +97,12 @@ static void config_pinmux(uint8_t pin)
     }
 }
 
-/**
- * @brief Open GPIO pins and configure them.
- * Write back the received push button state to the led.
- */
+/*
+    Function: gpio_task
+
+    Open GPIO pins and configure them. Write back the received push button
+    state to the led.
+*/
 void gpio_task(void)
 {
     uint8_t val;

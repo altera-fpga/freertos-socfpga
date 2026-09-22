@@ -6,6 +6,12 @@
  * IPV6 Sample application for SoC FPGA.
  */
 
+/*
+    File: Main FreeRTOS Plus Basic Ipv6
+
+    IPV6 Sample application for SoC FPGA.
+*/
+
 #include "SocfpgaNetworkInterface.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_IPv6.h"
@@ -41,6 +47,9 @@ static NetworkInterface_t xInterfaces[ 2 ];
 static NetworkEndPoint_t xEndPoints[ 2 ];
 
 
+/*
+    Function: setup_dhcp_demo
+*/
 void setup_dhcp_demo()
 {
     ( void ) pxFillInterfaceDescriptor( EMAC_INSTANCE_2 , &(xInterfaces[ 0 ]));
@@ -82,6 +91,12 @@ void setup_dhcp_demo()
 }
 
 
+/*
+    Function: setup_static_demo
+
+    Calls pxFillInterfaceDescriptor, FreeRTOS_FillEndPoint_IPv6,
+    FreeRTOS_FillEndPoint and FreeRTOS_IPInit_Multi.
+*/
 void setup_static_demo()
 {
     ( void ) pxFillInterfaceDescriptor( EMAC_INSTANCE_2, &(xInterfaces[ 0 ]));
@@ -110,6 +125,9 @@ void setup_static_demo()
     (void)FreeRTOS_IPInit_Multi();
 }
 
+/*
+    Function: vApplicationIPNetworkEventHook_Multi
+*/
 void vApplicationIPNetworkEventHook_Multi( eIPCallbackEvent_t eNetworkEvent,
         struct xNetworkEndPoint *pxEndPoint )
 {
@@ -194,10 +212,16 @@ void vApplicationIPNetworkEventHook_Multi( eIPCallbackEvent_t eNetworkEvent,
         printf("Unknown network event\n");
     }
 }
+/*
+    Function: pcApplicationHostnameHook
+*/
 const char *pcApplicationHostnameHook( void ){
     return "AGLEX5_device";
 }
 
+/*
+    Function: xApplicationDHCPHook_Multi
+*/
 eDHCPCallbackAnswer_t xApplicationDHCPHook_Multi(
         eDHCPCallbackPhase_t eDHCPPhase,
         struct xNetworkEndPoint *pxEndPoint,
@@ -211,6 +235,9 @@ eDHCPCallbackAnswer_t xApplicationDHCPHook_Multi(
 }
 
 #if ipconfigIPv4_BACKWARD_COMPATIBLE
+/*
+    Function: vApplicationIPNetworkEventHook
+*/
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
     /*INFO:Not significant for the sample*/
@@ -218,6 +245,9 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 }
 #endif
 
+/*
+    Function: xApplicationDHCPHook
+*/
 eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase,
         uint32_t ulIPAddress )
 {
@@ -227,6 +257,11 @@ eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase,
     return eDHCPContinue;
 }
 
+/*
+    Function: ulApplicationTimeHook
+
+    Calls xTaskGetTickCount.
+*/
 uint32_t ulApplicationTimeHook( void )
 {
     return xTaskGetTickCount() * portTICK_PERIOD_MS;

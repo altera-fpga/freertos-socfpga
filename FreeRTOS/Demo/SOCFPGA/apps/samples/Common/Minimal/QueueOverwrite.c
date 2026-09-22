@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Queue Overwrite Implementation
+
+    Basic task to demonstrate the xQueueOverwrite() function.
+*/
+
+/*
  * Basic task to demonstrate the xQueueOverwrite() function.  See the comments
  * in the function itself.
  */
@@ -74,6 +80,14 @@ void vStartQueueOverwriteTask( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvQueueOverwriteTask
+
+    The task that uses the queue.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvQueueOverwriteTask( void * pvParameters )
 {
     QueueHandle_t xTaskQueue;

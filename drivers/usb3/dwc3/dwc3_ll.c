@@ -6,14 +6,23 @@
  * Low level driver implementation for DWC3 driver
  */
 
+/*
+    File: DWC3 Low-Level Driver Implementation
+
+    Low level driver implementation for DWC3 driver.
+
+    They are dwc3_set_usb_host_mode, usb2_phy_setup, get_usb3_phy_info and
+    setup_dwc3_gctl.
+*/
+
 #include "dwc3_ll.h"
 #include "socfpga_usb3_reg.h"
 #include "socfpga_defines.h"
 #include <errno.h>
 
 /*
- * @brief Configures the DWC3 to operate in host mode
- */
+    Configures the DWC3 to operate in host mode
+*/
 int dwc3_set_usb_host_mode(uint32_t ghwparams0)
 {
     uint32_t reg_val;
@@ -70,8 +79,8 @@ int dwc3_set_usb_host_mode(uint32_t ghwparams0)
 }
 
 /*
- * @brief Configures the USB2 phy
- */
+    Configures the USB2 phy
+*/
 void usb2_phy_setup(uint32_t ghwparams3)
 {
     uint32_t reg_val;
@@ -101,8 +110,8 @@ void usb2_phy_setup(uint32_t ghwparams3)
 }
 
 /*
- * @brief Get the USB3 phy info
- */
+    Get the USB3 phy info
+*/
 uint32_t get_usb3_phy_info(uint32_t ghwparams3)
 {
     uint8_t ss_phy;
@@ -136,8 +145,8 @@ uint32_t get_usb3_phy_info(uint32_t ghwparams3)
 }
 
 /*
- * @brief Configure the DWC3 GCTL register
- */
+    Configure the DWC3 GCTL register
+*/
 void setup_dwc3_gctl(uint32_t ghwparams1)
 {
     uint32_t reg_val;

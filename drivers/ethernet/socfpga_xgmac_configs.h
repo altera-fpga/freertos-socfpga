@@ -20,9 +20,17 @@ extern "C" {
 
 #include "socfpga_xgmac_ll.h"
 
-/**
- * @brief  Configuration parameters for XGMAC DMA Parameters
- */
+/*
+    File: Ethernet XGMAC Configs Driver
+
+    Compile-time configuration data for the Ethernet XGMAC: 12 tables.
+*/
+
+/*
+    Variable: dma_config
+
+    Configuration parameters for XGMAC DMA Parameters
+*/
 static const xgmacdma_config_t dma_config = {
 
     .ubl = 0,
@@ -39,9 +47,11 @@ static const xgmacdma_config_t dma_config = {
     .wr_osr_lmt = 31,
 };
 
-/**
- * @brief  Configuration parameters for XGMAC DMA channel Parameters
- */
+/*
+    Variable: dma_chnl_config
+
+    Configuration parameters for XGMAC DMA channel Parameters
+*/
 
 static const xgmacdma_chanl_config_t dma_chnl_config = {
     /* DMA channel Control register */
@@ -59,9 +69,11 @@ static const xgmacdma_chanl_config_t dma_chnl_config = {
 };
 
 
-/**
- * @brief  Configuration parameters for XGMAC MAC Rx parameters
- */
+/*
+    Variable: mac_rxq_ctrl_config
+
+    Configuration parameters for XGMAC MAC Rx parameters
+*/
 static const xgmacmac_rx_q_ctrl_config_t mac_rxq_ctrl_config = {
     /* MAC RxQ control0 register fields */
     .rxq0en = 2,
@@ -72,26 +84,32 @@ static const xgmacmac_rx_q_ctrl_config_t mac_rxq_ctrl_config = {
     .mcbcqen = 1,
 };
 
-/**
- * @brief   Configuration parameters for XGMAC MTL Tx Queue parameters
- */
+/*
+    Variable: mtl_txq_config
+
+    Configuration parameters for XGMAC MTL Tx Queue parameters
+*/
 static const xgmacmtl_tx_queue_config_t mtl_txq_config = {
     .tsf =  1,
     .txqen = 2,
 };
 
-/**
- * @brief   Configuration parameters for XGMAC MTL Rx Queue parameters
- */
+/*
+    Variable: mtl_rxq_config
+
+    Configuration parameters for XGMAC MTL Rx Queue parameters
+*/
 static const xgmacmtl_rx_queue_config_t mtl_rxq_config = {
     .rsf = 1,
     .ehfc = 0,
 };
 
 
-/**
- * @brief  Configuration parameters for XGMAC MAC Tx Flow Control parameters
- */
+/*
+    Variable: mac_tx_flow_ctrl_config
+
+    Configuration parameters for XGMAC MAC Tx Flow Control parameters
+*/
 static const xgmacmac_tx_flow_ctrl_config_t mac_tx_flow_ctrl_config = {
     .fcb = 0,
     .tfe = 0,
@@ -100,24 +118,30 @@ static const xgmacmac_tx_flow_ctrl_config_t mac_tx_flow_ctrl_config = {
     .pt = 0xFFFF,
 };
 
-/**
- * @brief  Configuration parameters for XGMAC MAC Rx Flow Control parameters
- */
+/*
+    Variable: mac_rx_flow_ctrl_config
+
+    Configuration parameters for XGMAC MAC Rx Flow Control parameters
+*/
 static const xgmacmac_rx_flow_ctrl_config_t mac_rx_flow_ctrl_config = {
     .rfe = 0,
     .up = 0,
     .pfce = 0,
 };
-/**
- * @brief  Configuration parameters for XGMAC MAC Tx parameters
- */
+/*
+    Variable: mac_tx_config
+
+    Configuration parameters for XGMAC MAC Tx parameters
+*/
 static const xgmacmac_tx_config_t mac_tx_config = {
     .jd = 0,
 };
 
-/**
- * @brief  Configuration parameters for XGMAC MAC Rx parameters
- */
+/*
+    Variable: mac_rx_config
+
+    Configuration parameters for XGMAC MAC Rx parameters
+*/
 static const xgmacmac_rx_config_t mac_rx_config = {
     .acs = 0,
     .cst = 0,
@@ -132,9 +156,11 @@ static const xgmacmac_rx_config_t mac_rx_config = {
     .arpen = 0,
 };
 
-/**
- * @brief  Configuration parameters for XGMAC MAC Packet Filter parameters
- */
+/*
+    Variable: mac_pkt_filter_config
+
+    Configuration parameters for XGMAC MAC Packet Filter parameters
+*/
 static const xgmacmac_pkt_filter_config_t mac_pkt_filter_config = {
     .pr = 0,
     .huc = 0,
@@ -153,9 +179,11 @@ static const xgmacmac_pkt_filter_config_t mac_pkt_filter_config = {
     .ra = 1,
 };
 
-/**
- * @brief  Configuration parameters for XGMAC Device Parameters
- */
+/*
+    Variable: mac_dev_config
+
+    Configuration parameters for XGMAC Device Parameters
+*/
 static const xgmac_dev_config_t mac_dev_config = {
 
     .nofdmachannels = 1,
@@ -163,7 +191,11 @@ static const xgmac_dev_config_t mac_dev_config = {
     .nofrxqueues = 1,
 };
 
-/* Main XGMAC Configuration instance */
+/* 
+    Variable: xgmac_dev_config_str
+    
+    Main XGMAC Configuration instance  
+*/
 static const xgmac_dev_config_str_t xgmac_dev_config_str =
 {
     .mac_dev_config = &mac_dev_config,

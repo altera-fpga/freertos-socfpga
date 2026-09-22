@@ -7,6 +7,12 @@
  * Commands sub-module.
  */
 
+/*
+    File: xHCI Commands Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+*/
+
 #include "xhci_commands.h"
 #include "xhci_doorbell.h"
 #include "socfpga_cache.h"
@@ -155,6 +161,15 @@ void configure_endpoint(struct xhci_data *xhci_ptr)
     ring_xhci_host_db();
 }
 
+/*
+    Function: stop_endpoint_command
+
+    First stop the endpoint using stop endpoint command xhci_trb_t Then update
+    the TR pointer.
+
+    It calls <get_cmdring_enq_ptr>, <cache_force_write_back> and
+    <ring_xhci_host_db>.
+*/
 static void stop_endpoint_command(xcr_command_ring_t *xcr_ring)
 {
     uint32_t cmd_ctrl_flags;

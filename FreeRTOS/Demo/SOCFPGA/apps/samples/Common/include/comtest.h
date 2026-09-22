@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Comtest
+
+    Declares the Comtest interface: 4 functions.
+
+    They are vAltStartComTestTasks, vComTestUnsuspendTask,
+    vStartComTestTasks and xAreComTestTasksStillRunning.
+*/
+
 #ifndef COMTEST_H
 #define COMTEST_H
 

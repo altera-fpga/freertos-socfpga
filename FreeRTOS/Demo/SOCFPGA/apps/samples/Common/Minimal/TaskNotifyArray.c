@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Task Notify Array Implementation
+
+    Tests the behaviour of arrays of task notifications per task.
+*/
 
 /*
  * Tests the behaviour of arrays of task notifications per task.  The tests in this
@@ -170,6 +175,16 @@ void vStartTaskNotifyArrayTask( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNotifiedTask
+
+    Implementation of the task that runs the tests - the task runs some tests
+    itself, and others where notifications are sent from a software timer or
+    an interrupt (specifically the tick hook function).
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvNotifiedTask( void * pvParameters )
 {
     /* Remove compiler warnings about unused parameters. */
@@ -189,6 +204,12 @@ static void prvNotifiedTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSingleTaskTests
+
+    Performs the tests that don't require notifications to be sent from a
+    remote source.
+*/
 static void prvSingleTaskTests( void )
 {
     const TickType_t xTicksToWait = pdMS_TO_TICKS( 100UL );
@@ -733,6 +754,15 @@ static void prvSingleTaskTests( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSuspendedTaskTimerTestCallback
+
+    Callback for a timer that is used by the prvTestNotifyTaskWhileSuspended()
+    test.
+
+    Parameters:
+        xExpiredTimer - Not used.
+*/
 static void prvSuspendedTaskTimerTestCallback( TimerHandle_t xExpiredTimer )
 {
     static uint32_t ulCallCount = 0;
@@ -781,6 +811,15 @@ static void prvSuspendedTaskTimerTestCallback( TimerHandle_t xExpiredTimer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNotifyingTimerCallback
+
+    Callback of the software timer used to send notifications for the
+    prvBlockOnTheNotifiedIndexed() and prvBlockOnANonNotifiedIndexed() tests.
+
+    Parameters:
+        xNotUsed - Not used.
+*/
 static void prvNotifyingTimerCallback( TimerHandle_t xNotUsed )
 {
     static BaseType_t uxIndexToNotify = 0;
@@ -803,6 +842,12 @@ static void prvNotifyingTimerCallback( TimerHandle_t xNotUsed )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTestNotifyTaskWhileSuspended
+
+    Uses a software timer to send notifications to the task while the task is
+    suspended.
+*/
 static void prvTestNotifyTaskWhileSuspended( void )
 {
     UBaseType_t uxIndexToTest, uxOtherIndexes;
@@ -900,6 +945,14 @@ static void prvTestNotifyTaskWhileSuspended( void )
 }
 /* ------------------------------------------------------------------------ */
 
+/*
+    Function: prvBlockOnTheNotifiedIndexed
+
+    Uses a software timer to send notifications to the index within the array
+    of task notifications on which the task is blocked. The task should
+    unblock and the state of all the other task notifications within the array
+    should remain unchanged.
+*/
 static void prvBlockOnTheNotifiedIndexed( void )
 {
     const TickType_t xTimerPeriod = pdMS_TO_TICKS( 100 ), xMargin = pdMS_TO_TICKS( 50 ), xDontBlock = 0;
@@ -965,6 +1018,15 @@ static void prvBlockOnTheNotifiedIndexed( void )
 }
 /* ------------------------------------------------------------------------ */
 
+/*
+    Function: prvBlockOnANonNotifiedIndexed
+
+    As per prvBlockOnTheNotifiedIndexed(), except this time the notification
+    is sent to an index within the task notification array on which the task
+    is not blocked, so this time the task should not unblock and the state of
+    all the task notifications other than the one to which the notification
+    was actually sent should remain unchanged.
+*/
 static void prvBlockOnANonNotifiedIndexed( void )
 {
     const TickType_t xTimerPeriod = pdMS_TO_TICKS( 100 ), xMargin = pdMS_TO_TICKS( 50 ), xDontBlock = 0;
@@ -1048,6 +1110,13 @@ static void prvBlockOnANonNotifiedIndexed( void )
 }
 /* ------------------------------------------------------------------------ */
 
+/*
+    Function: prvBlockOnNotificationsComingFromInterrupts
+
+    As per prvBlockOnTheNotifiedIndexed(), but this time the notification
+    comes from the tick hook function, so from an interrupt rather than from a
+    software timer.
+*/
 static void prvBlockOnNotificationsComingFromInterrupts( void )
 {
     UBaseType_t uxIndex, uxIndexToNotify;
@@ -1207,6 +1276,11 @@ BaseType_t xAreTaskNotificationArrayTasksStillRunning( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRand
+
+    Utility function to create pseudo random numbers.
+*/
 static UBaseType_t prvRand( void )
 {
     const size_t uxMultiplier = ( size_t ) 0x015a4e35, uxIncrement = ( size_t ) 1;

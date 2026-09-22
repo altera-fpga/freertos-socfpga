@@ -6,6 +6,11 @@
  * This contains the register definitions for SoC FPGA SDMMC
  */
 
+/*
+    File: SD/MMC Registers
+
+    This contains the register definitions for SoC FPGA SDMMC.
+*/
 
 #ifndef __SDMMC_REG_H__
 #define __SDMMC_REG_H__

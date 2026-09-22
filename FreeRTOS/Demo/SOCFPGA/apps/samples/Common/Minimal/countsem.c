@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Countsem Implementation
+
+    Simple demonstration of the usage of counting semaphore.
+*/
 
 /*
  * Simple demonstration of the usage of counting semaphore.
@@ -84,7 +89,11 @@ static void prvDecrementSemaphoreCount( SemaphoreHandle_t xSemaphore,
 
 /*-----------------------------------------------------------*/
 
-/* The structure that is passed into the task as the task parameter. */
+/*
+    Struct: xCountSemStruct
+
+    The structure that is passed into the task as the task parameter. Declared as xParameters[] in countsem.c.
+*/
 typedef struct COUNT_SEM_STRUCT
 {
     /* The semaphore to be used for the demo. */
@@ -137,6 +146,12 @@ void vStartCountingSemaphoreTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvDecrementSemaphoreCount
+
+    Utility function to decrement the semaphore count value up from
+    countMAX_COUNT_VALUE to zero.
+*/
 static void prvDecrementSemaphoreCount( SemaphoreHandle_t xSemaphore,
                                         volatile UBaseType_t * puxLoopCounter )
 {
@@ -178,6 +193,12 @@ static void prvDecrementSemaphoreCount( SemaphoreHandle_t xSemaphore,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvIncrementSemaphoreCount
+
+    Utility function to increment the semaphore count value up from zero to
+    countMAX_COUNT_VALUE.
+*/
 static void prvIncrementSemaphoreCount( SemaphoreHandle_t xSemaphore,
                                         volatile UBaseType_t * puxLoopCounter )
 {
@@ -217,6 +238,14 @@ static void prvIncrementSemaphoreCount( SemaphoreHandle_t xSemaphore,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvCountingSemaphoreTask
+
+    The demo task. This simply counts the semaphore up to its maximum value,
+    the counts it back down again. The result of each semaphore 'give' and
+    'take' is inspected, with an error being flagged if it is found not to be
+    the expected result.
+*/
 static void prvCountingSemaphoreTask( void * pvParameters )
 {
     xCountSemStruct * pxParameter;

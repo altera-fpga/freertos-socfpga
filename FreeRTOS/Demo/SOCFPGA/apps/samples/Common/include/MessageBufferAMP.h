@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Message Buffer Amp
+
+    Declares the Message Buffer Amp interface: 3 functions.
+
+    They are vGenerateCoreBInterrupt, vStartMessageBufferAMPTasks and
+    xAreMessageBufferAMPTasksStillRunning.
+*/
+
 #ifndef MESSAGE_BUFFER_AMP_H
 #define MESSAGE_BUFFER_AMP_H
 

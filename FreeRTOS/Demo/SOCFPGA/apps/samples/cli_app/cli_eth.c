@@ -6,66 +6,62 @@
  * Implementation of CLI commands for network
  */
 
-/**
- * @defgroup cli_enet Ethernet
- * @ingroup cli
- *
- * Perform ethernet operations.
- *
- * @details
- * It supports the following commands:
- * - eth config &lt;IP_Address&gt; &lt;port&gt;
- * - eth config
- * - eth start &lt;IP_Protocol&gt; &lt;IP&gt;&lt;port&gt;
- * - eth send &lt;Message&gt;
- * - eth stop
- *
- * Typical usage:
- * - Use 'eth config' command to configure the IP address and port.
- * - Use 'eth start' command to start the server.
- * - Use 'eth send' command to send message over TCP/UDP.
- * - Use 'eth stop' command to stop the server.
- *
- * @section enet_commands Commands
- * @subsection eth_config eth config
- * Config ethernet IP Address  <br>
- *
- * Usage: <br>
- *   eth config &lt;IP_Address&gt; &lt;port&gt; <br>
- * It does not require arguments if it is to be configured as DHCP <br>
- * It requires the following arguments if it is to be configured as static:
- * - IP address  IP address.
- * - port        port for communication.
- *
- * @subsection eth_start eth start
- * Start server over TCP/UDP protocol  <br>
- *
- * Usage: <br>
- *   eth start &lt;IP_Protocol&gt; &lt;IP_Address&gt; &lt;port&gt; <br>
- *   Remote PC: @code start nc [flags for udp or tcp] @endcode with socfpga's IP address and port.
- *   eg: $nc -u &lt;dest_IP_Address&gt; &lt;dest_port&gt;
- *   To listen to a port:nc -u -l &lt;udp_port&gt;
- *
- *
- * It does not require arguments if the server to be over TCP protocol.
- * It requires the following arguments if the server to be over UDP protocol:
- * - IP address  IP address
- * - port        port for communication.
- * <br>
- * @subsection eth_send eth send
- * send messages over TCP/UDP protocol
- *
- * Usage: <br>
- *   eth send &lt;Message&gt;
- *
- * It requires the following arguments:
- * - Messages Message to be send.
- *
- * @subsection eth_stop eth stop
- * stop the server
- * Usage: <br>
- *   eth stop
- */
+/*
+    File: Ethernet CLI Commands
+
+    Perform ethernet operations.
+
+    It supports the following commands:
+    - eth config &lt;IP_Address&gt; &lt;port&gt;
+    - eth config
+    - eth start &lt;IP_Protocol&gt; &lt;IP&gt;&lt;port&gt;
+    - eth send &lt;Message&gt;
+    - eth stop
+
+    Typical usage:
+    - Use 'eth config' command to configure the IP address and port.
+    - Use 'eth start' command to start the server.
+    - Use 'eth send' command to send message over TCP/UDP.
+    - Use 'eth stop' command to stop the server.
+    Group: Commands
+
+    eth config:
+
+    Config ethernet IP Address
+
+    Usage: eth config &lt;IP_Address&gt; &lt;port&gt; It does not require
+    arguments if it is to be configured as DHCP It requires the following
+    arguments if it is to be configured as static:
+    - IP address  IP address.
+    - port        port for communication.
+
+    eth start:
+
+    Start server over TCP/UDP protocol
+
+    Usage: eth start &lt;IP_Protocol&gt; &lt;IP_Address&gt; &lt;port&gt;
+    Remote PC: (start code) nc [flags for udp or tcp] (end code) with
+    socfpga's IP address and port. eg: $nc -u &lt;dest_IP_Address&gt;
+    &lt;dest_port&gt; To listen to a port:nc -u -l &lt;udp_port&gt;
+
+    It does not require arguments if the server to be over TCP protocol. It
+    requires the following arguments if the server to be over UDP protocol:
+    - IP address  IP address
+    - port        port for communication.
+
+    eth send:
+
+    send messages over TCP/UDP protocol
+
+    Usage: eth send &lt;Message&gt;
+
+    It requires the following arguments:
+    - Messages Message to be send.
+
+    eth stop:
+
+    stop the server Usage: eth stop
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -135,6 +131,11 @@ static const uint8_t ucDNSServerAddress[4] = { 192, 168, 1, 1 };
 static const uint8_t ucMACAddress[6] = { 0xAA, 0xDA, 0xAF, 0xB1,
                                          0x6A, 0xC0 };
 
+/*
+    Enum: ETH_STATE
+
+    State values used by the Ethernet cli commands: ETH_STATE_INACTIVE, ETH_STATE_DO_CONFIG, ETH_STATE_CONFIG_DONE and 3 more. Declared as crntState in cli_eth.c.
+*/
 typedef enum
 {
     ETH_STATE_INACTIVE,
@@ -145,6 +146,11 @@ typedef enum
     ETH_STATE_SERVER_STOP,
 } ETH_STATE;
 
+/*
+    Enum: ETH_IP
+
+    Values used by the Ethernet cli commands: ETH_RAW and ETH_TCP. Declared as connType in cli_eth.c.
+*/
 typedef enum
 {
     ETH_RAW,
@@ -152,6 +158,11 @@ typedef enum
     ETH_UDP
 } ETH_IP;
 
+/*
+    Struct: CRNT_CONN
+
+    Type used by the Ethernet cli commands, holding ipPort, connType and ipAddr. Declared as ethHndlr in cli_eth.c.
+*/
 typedef struct
 {
     int ipPort;
@@ -162,6 +173,9 @@ typedef struct
 CRNT_CONN ethHndlr;
 ETH_STATE crntState = ETH_STATE_INACTIVE;
 
+/*
+    Function: xApplicationDHCPHook
+*/
 eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase,
         uint32_t ulIPAddress )
 {
@@ -187,7 +201,12 @@ eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase,
     return xResult;
 }
 
-/* @brief : state machine to handle the tcp/udp server*/
+/*
+    Function: eth_sm
+
+    : state machine to handle the tcp/udp server
+*/
+
 static void eth_sm( ETH_STATE reqstate )
 {
     BaseType_t xReturned;
@@ -356,10 +375,11 @@ static void eth_sm( ETH_STATE reqstate )
     }
 }
 
-/**
- * @func : cmd_eth
- * @brief : callback function to configure and run tcp/udp server
- */
+/*
+    Function: cmd_eth
+
+    : callback function to configure and run tcp/udp server
+*/
 
 BaseType_t cmd_eth( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
@@ -627,6 +647,9 @@ BaseType_t cmd_eth( char *write_buffer, size_t write_buffer_len,
     return pdFALSE;
 }
 
+/*
+    Function: vCliTCPServerTask
+*/
 void vCliTCPServerTask( void *pvParameters )
 {
     (void) pvParameters;
@@ -694,6 +717,9 @@ void vCliTCPServerTask( void *pvParameters )
     }
 }
 
+/*
+    Function: vCliUDPServerTask
+*/
 void vCliUDPServerTask( void *pvParameters )
 {
     (void) pvParameters;
@@ -738,8 +764,10 @@ void vCliUDPServerTask( void *pvParameters )
 }
 
 /*
- * @brief calls when network connects or disconnects
- */
+    Function: vApplicationIPNetworkEventHook_Multi
+
+    calls when network connects or disconnects
+*/
 
 void vApplicationIPNetworkEventHook_Multi( eIPCallbackEvent_t eNetworkEvent,
         struct xNetworkEndPoint *pxEndPoint )
@@ -800,6 +828,11 @@ void vApplicationIPNetworkEventHook_Multi( eIPCallbackEvent_t eNetworkEvent,
     }
 }
 
+/*
+    Function: ulApplicationGetNextSequenceNumber
+
+    Calls <xApplicationGetRandomNumber>.
+*/
 uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
         uint16_t usSourcePort, uint32_t ulDestinationAddress,
         uint16_t usDestinationPort )
@@ -814,6 +847,11 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
     return ulRandomNumber;
 }
 
+/*
+    Function: xApplicationGetRandomNumber
+
+    Calls rand.
+*/
 BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber )
 {
     if (pulNumber == NULL)
@@ -825,14 +863,19 @@ BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber )
 
 }
 
+/*
+    Function: pcApplicationHostnameHook
+*/
 const char*pcApplicationHostnameHook( void )
 {
     return "AGLEX5_device";
 }
 
 /*
- * @brief function to meet stack dependency
- */
+    Function: vApplicationPingReplyHook
+
+    function to meet stack dependency
+*/
 void vApplicationPingReplyHook( ePingReplyStatus_t eStatus,
         uint16_t usIdentifier )
 {
@@ -840,6 +883,9 @@ void vApplicationPingReplyHook( ePingReplyStatus_t eStatus,
     (void) usIdentifier;
 }
 
+/*
+    Function: xApplicationDHCPHook_Multi
+*/
 eDHCPCallbackAnswer_t xApplicationDHCPHook_Multi(
         eDHCPCallbackPhase_t eDHCPPhase,
         struct xNetworkEndPoint *pxEndPoint,
@@ -852,6 +898,11 @@ eDHCPCallbackAnswer_t xApplicationDHCPHook_Multi(
     return eDHCPContinue;
 }
 
+/*
+    Function: ulApplicationTimeHook
+
+    Calls xTaskGetTickCount.
+*/
 uint32_t ulApplicationTimeHook( void )
 {
     return xTaskGetTickCount() * portTICK_PERIOD_MS;

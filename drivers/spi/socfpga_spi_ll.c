@@ -6,6 +6,13 @@
  * Low level driver implementation for SPI
  */
 
+/*
+    File: SPI Low-Level Driver Implementation
+
+    Implements the SPI low-level driver: 25 functions, 4 of them local to
+    this file.
+*/
+
 #include "socfpga_defines.h"
 #include <errno.h>
 #include "socfpga_spi_ll.h"
@@ -13,9 +20,12 @@
 #include "socfpga_spi_reg.h"
 #include "socfpga_rst_mngr.h"
 
-/**
- * @brief Get clock shift based on role/instance.
- */
+/*
+    Function: spi_get_clk_shift
+
+    Get clock shift based on role/instance.
+*/
+
 static uint32_t spi_get_clk_shift(uint32_t instance, spi_role_t role)
 {
     if (role == SPI_ROLE_SLAVE)
@@ -25,9 +35,12 @@ static uint32_t spi_get_clk_shift(uint32_t instance, spi_role_t role)
     return (instance == 1U) ? CLK_SPIM1_SHIFT : CLK_SPIM0_SHIFT;
 }
 
-/**
- * @brief Enable the clock for the SPI instance.
- */
+/*
+    Function: spi_enable_clock
+
+    Enable the clock for the SPI instance.
+*/
+
 static void spi_enable_clock(uint32_t instance, spi_role_t role)
 {
     uint32_t val;
@@ -39,9 +52,12 @@ static void spi_enable_clock(uint32_t instance, spi_role_t role)
     WR_REG32(CLK_PERPLL_EN, val);
 }
 
-/**
- * @brief Disable the clock for the SPI instance.
- */
+/*
+    Function: spi_disable_clock
+
+    Disable the clock for the SPI instance.
+*/
+
 static void spi_disable_clock(uint32_t instance, spi_role_t role)
 {
     uint32_t val;
@@ -52,10 +68,11 @@ static void spi_disable_clock(uint32_t instance, spi_role_t role)
     val &= ~(1U << shift);
     WR_REG32(CLK_PERPLL_EN, val);
 }
+/*
+    Function: spi_enable
 
-/**
- * @brief Enable SPI serial interface.
- */
+    Enable SPI serial interface.
+*/
 void spi_enable(uint32_t base_addr)
 {
     uint32_t val = 0U;
@@ -63,15 +80,22 @@ void spi_enable(uint32_t base_addr)
     WR_REG32((base_addr + SPI_SSIENR), val);
 }
 
-/**
- * @brief Disable SPI serial interface.
- */
+/*
+    Function: spi_disable
+
+    Disable SPI serial interface.
+*/
 void spi_disable(uint32_t base_addr)
 {
     uint32_t val = 0U;
     WR_REG32((base_addr + SPI_SSIENR), val);
 }
 
+/*
+    Function: spi_ll_enable_dma
+
+    Calls RD_REG32 and WR_REG32.
+*/
 void spi_ll_enable_dma(uint32_t base_addr, bool tx_enable, bool rx_enable)
 {
     uint32_t val;
@@ -98,6 +122,11 @@ void spi_ll_enable_dma(uint32_t base_addr, bool tx_enable, bool rx_enable)
     WR_REG32((base_addr + SPI_DMACR), val);
 }
 
+/*
+    Function: spi_ll_disable_dma
+
+    Clears the RDMAE bit in the SPI_DMACR register.
+*/
 void spi_ll_disable_dma(uint32_t base_addr)
 {
     uint32_t val;
@@ -107,6 +136,11 @@ void spi_ll_disable_dma(uint32_t base_addr)
     WR_REG32((base_addr + SPI_DMACR), val);
 }
 
+/*
+    Function: spi_ll_set_dma_thresholds
+
+    Calls RD_REG32 and WR_REG32.
+*/
 void spi_ll_set_dma_thresholds(uint32_t base_addr, uint8_t tx_level,
         uint8_t rx_level)
 {
@@ -123,6 +157,11 @@ void spi_ll_set_dma_thresholds(uint32_t base_addr, uint8_t tx_level,
     WR_REG32((base_addr + SPI_DMARDLR), val);
 }
 
+/*
+    Function: spi_get_base_addr
+
+    Calls GET_BASE_ADDR_SLAVE and GET_BASE_ADDR_MASTER.
+*/
 uint32_t spi_get_base_addr(uint32_t instance, spi_role_t role)
 {
     if (role == SPI_ROLE_SLAVE)
@@ -132,6 +171,11 @@ uint32_t spi_get_base_addr(uint32_t instance, spi_role_t role)
     return GET_BASE_ADDR_MASTER(instance);
 }
 
+/*
+    Function: spi_set_slave_output
+
+    Calls <spi_disable>, RD_REG32, WR_REG32 and <spi_enable>.
+*/
 void spi_set_slave_output(uint32_t base_addr, bool enable)
 {
     uint32_t val;
@@ -150,9 +194,12 @@ void spi_set_slave_output(uint32_t base_addr, bool enable)
     spi_enable(base_addr);
 }
 
-/**
- * @brief Set SPI FIFO threshold.
- */
+/*
+    Function: spi_set_fifo_threshold
+
+    Set SPI FIFO threshold.
+*/
+
 static void spi_set_fifo_threshold(uint32_t base_addr)
 {
     uint32_t val;
@@ -172,9 +219,11 @@ static void spi_set_fifo_threshold(uint32_t base_addr)
     WR_REG32((base_addr + SPI_RXFTLR), val);
 }
 
-/**
- * @brief Initialize SPI instance.
- */
+/*
+    Function: spi_init
+
+    Initialize SPI instance.
+*/
 void spi_init(uint32_t instance, spi_role_t role)
 {
     volatile int32_t i;
@@ -207,9 +256,11 @@ void spi_init(uint32_t instance, spi_role_t role)
     spi_set_fifo_threshold(spi_get_base_addr(instance, role));
 }
 
-/**
- * @brief Deinitialize SPI instance.
- */
+/*
+    Function: spi_deinit
+
+    Deinitialize SPI instance.
+*/
 void spi_deinit(uint32_t instance, spi_role_t role)
 {
     uint32_t base_addr;
@@ -219,9 +270,9 @@ void spi_deinit(uint32_t instance, spi_role_t role)
     spi_disable_clock(instance, role);
 }
 
-/**
- * @brief Set SPI configuration.
- */
+/*
+    Set SPI configuration.
+*/
 int32_t spi_set_config(uint32_t base_addr, uint32_t freq, spi_mode_t mode)
 {
     uint32_t sclk_dvsr;
@@ -291,9 +342,11 @@ int32_t spi_set_config(uint32_t base_addr, uint32_t freq, spi_mode_t mode)
     return 0;
 }
 
-/**
- * @brief Get SPI configuration parameters
- */
+/*
+    Function: spi_get_config
+
+    Get SPI configuration parameters
+*/
 void spi_get_config(uint32_t base_addr, uint32_t *freq, spi_mode_t *mode)
 {
     uint32_t val;
@@ -327,9 +380,11 @@ void spi_get_config(uint32_t base_addr, uint32_t *freq, spi_mode_t *mode)
     }
 }
 
-/**
- * @brief Set SPI transfer mode.
- */
+/*
+    Function: spi_set_transfermode
+
+    Set SPI transfer mode.
+*/
 void spi_set_transfermode(uint32_t base_addr, uint32_t mode)
 {
     uint32_t val = 0U;
@@ -344,9 +399,11 @@ void spi_set_transfermode(uint32_t base_addr, uint32_t mode)
     spi_enable(base_addr);
 }
 
-/**
- * @brief Get SPI transfer frequency.
- */
+/*
+    Function: spi_get_freq
+
+    Get SPI transfer frequency.
+*/
 uint32_t spi_get_freq(uint32_t base_addr)
 {
     uint32_t sclk_dvsr, spi_clk = 0U;
@@ -371,9 +428,11 @@ uint32_t spi_get_freq(uint32_t base_addr)
     return freq;
 }
 
-/**
- * @brief Select SPI slave
- */
+/*
+    Function: spi_select_chip
+
+    Select SPI slave
+*/
 void spi_select_chip(uint32_t instance, uint32_t slave)
 {
     uint32_t base_addr;
@@ -405,9 +464,11 @@ void spi_select_chip(uint32_t instance, uint32_t slave)
     WR_REG32((base_addr + SPI_SER), val);
 }
 
-/**
- * @brief Write data to Tx FIFO.
- */
+/*
+    Function: spi_write_fifo
+
+    Write data to Tx FIFO.
+*/
 uint32_t spi_write_fifo(uint32_t base_addr, uint8_t *buf, uint32_t bytes)
 {
     uint32_t bytes_done = 0;
@@ -451,9 +512,11 @@ uint32_t spi_write_fifo(uint32_t base_addr, uint8_t *buf, uint32_t bytes)
     return bytes_done;
 }
 
-/**
- * @brief Read data from Rx FIFO.
- */
+/*
+    Function: spi_read_fifo
+
+    Read data from Rx FIFO.
+*/
 uint32_t spi_read_fifo(uint32_t base_addr, uint8_t *buf, uint32_t bytes)
 {
     uint32_t bytes_done = 0;
@@ -498,21 +561,25 @@ uint32_t spi_read_fifo(uint32_t base_addr, uint8_t *buf, uint32_t bytes)
     return bytes_done;
 }
 
-/**
- * @brief Get SPI interrupt status.
- *
- * Returns the masked ISR bitmask (SPI_ISR). Callers check individual sources
- * with the SPI_*_INT bitmask constants (SPI_TX_EMPTY_INT, SPI_RX_FULL_INT,
- * SPI_RX_OVERFLOW_INT) rather than comparing the whole value.
- */
+/*
+    Function: spi_get_interrupt_status
+
+    Get SPI interrupt status.
+
+    Returns the masked ISR bitmask (SPI_ISR). Callers check individual sources
+    with the SPI_*_INT bitmask constants (SPI_TX_EMPTY_INT, SPI_RX_FULL_INT,
+    SPI_RX_OVERFLOW_INT) rather than comparing the whole value.
+*/
 uint32_t spi_get_interrupt_status(uint32_t base_addr)
 {
     return (RD_REG32(base_addr + SPI_ISR) & 0x3FU);
 }
 
-/**
- * @brief Enable SPI interrupts
- */
+/*
+    Function: spi_enable_interrupt
+
+    Enable SPI interrupts
+*/
 void spi_enable_interrupt(uint32_t base_addr, uint32_t ir_id)
 {
     uint32_t val;
@@ -544,9 +611,11 @@ void spi_enable_interrupt(uint32_t base_addr, uint32_t ir_id)
     WR_REG32((base_addr + SPI_IMR), val);
 }
 
-/**
- * @brief Disable SPI interrupts
- */
+/*
+    Function: spi_disable_interrupt
+
+    Disable SPI interrupts
+*/
 void spi_disable_interrupt(uint32_t base_addr, uint32_t ir_id)
 {
     uint32_t val;
@@ -578,17 +647,21 @@ void spi_disable_interrupt(uint32_t base_addr, uint32_t ir_id)
     WR_REG32((base_addr + SPI_IMR), val);
 }
 
-/**
- * @brief Clear the RX FIFO overflow interrupt by reading RXOICR.
- */
+/*
+    Function: spi_clear_rx_overflow
+
+    Clear the RX FIFO overflow interrupt by reading RXOICR.
+*/
 void spi_clear_rx_overflow(uint32_t base_addr)
 {
     (void)RD_REG32(base_addr + SPI_RXOICR);
 }
 
-/**
- * @brief Set the RX FIFO threshold (RXFTLR).
- */
+/*
+    Function: spi_ll_set_rx_threshold
+
+    Set the RX FIFO threshold (RXFTLR).
+*/
 void spi_ll_set_rx_threshold(uint32_t base_addr, uint8_t rx_thr)
 {
     WR_REG32(base_addr + SPI_RXFTLR, (uint32_t)rx_thr);

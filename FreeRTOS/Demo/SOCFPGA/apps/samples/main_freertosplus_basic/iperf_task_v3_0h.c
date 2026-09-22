@@ -24,10 +24,11 @@
  * http://www.FreeRTOS.org
  */
 
-/**
- * @file iperf_task_v3_0h.c
- * @brief Implements an iperf3 server using FreeRTOS_TCP.
- */
+/*
+    File: Iperf Task V3 0h
+
+    Implements an iperf3 server using FreeRTOS_TCP.
+*/
 
 /*
  *  A FreeRTOS+TCP demo program:
@@ -160,6 +161,11 @@ extern int sscanf64( char * pcString,
     static NetworkEndPoint_t * pxFindLocalEndpoint( void );
 #endif
 
+/*
+    Function: vListInsertGeneric
+
+    Calls listLIST_ITEM_CONTAINER.
+*/
 static void vListInsertGeneric( List_t * const pxList,
                                 ListItem_t * const pxNewListItem,
                                 MiniListItem_t * pxWhere )
@@ -183,6 +189,11 @@ static void vListInsertGeneric( List_t * const pxList,
     ( pxList->uxNumberOfItems )++;
 }
 
+/*
+    Function: vListInsertFifo
+
+    Wrapper around <vListInsertGeneric>.
+*/
 static portINLINE void vListInsertFifo( List_t * const pxList,
                                         ListItem_t * const pxNewListItem )
 {
@@ -190,6 +201,11 @@ static portINLINE void vListInsertFifo( List_t * const pxList,
 }
 
 #if ( ipconfigIPERF_VERSION == 3 )
+/*
+    Enum: eTCP_Server_Status_t
+
+    Status values used by the Iperf Task V3 0h: eTCP_0_WaitName, eTCP_1_WaitCount, eTCP_2_WaitHeader and 4 more. Declared as eTCP_Status in iperf_task_v3_0h.c.
+*/
     typedef enum
     {
         eTCP_0_WaitName, /* Expect a text like "osboxes.1460335312.612572.527642c36f" */
@@ -202,6 +218,11 @@ static portINLINE void vListInsertFifo( List_t * const pxList,
         eTCP_7_WaitTransfer
     } eTCP_Server_Status_t;
 #endif /* if ( ipconfigIPERF_VERSION == 3 ) */
+/*
+    Struct: TcpClient_t
+
+    Type used by the Iperf Task V3 0h, holding xServerSocket, bits, eTCP_Status and 7 more. Declared as pxControlClient in iperf_task_v3_0h.c.
+*/
 typedef struct
 {
     Socket_t xServerSocket;
@@ -229,6 +250,11 @@ typedef struct
 
 
 #if ( ipconfigIPERF_USE_ZERO_COPY != 0 )
+    /*
+        Struct: xRawBuffer
+
+        Buffer for the Iperf Task V3 0h, holding pcBuffer.
+    */
     struct xRawBuffer
     {
         char pcBuffer[ ipconfigIPERF_RECV_BUFFER_SIZE ];
@@ -260,6 +286,9 @@ static List_t xTCPClientList;
 static SocketSet_t xSocketSet;
 static TaskHandle_t pxIperfTask;
 
+/*
+    Function: vIPerfInstall
+*/
 void vIPerfInstall( void )
 {
     if( pxRawBuffer == NULL )
@@ -282,6 +311,9 @@ void vIPerfInstall( void )
     }
 }
 
+/*
+    Function: vIPerfServerWork
+*/
 static void vIPerfServerWork( Socket_t xSocket )
 {
     struct freertos_sockaddr xAddress;
@@ -330,6 +362,9 @@ static void vIPerfServerWork( Socket_t xSocket )
     }
 }
 
+/*
+    Function: vIPerfTCPClose
+*/
 static void vIPerfTCPClose( TcpClient_t * pxClient )
 {
     if( pxControlClient == pxClient )
@@ -380,6 +415,9 @@ static void vIPerfTCPClose( TcpClient_t * pxClient )
     }
 }
 
+/*
+    Function: vIPerfTCPSend
+*/
 static int vIPerfTCPSend( TcpClient_t * pxClient )
 {
     BaseType_t xResult = 0;
@@ -443,6 +481,9 @@ static int vIPerfTCPSend( TcpClient_t * pxClient )
 }
 
 #if ( ipconfigIPERF_VERSION == 3 )
+    /*
+        Function: handleRecvPacket
+    */
     static void handleRecvPacket( TcpClient_t * pxClient,
                                   char * pcReadBuffer,
                                   BaseType_t xRecvResult )
@@ -701,7 +742,12 @@ static int vIPerfTCPSend( TcpClient_t * pxClient )
                 break;
         }
     }
-#endif /* ipconfigIPERF_VERSION == 3 */
+#endif /*
+    Function: vIPerfTCPWork
+
+    ipconfigIPERF_VERSION == 3
+*/
+
 
 static void vIPerfTCPWork( TcpClient_t * pxClient )
 {
@@ -781,6 +827,12 @@ static void vIPerfTCPWork( TcpClient_t * pxClient )
 }
 
 #if ( ipconfigUSE_CALLBACKS == 0 ) && ( ipconfigIPERF_HAS_UDP != 0 )
+    /*
+        Function: vIPerfUDPWork
+
+        Calls FreeRTOS_recvfrom, FreeRTOS_sendto and
+        FreeRTOS_ReleaseUDPPayloadBuffer.
+    */
     static void vIPerfUDPWork( Socket_t xSocket )
     {
         BaseType_t xRecvResult;
@@ -818,6 +870,9 @@ static void vIPerfTCPWork( TcpClient_t * pxClient )
 #endif /* ipconfigUSE_CALLBACKS == 0 */
 
 #if ( ipconfigUSE_CALLBACKS != 0 ) && ( ipconfigIPERF_HAS_UDP != 0 )
+    /*
+        Function: xOnUdpReceive
+    */
     static BaseType_t xOnUdpReceive( Socket_t xSocket,
                                      void * pvData,
                                      size_t xLength,
@@ -844,6 +899,9 @@ static void vIPerfTCPWork( TcpClient_t * pxClient )
 #endif /* ipconfigUSE_CALLBACKS != 0 */
 
 #if ( ipconfigIPERF_HAS_TCP != 0 )
+    /*
+        Function: xCreateTCPServerSocket
+    */
     static Socket_t xCreateTCPServerSocket()
     {
         BaseType_t xBindResult, xListenResult;
@@ -894,6 +952,9 @@ static void vIPerfTCPWork( TcpClient_t * pxClient )
 #endif /* ipconfigIPERF_HAS_TCP */
 
 #if ( ipconfigIPERF_HAS_UDP != 0 )
+    /*
+        Function: xCreateUDPServerSocket
+    */
     static Socket_t xCreateUDPServerSocket()
     {
         BaseType_t xBindResult;
@@ -929,6 +990,11 @@ static void vIPerfTCPWork( TcpClient_t * pxClient )
 #endif /* ipconfigIPERF_HAS_UDP */
 
 #if ( ipconfigUSE_IPv6 == 1 )
+    /*
+        Function: pxFindLocalEndpoint
+
+        Calls FreeRTOS_FirstEndPoint and FreeRTOS_NextEndPoint.
+    */
     static NetworkEndPoint_t * pxFindLocalEndpoint( void )
     {
         NetworkEndPoint_t * pxEndPoint;
@@ -950,7 +1016,12 @@ static void vIPerfTCPWork( TcpClient_t * pxClient )
 
         return pxEndPoint;
     }
-#endif /* if ( ipconfigUSE_IPv6 == 1 ) */
+#endif /*
+    Function: vIPerfTask
+
+    if ( ipconfigUSE_IPv6 == 1 )
+*/
+
 
 void vIPerfTask( void * pvParameter )
 {
@@ -1079,6 +1150,11 @@ void vIPerfTask( void * pvParameter )
     }
 }
 
+/*
+    Function: sscanf64
+
+    It is not certain that sscanf() can handle a 64-bit number.
+*/
 int sscanf64( char * pcString,
               uint64_t * pullAmount )
 {

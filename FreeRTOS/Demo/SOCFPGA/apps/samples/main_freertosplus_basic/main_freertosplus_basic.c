@@ -31,29 +31,25 @@
  * Ethernet Sample application. Modified for SoC FPGA.
  */
 
-/**
- * @defgroup enet_sample Ethernet
- *
- * Sample Application for Ethernet
- *
- * Network Demo Test Commands
- *
- * @details
- * # Test Ping Server (check connectivity to board)
- * ping <IP address>
- * ping -6 <IPv6 address>%<interface>
- *
- * # Test TCP Echo Server (open TCP client, type messages and expect echo)
- * nc -v <IP address> <PORT>
- * nc -6 -v <IPv6 address>%<interface> <PORT>
- *
- * # Test TCP Server (send file/data to board over TCP)
- * nc <IP address> <PORT> < input.txt
- *
- * # Test UDP Echo Server (open UDP client, type messages and expect echo)
- * nc -u -v <IP address> <PORT>
- * nc -u -6 -v <IPv6 address>%<interface> <PORT>
- */
+/*
+    File: Main FreeRTOS Plus Basic Implementation
+
+    Sample Application for Ethernet
+
+    Network Demo Test Commands
+
+    # Test Ping Server (check connectivity to board) ping <IP address> ping -6
+    <IPv6 address>%<interface>
+
+    # Test TCP Echo Server (open TCP client, type messages and expect echo) nc
+    -v <IP address> <PORT> nc -6 -v <IPv6 address>%<interface> <PORT>
+
+    # Test TCP Server (send file/data to board over TCP) nc <IP address>
+    <PORT> < input.txt
+
+    # Test UDP Echo Server (open UDP client, type messages and expect echo) nc
+    -u -v <IP address> <PORT> nc -u -6 -v <IPv6 address>%<interface> <PORT>
+*/
 
 
 #include <stdlib.h>
@@ -69,6 +65,15 @@ TaskHandle_t TCPTaskHandle = NULL;
 TaskHandle_t UDPTaskHandle = NULL;
 TaskHandle_t EchoTCPServerTaskHandle = NULL;
 
+/*
+    Function: vApplicationTickHook
+
+    Tick hook, called by the kernel from the RTOS tick interrupt.
+
+    It runs in an interrupt context on every tick, so it must return quickly
+    and may only use the interrupt-safe API. FreeRTOS calls it only when
+    configUSE_TICK_HOOK is 1.
+*/
 void vApplicationTickHook( void )
 {
     /*
@@ -78,7 +83,11 @@ void vApplicationTickHook( void )
      * */
 }
 
-/** Main Application to start **/
+/*
+    Function: main_freertosplus_basic
+
+    Main Application to start *
+*/
 void main_freertosplus_basic( void )
 {
     BaseType_t xReturned;
@@ -137,6 +146,11 @@ void main_freertosplus_basic( void )
         ;
 }
 
+/*
+    Function: ulApplicationGetNextSequenceNumber
+
+    Calls <xApplicationGetRandomNumber>.
+*/
 uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
         uint16_t usSourcePort, uint32_t ulDestinationAddress,
         uint16_t usDestinationPort )
@@ -150,6 +164,11 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
 
     return ulRandomNumber;
 }
+/*
+    Function: xApplicationGetRandomNumber
+
+    Calls rand.
+*/
 BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber )
 {
     if ( pulNumber == NULL )

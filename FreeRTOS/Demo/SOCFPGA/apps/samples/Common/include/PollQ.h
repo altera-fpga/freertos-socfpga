@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Poll Q
+
+    Declares the Poll Q interface: 2 functions.
+
+    They are vStartPolledQueueTasks and xArePollingQueuesStillRunning.
+*/
+
 #ifndef POLLED_Q_H
 #define POLLED_Q_H
 

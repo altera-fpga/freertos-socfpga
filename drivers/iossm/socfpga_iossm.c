@@ -6,6 +6,12 @@
  * HAL driver implementation for iossm
  */
 
+/*
+    File: IOSSM Driver Implementation
+
+    HAL driver implementation for iossm.
+*/
+
 #include <stdio.h>
 #include <errno.h>
 #include <stdbool.h>
@@ -341,6 +347,9 @@ int32_t iossm_get_err_addr_offset(const iossm_context_t *xhandle, uint32_t index
     return offset;
 }
 
+/*
+    Function: iossm_irq_handler
+*/
 void iossm_irq_handler(void *pparam)
 {
     iossm_context_t *iossm_handle = (iossm_context_t *)pparam;

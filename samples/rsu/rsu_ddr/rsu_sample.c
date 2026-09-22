@@ -13,50 +13,58 @@
 #include <libRSU_OSAL.h>
 #include "rsu_helper.h"
 
-/**
- * @defgroup rsu_sample RSU
- * @ingroup samples
- *
- * Sample Application for RSU
- *
- * @details
- * @section rsu_description Description
- * This is a simple program to demonstrate the use of librsu library with images embedded directly
- * into the executable and loaded from DDR. The application image ('app2.rpd') and the SSBL image
- * ('fip2.bin') are converted to linkable object files at build time using 'objcopy' and placed in
- * the 'obj/' directory ('app_image_rpd.o' and 'ssbl_image_bin.o'). At runtime the images are
- * already resident in DDR memory via linker-generated symbols and are programmed directly into the
- * target QSPI slots using librsu — no SD card or file system access is required.
- * The sample erases slot @c RSU_SLOT, programs the application image from DDR, verifies it, then
- * performs a ROS (Remote OS Update) by erasing slot @c ROS_SLOT and programming the SSBL (fip)
- * image in raw mode. Finally it requests the updated slot to be loaded on the next warm reboot.
- * The user can refer to the <a href="https://altera-fpga.github.io/rel-24.3/
- * embedded-designs/agilex-5/e-series/premium/rsu/ug-rsu-agx5e-soc/#creating-the-initial-flash-image">Creating the Flash Image</a> to understand more about
- * creating the initial image needed for RSU (Remote System Update) and ROS (Remote OS update) in Linux-based systems. The pfg in the link, however,
- * requires some changes to be used for FreeRTOS. The bitstream's 'hps_path' should be updated with the path to 'bl2.hex' instead of 'u-boot-spl-dtb.hex'.
- * The user can also add additional slots to accommodate fip (SSBL) binaries or additional images (for reference, refer to the pfg in the rsu samples folder).
- *
- * @section rsu_prerequisites Prerequisites
- * - Make sure to use a RSU supported image having at least 2 slots with ATF version 2.12.0 or later.
- * - The pre-built object files 'app_image_rpd.o' and 'ssbl_image_bin.o' must be present in the
- *   'samples/rsu/rsu_ddr/obj/' directory before building. These are generated from 'app2.rpd' and
- *   'fip2.bin' respectively using 'objcopy'. If either file is missing the build will fail.
- * - The sample pfg file used to create the initial RSU jic image is available at @c samples/rsu/rsu_ddr/initial_image.pfg.
- *
- * @section rsu_param Configurable Parameters
- * - The application image slot to be updated is defined with @c RSU_SLOT macro.
- * - The SSBL (fip) slot to be updated is defined with @c ROS_SLOT macro.
- *
- * @section rsu_how_to_run How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Run the application on the board with the appropriate RSU image.
- * 3. After the successful execution of the sample application the board goes for a warm reboot. Restart the board to load the new slot.
- *
- * @section rsu_expected_results Expected Results
- * - The board goes for a warm reboot. Then after a power cycle the board boots up in the new slot.
- * @{
- */
-/** @} */
+/*
+    File: RSU DDR Sample
+
+    Sample Application for RSU
+    Group: Description
+
+    This is a simple program to demonstrate the use of librsu library with
+    images embedded directly into the executable and loaded from DDR. The
+    application image ('app2.rpd') and the SSBL image ('fip2.bin') are
+    converted to linkable object files at build time using 'objcopy' and
+    placed in the 'obj/' directory ('app_image_rpd.o' and 'ssbl_image_bin.o').
+    At runtime the images are already resident in DDR memory via
+    linker-generated symbols and are programmed directly into the target QSPI
+    slots using librsu — no SD card or file system access is required. The
+    sample erases slot RSU_SLOT, programs the application image from DDR,
+    verifies it, then performs a ROS (Remote OS Update) by erasing slot
+    ROS_SLOT and programming the SSBL (fip) image in raw mode. Finally it
+    requests the updated slot to be loaded on the next warm reboot. The user
+    can refer to the <a href="https://altera-fpga.github.io/rel-24.3/
+    embedded-designs/agilex-5/e-series/premium/rsu/ug-rsu-agx5e-soc/creating-the-initial-flash-image">Creating
+    the Flash Image</a> to understand more about creating the initial image
+    needed for RSU (Remote System Update) and ROS (Remote OS update) in
+    Linux-based systems. The pfg in the link, however, requires some changes
+    to be used for FreeRTOS. The bitstream's 'hps_path' should be updated with
+    the path to 'bl2.hex' instead of 'u-boot-spl-dtb.hex'. The user can also
+    add additional slots to accommodate fip (SSBL) binaries or additional
+    images (for reference, refer to the pfg in the rsu samples folder).
+
+    Group: Prerequisites
+
+    - Make sure to use a RSU supported image having at least 2 slots with ATF version 2.12.0 or later.
+    - The pre-built object files 'app_image_rpd.o' and 'ssbl_image_bin.o' must be present in the
+    'samples/rsu/rsu_ddr/obj/' directory before building. These are generated
+    from 'app2.rpd' and 'fip2.bin' respectively using 'objcopy'. If either
+    file is missing the build will fail.
+    - The sample pfg file used to create the initial RSU jic image is available at samples/rsu/rsu_ddr/initial_image.pfg.
+
+    Group: Configurable Parameters
+
+    - The application image slot to be updated is defined with RSU_SLOT macro.
+    - The SSBL (fip) slot to be updated is defined with ROS_SLOT macro.
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Run the application on the board with the appropriate RSU image.
+    - After the successful execution of the sample application the board goes for a warm reboot. Restart the board to load the new slot.
+
+    Group: Expected Results
+
+    - The board goes for a warm reboot. Then after a power cycle the board boots up in the new slot.
+*/
 
 
 /* Application image slot to be updated */
@@ -71,34 +79,43 @@ extern char app_image_end[];
 extern char ssbl_image_start[];
 extern char ssbl_image_end[];
 /*
- *  @brief Get slot count
- *
- *    Function to get the number of slots. This function fetches
- *    the number of slots that can be used to flash the application image
- *    and freeRTOS binaries(SSBL).
- */
+    Function: rsu_client_get_slot_count
+
+    Get slot count
+
+    Function to get the number of slots. This function fetches the number of
+    slots that can be used to flash the application image and freeRTOS
+    binaries(SSBL).
+*/
+
 static int rsu_client_get_slot_count(void)
 {
     return rsu_slot_count();
 }
 
 /*
- * @brief Erase a slot
- *
- *    Function to erase a slot in the jic. The function erases the
- *    application image in the selected slot. The slot_num is zero based.
- */
+    Function: rsu_client_erase_image
+
+    Erase a slot
+
+    Function to erase a slot in the jic. The function erases the application
+    image in the selected slot. The slot_num is zero based.
+*/
+
 static int rsu_client_erase_image(int slot_num)
 {
     return rsu_slot_erase(slot_num);
 }
 
 /*
- *  @brief Print status of current slot.
- *
- *    Function to get status of current slot. This function fetches
- *    the details like version, current image of the currently active slot.
- */
+    Function: rsu_client_copy_status_log
+
+    Print status of current slot.
+
+    Function to get status of current slot. This function fetches the details
+    like version, current image of the currently active slot.
+*/
+
 static int rsu_client_copy_status_log(void)
 {
     struct rsu_status_info info;
@@ -123,11 +140,14 @@ static int rsu_client_copy_status_log(void)
 }
 
 /*
- * @brief Print slot attributes
- *
- *    Function to get individual slot info. Gets the details like partition name,
- *    partition offset, partition size and priority.
- */
+    Function: rsu_client_list_slot_attribute
+
+    Print slot attributes
+
+    Function to get individual slot info. Gets the details like partition
+    name, partition offset, partition size and priority.
+*/
+
 static int rsu_client_list_slot_attribute(int slot_num)
 {
     struct rsu_slot_info info;
@@ -154,13 +174,16 @@ static int rsu_client_list_slot_attribute(int slot_num)
 }
 
 /*
- * @brief Add app image or raw binary
- *
- *    Function to flash an application image or raw binary from DDR to a slot.
- *    The application image and fip binary to be flashed should be present in
- *    the sd card. For RSU operation file is not in raw format and for ROS it
- *    is in raw format.
- */
+    Function: rsu_client_add_app_image_from_ddr
+
+    Add app image or raw binary
+
+    Function to flash an application image or raw binary from DDR to a slot.
+    The application image and fip binary to be flashed should be present in
+    the sd card. For RSU operation file is not in raw format and for ROS it is
+    in raw format.
+*/
+
 static int rsu_client_add_app_image_from_ddr(void *image_buf, int slot_num,
         int size, int raw)
 {
@@ -173,11 +196,14 @@ static int rsu_client_add_app_image_from_ddr(void *image_buf, int slot_num,
 }
 
 /*
- * @brief Verify flashed image or raw binary
- *
- *    Function to compare flashed image or raw binary with actual file.
- *    The image and the binary to be verified shall be present in the RAM.
- */
+    Function: rsu_client_verify_data_from_ddr
+
+    Verify flashed image or raw binary
+
+    Function to compare flashed image or raw binary with actual file. The
+    image and the binary to be verified shall be present in the RAM.
+*/
+
 static int rsu_client_verify_data_from_ddr(void *image_buf, int slot_num,
         int size, int raw)
 {
@@ -190,16 +216,21 @@ static int rsu_client_verify_data_from_ddr(void *image_buf, int slot_num,
 }
 
 /*
- * @brief Load a slot
- *    Function to load the requested slot. Once the slot is requested the
- *    board goes for a warm reboot. Power cycle the board to boot in the
- *    requested slot.
- */
+    Function: rsu_client_request_slot_be_loaded
+
+    Load a slot Function to load the requested slot. Once the slot is
+    requested the board goes for a warm reboot. Power cycle the board to boot
+    in the requested slot.
+*/
+
 static int rsu_client_request_slot_be_loaded(int slot_num)
 {
     return rsu_slot_load_after_reboot(slot_num);
 }
 
+/*
+    Function: rsu_task
+*/
 void rsu_task(void)
 {
     int ret, slot_count;

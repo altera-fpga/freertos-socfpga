@@ -3,11 +3,11 @@
  * Copyright (C) 2025 Altera
  */
 
-/**
- *
- * @file libfcs_logging.h
- * @brief logging API used inside LibFCS
- */
+/*
+    File: Portable Layer FCS Library Logging
+
+    logging API used inside LibFCS
+*/
 
 #ifndef LIBFCS_LOGGING_H
 #define LIBFCS_LOGGING_H
@@ -20,10 +20,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/**
- * @brief FCS log levels
- *
- */
+/*
+    Enum: fcs_loglevel
+
+    FCS log levels
+*/
 enum fcs_loglevel {
 	L_LOG_NONE = 0,
 	L_LOG_ERROR = 1,
@@ -45,30 +46,50 @@ enum fcs_loglevel {
 #undef FCS_LOG_ERR
 #define FCS_LOG_ERR(...) ERROR(__VA_ARGS__)
 
-/**
- * @brief set logging level of logger system
- *
- * @param level logging level
- * @return 0 on success, negative number on error.
- */
+/*
+    Function: fcs_set_logging
+
+    set logging level of logger system
+
+    Parameters:
+
+        level - logging level
+
+    Returns:
+
+        0 on success, negative number on error.
+*/
 FCS_OSAL_INT fcs_set_logging(enum fcs_loglevel level);
 
-/**
- * @brief initialize logging
- *
- * @param log_file file to log the messages.
- * @return 0 on success, negative number on error.
- */
+/*
+    Function: fcs_logging_init
+
+    initialize logging
+
+    Parameters:
+
+        log_file - file to log the messages.
+
+    Returns:
+
+        0 on success, negative number on error.
+*/
 FCS_OSAL_INT fcs_logging_init(FCS_OSAL_CHAR *log_file);
 
-/**
- * @brief logging function each platform needs to define
- *
- * @param level logging level
- * @param format string format
- *
- * @return Nil
- */
+/*
+    Function: fcs_logger
+
+    logging function each platform needs to define
+
+    Parameters:
+
+        level - logging level
+        format - string format
+
+    Returns:
+
+        Nil
+*/
 FCS_OSAL_VOID fcs_logger(enum fcs_loglevel level, const FCS_OSAL_CHAR *format, ...);
 
 #ifdef __cplusplus

@@ -60,9 +60,18 @@
 #define M25Q_DUMMY_CYCLES      0U
 #define M25Q_QSPI_MODE         4U
 
-/**
- * @brief The SFDP header structure
- */
+/*
+    File: QSPI Flash Adapter Driver
+
+    Register offsets, masks and bit positions for the QSPI Flash Adapter: 43
+    definitions.
+*/
+
+/*
+    Struct: sfdp_header
+
+    The SFDP header structure
+*/
 struct sfdp_header
 {
     uint32_t signature[4U];
@@ -73,9 +82,11 @@ struct sfdp_header
 };
 
 
-/**
- * @brief The SFDP parameter header structure
- */
+/*
+    Struct: sfdp_param_header
+
+    The SFDP parameter header structure
+*/
 struct sfdp_param_header
 {
     uint8_t param_id;
@@ -86,9 +97,11 @@ struct sfdp_param_header
     uint32_t reserved;
 };
 
-/**
- * @brief The SFDP parameter table structure
- */
+/*
+    Struct: sfdp_param_table
+
+    The SFDP parameter table structure
+*/
 struct sfdp_param_table
 {
     uint8_t min_sector_erase_size;
@@ -105,9 +118,11 @@ struct sfdp_param_table
 
 };
 
-/**
- * @brief The Flash Adapter structure
- */
+/*
+    Struct: sfdp_object
+
+    The Flash Adapter structure
+*/
 struct sfdp_object
 {
     struct sfdp_header std_header;
@@ -115,14 +130,18 @@ struct sfdp_object
     struct sfdp_param_table param_table[MAX_PARAM_TABLES];
 };
 
-/**
- * @brief Function pointer to the SFDP parsing logic
- */
+/*
+    Callback: parse_sfpd_pf
+
+    Function pointer to the SFDP parsing logic
+*/
 typedef int (*parse_sfpd_pf)(void *pqspi, struct sfdp_object *sfdp);
 
-/**
- * @brief The Flash Adapter structure
- */
+/*
+    Struct: flash_adapter_t
+
+    The Flash Adapter structure
+*/
 typedef struct flash_adapter
 {
     uint8_t device_id;
@@ -130,16 +149,22 @@ typedef struct flash_adapter
     parse_sfpd_pf parse_sfdp;
 } flash_adapter_t;
 
-/**
- * @brief Read the SFDP parameters for the Micron M25Q flash chip.
- *
- * @param[in] phandle Void pointer which has to be type casted to flash handle.
- * @param[in,out] sfdp SFDP object to populate.
- *
- * @return
- * - FLASH_OK:    if the operation is successful.
- * - FLASH_ERROR: if the operation failed.
- */
+/*
+    Function: parse_m25_q_parameters
+
+    Read the SFDP parameters for the Micron M25Q flash chip.
+
+    Parameters:
+
+        phandle - Void pointer which has to be type casted to flash
+            handle.
+        sfdp - SFDP object to populate.
+
+    Returns:
+
+        - FLASH_OK:    if the operation is successful.
+        - FLASH_ERROR: if the operation failed.
+*/
 int  parse_m25_q_parameters(void *phandle, struct sfdp_object *sfdp);
 
 

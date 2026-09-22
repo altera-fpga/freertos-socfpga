@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: MIT-0
  */
 
-/**
- * @file socfpga_usb_otg_reg.h
- * @brief SoC FPGA USB OTG register map
- */
+/*
+    File: USB OTG Registers
+
+    SoC FPGA USB OTG register map
+
+    The definitions fall into the USB_OTG_* families.
+*/
 
 #ifndef SOCFPGA_USB_OTG_REG
 #define SOCFPGA_USB_OTG_REG
@@ -5766,9 +5769,5 @@
 #define USB_OTG_PCGCCTL_RSTPDWNMODULE_POS 3
 #define USB_OTG_PCGCCTL_STOPPCLK_MASK 0x00000001
 #define USB_OTG_PCGCCTL_STOPPCLK_POS 0
-
-
-
-
 
 #endif

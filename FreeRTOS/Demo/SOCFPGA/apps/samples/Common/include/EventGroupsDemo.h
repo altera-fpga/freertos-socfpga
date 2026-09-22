@@ -24,7 +24,14 @@
  *
  */
 
+/*
+    File: Event Groups Demo
 
+    This file contains fairly comprehensive checks on the behaviour of event groups.
+
+    They are vPeriodicEventGroupsProcessing, vStartEventGroupTasks and
+    xAreEventGroupTasksStillRunning.
+*/
 
 /*
  * This file contains fairly comprehensive checks on the behaviour of event

@@ -64,22 +64,32 @@
 #define QSPI_IND_OPDONE      0x4U
 #define QSPI_XFER_LVLBRCH    0x40U
 
-/**
- * @brief This is the FlashCallback
- *
- */
+/*
+    File: QSPI Driver
+
+    Declares the QSPI driver interface: 21 functions, 3 types and 43
+    constants.
+*/
+
+/*
+    Callback: flash_callback_t
+
+    This is the FlashCallback
+*/
 typedef void (*flash_callback_t)(uint32_t op_status, void *puser_context);
 
-/**
- * @brief This is the QspiCallback
- *
- */
+/*
+    Type: qspi_callback_t
+
+    This is the QspiCallback
+*/
 typedef flash_callback_t *qspi_callback_t;
 
 /*
- * @brief This is the structure used to hold the flash
- *        descriptor variables
- */
+    Struct: qspi_descriptor_t
+
+    This is the structure used to hold the flash descriptor variables
+*/
 typedef struct qpsi_descriptor
 {
     uint32_t inst_width;
@@ -111,252 +121,348 @@ typedef struct qpsi_descriptor
     qspi_callback_t xqspi_callback;
 } qspi_descriptor_t;
 
-/**
- * @brief Enable the interrupt.
- *
- * @param[in] type Flag to indicate the interrupts to be enabled
- */
+/*
+    Function: qspi_enable_int
+
+    Enable the interrupt.
+
+    Parameters:
+
+        type - Flag to indicate the interrupts to be enabled
+*/
 void qspi_enable_int(uint32_t type);
 
-/**
- * @brief Disable interrupts.
- *
- * @param[in] mask for interrupts to be disabled
- */
+/*
+    Function: qspi_disable_int
+
+    Disable interrupts.
+
+    Parameters:
+
+        mask - for interrupts to be disabled
+*/
 void qspi_disable_int(uint32_t mask);
 
-/**
- * @brief Read the SFDP parameters.
- *
- * @param[in]  address Address to read from.
- * @param[in]  size    Length of data to be read.
- * @param[out] data    Pointer to the data.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_read_sfdp
+
+    Read the SFDP parameters.
+
+    Parameters:
+
+        address - Address to read from.
+        size - Length of data to be read.
+        data - Pointer to the data.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_read_sfdp(uint32_t address, uint8_t size, uint32_t *data);
 
-/**
- * @brief Send command to flash to read data.
- *
- * @param[in]  cmd      Flash handle to do the operation on.
- * @param[in]  numbytes Number of bytes to read.
- * @param[out] data     Pointer to buffer to write data to.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_send_flash_readcmd
+
+    Send command to flash to read data.
+
+    Parameters:
+
+        cmd - Flash handle to do the operation on.
+        numbytes - Number of bytes to read.
+        data - Pointer to buffer to write data to.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_send_flash_readcmd(uint8_t cmd, uint8_t numbytes, uint32_t *data);
 
-/**
- * @brief Send a flash write or erase command.
- *
- * @param[in] cmd      Command to be sent to the flash device.
- * @param[in] numbytes Number of bytes to write.
- * @param[in] data    Pointer to the data buffer.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_send_flash_writecmd
+
+    Send a flash write or erase command.
+
+    Parameters:
+
+        cmd - Command to be sent to the flash device.
+        numbytes - Number of bytes to write.
+        data - Pointer to the data buffer.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_send_flash_writecmd(uint8_t cmd, uint8_t numbytes, uint32_t *data);
 
-/**
- * @brief To select the 16MB bank.
- *
- * @param[in] bank_addr The bank address to be selected.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_select_bank
+
+    To select the 16MB bank.
+
+    Parameters:
+
+        bank_addr - The bank address to be selected.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_select_bank(uint32_t *bank_addr);
 
-/**
- * @brief Send a command to the flash chip.
- *
- * @param[in] cmd Command to be sent to the flash chip.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_send_flashcmd
+
+    Send a command to the flash chip.
+
+    Parameters:
+
+        cmd - Command to be sent to the flash chip.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_send_flashcmd(uint32_t cmd);
 
-/**
- * @brief Verify if the write operation is completed in the flash chip.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_write_finish
+
+    Verify if the write operation is completed in the flash chip.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_write_finish(void);
 
-/**
- * @brief Write data to the flash chip in pages (256 bytes).
- *
- * @param[in]  offset Starting page offset.
- * @param[in]  data   Pointer to the buffer containing the data.
- * @param[in]  size   size of the data.
- * @param[out] count  number of bytes written.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_page_write_indirect
+
+    Write data to the flash chip in pages (256 bytes).
+
+    Parameters:
+
+        offset - Starting page offset.
+        data - Pointer to the buffer containing the data.
+        size - size of the data.
+        count - number of bytes written.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_page_write_indirect(uint32_t offset, uint8_t *data, uint32_t size,
         uint32_t *count);
 
-/**
- * @brief Write data to the flash chip in banks (16 MB).
- *
- * @param[in]  bank_offset Starting offset.
- * @param[in]  data        Pointer to the buffer containing the data.
- * @param[in]  size        The size of the data.
- * @param[out] w_count       number of bytes written.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_bank_write_indirect
+
+    Write data to the flash chip in banks (16 MB).
+
+    Parameters:
+
+        bank_offset - Starting offset.
+        data - Pointer to the buffer containing the data.
+        size - The size of the data.
+        w_count - number of bytes written.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_bank_write_indirect(uint32_t bank_offset, uint8_t *data, uint32_t
         size, uint32_t *w_count);
 
-/**
- * @brief Write to the flash chip in indirect mode.
- *
- * @param[in]  address Start address for indirect write.
- * @param[in]  data    Data buffer containing write data.
- * @param[in]  size    Size in bytes of the data to be written to the flash device.
- * @param[out] w_count number of bytes written.
- *
- * @return
- * - QSPI_ERROR: if the write operation failed.
- * - QSPI_OK:   if the write is successful.
- */
+/*
+    Function: qspi_indirect_write
+
+    Write to the flash chip in indirect mode.
+
+    Parameters:
+
+        address - Start address for indirect write.
+        data - Data buffer containing write data.
+        size - Size in bytes of the data to be written to the flash
+            device.
+        w_count - number of bytes written.
+
+    Returns:
+
+        - QSPI_ERROR: if the write operation failed.
+        - QSPI_OK:   if the write is successful.
+*/
 int32_t qspi_indirect_write(uint32_t address, uint8_t *data, uint32_t size,
         uint32_t *w_count);
 
-/**
- * @brief Read data from the flash chip in banks.
- *
- * @param[in]  bank_offset Starting offset.
- * @param[out] data        Output buffer used to hold the read data.
- * @param[in]  size        Size in bytes of the data to be read from the flash device.
- * @param[out] rd_count    number of bytes written.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK:    if the operation is successful.
- */
+/*
+    Function: qspi_bank_read_indirect
+
+    Read data from the flash chip in banks.
+
+    Parameters:
+
+        bank_offset - Starting offset.
+        data - Output buffer used to hold the read data.
+        size - Size in bytes of the data to be read from the flash device.
+        rd_count - number of bytes written.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK:    if the operation is successful.
+*/
 int32_t qspi_bank_read_indirect(uint32_t bank_offset, uint8_t *data, uint32_t
         size, uint32_t *rd_count);
 
-/**
- * @brief Read from the flash chip in indirect mode.
- *
- * @param[in]  size  Size in bytes of the data to be read from the flash device.
- * @param[out] data  Data buffer containing read data.
- * @param[out] count Number of bytes read.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK: if the operation is successful.
- *
- */
+/*
+    Function: qspi_read_data
+
+    Read from the flash chip in indirect mode.
+
+    Parameters:
+
+        size - Size in bytes of the data to be read from the flash device.
+        data - Data buffer containing read data.
+        count - Number of bytes read.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK: if the operation is successful.
+*/
 int32_t qspi_read_data(uint32_t size, uint8_t *data, uint32_t *count);
 
-/**
- * @brief Read from the flash chip in indirect mode(used in ISR).
- *
- * @param[in]  address Start address for indirect read.
- * @param[out] data  Data buffer containing read data.
- * @param[in]  size    Bytes of the data to be read from the flash device.
- * @param[out] r_count Number of bytes read.
- *
- * @return
- * - QSPI_ERROR: if the operation is not successful.
- * - QSPI_OK: if the operation is successful.
- */
+/*
+    Function: qspi_read_indirect
+
+    Read from the flash chip in indirect mode(used in ISR).
+
+    Parameters:
+
+        address - Start address for indirect read.
+        data - Data buffer containing read data.
+        size - Bytes of the data to be read from the flash device.
+        r_count - Number of bytes read.
+
+    Returns:
+
+        - QSPI_ERROR: if the operation is not successful.
+        - QSPI_OK: if the operation is successful.
+*/
 int32_t qspi_read_indirect(uint32_t address, uint8_t *data, uint32_t size,
         uint32_t *r_count);
 
-/**
- * @brief Read from the flash chip in indirect mode.
- *
- * @param[in]  address Start address for indirect read.
- * @param[out] buffer  Data buffer containing read data.
- * @param[in]  size    Bytes of the data to be read from the flash device.
- * @param[out] r_count Number of bytes read.
- *
- * @return
- * - QSPI_ERROR: if the read operation failed.
- * - QSPI_OK: if the read is successful.
- */
+/*
+    Function: qspi_indirect_read
+
+    Read from the flash chip in indirect mode.
+
+    Parameters:
+
+        address - Start address for indirect read.
+        buffer - Data buffer containing read data.
+        size - Bytes of the data to be read from the flash device.
+        r_count - Number of bytes read.
+
+    Returns:
+
+        - QSPI_ERROR: if the read operation failed.
+        - QSPI_OK: if the read is successful.
+*/
 int32_t qspi_indirect_read(uint32_t address, uint8_t *buffer, uint32_t size,
         uint32_t *r_count);
 
-/**
- * @brief Initialize the flash handle.
- *
- * @param[in,out] qspi_handle Pointer to the QSPI descriptor.
- *
- * @return
- * - QSPI_BUSY if QSPI chip is busy.
- * - QSPI_OK:   if the initialization is successful.
- */
+/*
+    Function: qspi_init
+
+    Initialize the flash handle.
+
+    Parameters:
+
+        qspi_handle - Pointer to the QSPI descriptor.
+
+    Returns:
+
+        - QSPI_BUSY if QSPI chip is busy.
+        - QSPI_OK:   if the initialization is successful.
+*/
 int32_t qspi_init(qspi_descriptor_t *qspi_handle);
 
-/**
- * @brief Wait for erase and program.
- *
- * @return
- * - QSPI_ERROR: if the erase or program failed.
- * - QSPI_OK:    if the erase or program is successful.
- */
+/*
+    Function: qspi_wait_for_eraseand_program
+
+    Wait for erase and program.
+
+    Returns:
+
+        - QSPI_ERROR: if the erase or program failed.
+        - QSPI_OK:    if the erase or program is successful.
+*/
 int32_t qspi_wait_for_eraseand_program(void);
 
-/**
- * @brief Erase 4K sectors.
- *
- * @param[in] address Address to be erased.
- *
- * @return
- * - QSPI_ERROR: if the erase is not successful.
- * - QSPI_OK:    if the erase is successful.
- */
+/*
+    Function: qspi_erase
+
+    Erase 4K sectors.
+
+    Parameters:
+
+        address - Address to be erased.
+
+    Returns:
+
+        - QSPI_ERROR: if the erase is not successful.
+        - QSPI_OK:    if the erase is successful.
+*/
 int32_t qspi_erase(uint32_t address);
 
-/**
- * @brief Deinitialize the flash handle.
- *
- * @return
- * - QSPI_ERROR: if the deinitialization fails.
- * - QSPI_OK:    if the deinitialization is successful.
- */
+/*
+    Function: qspi_deinit
+
+    Deinitialize the flash handle.
+
+    Returns:
+
+        - QSPI_ERROR: if the deinitialization fails.
+        - QSPI_OK:    if the deinitialization is successful.
+*/
 int32_t qspi_deinit(void);
 
-/**
- * @brief Set callback function.
- *
- * @param[in] flash_handle Flash handle to be deinitialized.
- * @param[in] callback     Callback function from flash layer.
- *
- * @return
- * - QSPI_ERROR: if the callback register is not successful.
- * - QSPI_OK:    if the callback register is successful.
- */
+/*
+    Function: qspi_set_callback
+
+    Set callback function.
+
+    Parameters:
+
+        flash_handle - Flash handle to be deinitialized.
+        callback - Callback function from flash layer.
+
+    Returns:
+
+        - QSPI_ERROR: if the callback register is not successful.
+        - QSPI_OK:    if the callback register is successful.
+*/
 int32_t qspi_set_callback(qspi_descriptor_t *qspi_handle, qspi_callback_t
         callback, void *puser_context);
 
-/**
- * @brief QSPI isr function.
- *
- * @param[in] pparam Pointer to flash handle.
- */
+/*
+    Function: qspi_isr
+
+    QSPI isr function.
+
+    Parameters:
+
+        pparam - Pointer to flash handle.
+*/
 void qspi_isr(void *pparam);
 
 #endif // __SOCFPGA_QSPI_H__

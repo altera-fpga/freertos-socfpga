@@ -6,6 +6,12 @@
  * Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
  */
 
+/*
+    File: xHCI Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+*/
+
 #include "xhci.h"
 #include "socfpga_defines.h"
 #include "osal.h"
@@ -56,6 +62,9 @@ int is_ptr_mem_aligned(uint64_t addr, uint32_t byte)
     return -EIO;
 }
 
+/*
+    Function: configure_xhci_max_slots
+*/
 static int configure_xhci_max_slots(void)
 {
     volatile uint32_t config_reg_val;
@@ -91,8 +100,11 @@ void start_xhci_controller(void)
 }
 
 /*
- * wait for the xhci controller to be ready
- */
+    Function: wait_for_controller_ready
+
+    wait for the xhci controller to be ready
+*/
+
 static int wait_for_controller_ready(void)
 {
     uint32_t reg_val;

@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Recmutex
+
+    Declares the Recmutex interface: 2 functions.
+
+    They are vStartRecursiveMutexTasks and
+    xAreRecursiveMutexTasksStillRunning.
+*/
+
 #ifndef RECURSIVE_MUTEX_TEST_H
 #define RECURSIVE_MUTEX_TEST_H
 

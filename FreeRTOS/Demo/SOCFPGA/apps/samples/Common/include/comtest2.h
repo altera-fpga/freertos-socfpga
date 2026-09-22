@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Comtest2
+
+    Declares the Comtest2 interface: 2 functions.
+
+    They are vAltStartComTestTasks and xAreComTestTasksStillRunning.
+*/
+
 #ifndef COMTEST_H
 #define COMTEST_H
 

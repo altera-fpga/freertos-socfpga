@@ -11,8 +11,16 @@
 #include "socfpga_freeze_ip_ll.h"
 
 /*
- * @brief Freeze the PR region
- */
+    File: FPGA Manager Freeze IP Low-Level Driver Implementation
+
+    Implements the FPGA Manager Freeze IP low-level driver: 2 functions.
+*/
+
+/*
+    Function: freeze_pr_region
+
+    Freeze the PR region
+*/
 int freeze_pr_region(void)
 {
     volatile uint32_t reg_val;
@@ -48,8 +56,10 @@ int freeze_pr_region(void)
 }
 
 /*
- * @brief Unfreeze the PR region
- */
+    Function: unfreeze_pr_region
+
+    Unfreeze the PR region
+*/
 int unfreeze_pr_region(void)
 {
     volatile uint32_t reg_val;

@@ -7,6 +7,12 @@
  * Interrupt sub-module.
  */
 
+/*
+    File: xHCI Interrupts Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+*/
+
 #include "xhci.h"
 #include "xhci_interrupts.h"
 #include "socfpga_interrupt.h"
@@ -76,6 +82,9 @@ bool register_usb3ISR(xhci_int_ptr_t int_handler)
     return true;
 }
 
+/*
+    Function: socfpga_usb3_handler
+*/
 void socfpga_usb3_handler(void *handler)
 {
     xhci_int_ptr_t usb3_int_handler;

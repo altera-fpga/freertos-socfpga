@@ -7,6 +7,14 @@
  * Doorbell submodule.
  */
 
+/*
+    File: xHCI Doorbell Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+
+    They are ring_xhci_host_db, ring_xhci_ep0_db and ring_xhci_ep_doorbell.
+*/
+
 #include "xhci_doorbell.h"
 #include "socfpga_defines.h"
 

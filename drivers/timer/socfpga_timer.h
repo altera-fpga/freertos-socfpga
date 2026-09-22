@@ -29,215 +29,225 @@
 #ifndef __SOCFPGA_TIMER_H__
 #define __SOCFPGA_TIMER_H__
 
-/**
- * @file socfpga_timer.h
- * @brief Header file for timer HAL driver
- */
+/*
+    File: Timer Driver
+
+    Header file for timer HAL driver
+
+    APIs for SoC FPGA timer.
+
+    This is the timer block implementation for SoC FPGA. It provides APIs for
+    reading the timer value, starting and stopping the timer, configuring the
+    timer in free-running or user mode, and setting a callback function to be
+    invoked on timer expiry. For example usage, refer to timer sample
+    application.
+*/
 
 #include "socfpga_defines.h"
 
-/**
- * @defgroup timer Timer
- * @ingroup drivers
- * @brief APIs for SoC FPGA timer.
- * @details This is the timer block implementation for SoC FPGA.
- * It provides APIs for reading the timer value, starting and stopping the timer,
- * configuring the timer in free-running or user mode, and setting a callback function
- * to be invoked on timer expiry. For example usage, refer to
- * @ref timer_sample "timer sample application".
- * @{
- */
 
-/**
- * @defgroup timer_fns Functions
- * @ingroup timer
- * Timer HAL APIs
- */
+/*
+    Group: Macros
 
-/**
- * @defgroup timer_structs Structures
- * @ingroup timer
- * Timer Specific Structures
- */
+    Callback signatures, types and enumerated values for the Timer driver.
+*/
+#define TIMER_NUM_INSTANCE    4      /* Number of instances for timer */
 
-/**
- * @defgroup timer_enums Enumerations
- * @ingroup timer
- * Timer Specific Enumerations
- */
+/*
+    Variable: timer_context
 
-/**
- * @defgroup timer_macros Macros
- * @ingroup timer
- * Timer Specific Macros
- */
-
-/**
- * @addtogroup timer_macros
- * @{
- */
-#define TIMER_NUM_INSTANCE    4      /*!<Number of instances for timer*/
-/**
- * @}
- */
-
-/**
- * @brief The timer descriptor type defined in the source file.
- * @ingroup timer_structs
- */
+    The timer descriptor type defined in the source file.
+*/
 struct timer_context;
 
-/**
- * @brief Timer handle returned by calling timer_open()
- * @ingroup timer_structs
- */
+/*
+    Type: timer_handle_t
+
+    Timer handle returned by calling timer_open()
+*/
 typedef struct timer_context *timer_handle_t;
 
-/**
- * @brief Function pointer for user callback
- * @ingroup timer_fns
- */
+/*
+    Callback: timer_callback_t
+
+    Function pointer for user callback
+*/
 typedef void (*timer_callback_t)(void *buf);
 
-/**
- * @brief enum for timer instances
- * @ingroup timer_enums
- */
+/*
+    Enum: timer_instance_t
+
+    enum for timer instances
+*/
 typedef enum
 {
-    TIMER_SYS0 = 0, /*!<Peripheral ID for SYS_TIMER instance 0*/
-    TIMER_SYS1, /*!<Peripheral ID for SYS_TIMER instance 1*/
-    TIMER_SP0, /*!<Peripheral ID for TIMER instance 0*/
-    TIMER_SP1, /*!<Peripheral ID for TIMER instance 1*/
-    TIMER_N_INSTANCE /*!<Number of timer instances*/
+    TIMER_SYS0 = 0, /* Peripheral ID for SYS_TIMER instance 0 */
+    TIMER_SYS1, /* Peripheral ID for SYS_TIMER instance 1 */
+    TIMER_SP0, /* Peripheral ID for TIMER instance 0 */
+    TIMER_SP1, /* Peripheral ID for TIMER instance 1 */
+    TIMER_N_INSTANCE /* Number of timer instances */
 } timer_instance_t;
 
-/**
- * @addtogroup timer_fns
- * @{
- */
+/*
+    Group: Functions
 
-/**
- * @brief Used to initialize the timer
- * Once an instance is opened, it needs to be closed before invoking open again.
- *
- *
- * @param[in] instance The Timer instance to open.
- *
- * @return
- * - Timer handle on success
- * - NULL if
- *     - Invalid timer instance
- *     - If same instance already opened
- *     - Failed to obtain clock
- *     - Failed to enable interrupt
- */
+    Entry points for the Timer driver.
+*/
+
+/*
+    Function: timer_open
+
+    Used to initialize the timer Once an instance is opened, it needs to be
+    closed before invoking open again.
+
+    Parameters:
+
+        instance - The Timer instance to open.
+
+    Returns:
+
+        - Timer handle on success
+        - NULL if
+            - Invalid timer instance
+            - If same instance already opened
+            - Failed to obtain clock
+            - Failed to enable interrupt
+*/
 timer_handle_t timer_open(timer_instance_t instance);
 
-/**
- * @brief Read the current counter value register
- *
- * @param[in] htimer       Timer handle returned by open API
- * @param[out] counter_val Counter value at given instance
- *
- * @return
- * - 0:       on success
- * - -EINVAL: if timer handle is NULL
- * - -EPERM:  if timer is not running
- */
+/*
+    Function: timer_get_value_raw
+
+    Read the current counter value register
+
+    Parameters:
+
+        htimer - Timer handle returned by open API
+        counter_val - Counter value at given instance
+
+    Returns:
+
+        - 0:       on success
+        - -EINVAL: if timer handle is NULL
+        - -EPERM:  if timer is not running
+*/
 int32_t timer_get_value_raw(timer_handle_t const htimer, uint32_t *counter_val);
 
-/**
- * @brief Start the timer instance.
- *
- * @param[in] htimer Timer handle returned by open API
- *
- * @return
- * - 0 :      on success
- * - -EINVAL: if timer handle is NULL
- * - -EBUSY:  if timer is already running
- */
+/*
+    Function: timer_start
+
+    Start the timer instance.
+
+    Parameters:
+
+        htimer - Timer handle returned by open API
+
+    Returns:
+
+        - 0 :      on success
+        - -EINVAL: if timer handle is NULL
+        - -EBUSY:  if timer is already running
+*/
 int32_t timer_start(timer_handle_t const htimer);
 
-/**
- * @brief Stop the timer instance.
- *
- * @param[in] htimer Timer handle returned by open API
- *
- * @return
- * - 0:       on success
- * - -EINVAL: if timer handle is NULL
- * - -EPERM:  if timer is not running
- * - -EFAULT: if failed to disable interrupt
- */
+/*
+    Function: timer_stop
+
+    Stop the timer instance.
+
+    Parameters:
+
+        htimer - Timer handle returned by open API
+
+    Returns:
+
+        - 0:       on success
+        - -EINVAL: if timer handle is NULL
+        - -EPERM:  if timer is not running
+        - -EFAULT: if failed to disable interrupt
+*/
 int32_t timer_stop(timer_handle_t const htimer);
 
-/**
- * @brief Close the timer instance.
- *
- * @param[in] htimer Timer handle returned by open API
- *
- * @return
- * - 0:       on success
- * - -EINVAL: if timer handle is NULL
- */
+/*
+    Function: timer_close
+
+    Close the timer instance.
+
+    Parameters:
+
+        htimer - Timer handle returned by open API
+
+    Returns:
+
+        - 0:       on success
+        - -EINVAL: if timer handle is NULL
+*/
 int32_t timer_close(timer_handle_t const htimer);
 
-/**
- * @brief Configure the timer instance in free running or in user mode.
- *
- * @param[in] htimer - Timer handle returned by open API
- * @param[in] period - The desired timer period in micro seconds.
- *	If period exceeds the maximum possible period, it is
- *	rounded to the maximum period. If period value is given as
-     0xFFFFFFFF, the timer will be set to free running mode.
- *
- * @return
- * - 0:       on success
- * - -EINVAL: if timer handle is NULL or period is too long
- * - -EBUSY:  if timer already running
- */
+/*
+    Function: timer_set_period_us
+
+    Configure the timer instance in free running or in user mode.
+
+    Parameters:
+
+        htimer - - Timer handle returned by open API
+        period - - The desired timer period in micro seconds. If period
+            exceeds the maximum possible period, it is rounded to the maximum
+            period. If period value is given as 0xFFFFFFFF, the timer will be
+            set to free running mode.
+
+    Returns:
+
+        - 0:       on success
+        - -EINVAL: if timer handle is NULL or period is too long
+        - -EBUSY:  if timer already running
+*/
 int32_t timer_set_period_us(timer_handle_t const htimer, uint32_t period);
 
-/**
- * @brief Get remaining time in microseconds.
- *
- * In delay mode (user defined mode) this is the remaining time for next
- * interrupt. In free-running mode, this is the remaining time for next
- * roll over.
- *
- * @param[in] htimer  Timer handle returned by open API
- * @param[out] time_us Remaining time for timer overflow
- * @return
- * - 0        on success
- * - -EINVAL: if timer handle is NULL or time_us is NULL
- * - -EPERM:  if timer is not running
- */
+/*
+    Function: timer_get_value_us
+
+    Get remaining time in microseconds.
+
+    In delay mode (user defined mode) this is the remaining time for next
+    interrupt. In free-running mode, this is the remaining time for next roll
+    over.
+
+    Parameters:
+
+        htimer - Timer handle returned by open API
+        time_us - Remaining time for timer overflow
+
+    Returns:
+
+        - 0        on success
+        - -EINVAL: if timer handle is NULL or time_us is NULL
+        - -EPERM:  if timer is not running
+*/
 int32_t timer_get_value_us(timer_handle_t const htimer, uint32_t *time_us);
 
-/**
- * @brief Set the callback function
- *
- * Sets the callback function that is invoked on timer expiry. This
- * will be invoked periodically until the timer is stopped.
- *
- * @param[in] htimer   Timer handle returned by open API
- * @param[in] callback Call back function pointer
- * @param[in] param    User defined context variable.
- *
- * @return
- * - 0:       on success
- * - -EINVAL: if timer handle is NULL
- */
+/*
+    Function: timer_set_callback
+
+    Set the callback function
+
+    Sets the callback function that is invoked on timer expiry. This will be
+    invoked periodically until the timer is stopped.
+
+    Parameters:
+
+        htimer - Timer handle returned by open API
+        callback - Call back function pointer
+        param - User defined context variable.
+
+    Returns:
+
+        - 0:       on success
+        - -EINVAL: if timer handle is NULL
+*/
 int32_t timer_set_callback(timer_handle_t const htimer, timer_callback_t
         callback, void *param);
-
-/**
- * @}
- */
 /* end of group timer_fns */
-/**
- * @}
- */
 /* end of group timer */
 #endif

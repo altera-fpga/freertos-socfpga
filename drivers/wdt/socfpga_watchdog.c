@@ -253,9 +253,18 @@ int32_t wdt_close(const wdt_handle_t hwdt)
     return 0;
 }
 
-/**
- * @brief Interrupt Service Routine for Watchdog timer
- */
+/*
+    File: Watchdog Timer Driver Implementation
+
+    Implements the Watchdog Timer driver: 13 functions, 6 of them local to
+    this file.
+*/
+
+/*
+    Function: wdt_isr
+
+    Interrupt Service Routine for Watchdog timer
+*/
 void wdt_isr(void *handle)
 {
     wdt_handle_t hwdt = (wdt_handle_t)handle;
@@ -266,11 +275,13 @@ void wdt_isr(void *handle)
     }
 }
 
+/*
+    Function: set_response_mode
 
+    Set the response mode as system reset or generate interrupt and reset the
+    system
+*/
 
-/**
- * @brief Set the response mode as system reset or generate interrupt and reset the system
- */
 static bool set_response_mode(wdt_handle_t handle, wdt_timeout_config_t config)
 {
     uint32_t val;
@@ -304,11 +315,11 @@ static bool set_response_mode(wdt_handle_t handle, wdt_timeout_config_t config)
     return true;
 }
 
+/*
+    Function: get_intr_id
 
-
-/**
- * @brief Get the interrupt id based on instance
- */
+    Get the interrupt id based on instance
+*/
 
 socfpga_hpu_interrupt_t get_intr_id(uint32_t instance)
 {
@@ -343,9 +354,12 @@ socfpga_hpu_interrupt_t get_intr_id(uint32_t instance)
     return intr_id;
 }
 
-/**
- * @brief Deassert the reset signal for the Watchdog instance
- */
+/*
+    Function: de_assert_reset_signal
+
+    Deassert the reset signal for the Watchdog instance
+*/
+
 static void de_assert_reset_signal(uint32_t instance)
 {
     uint32_t val;
@@ -385,6 +399,9 @@ static void de_assert_reset_signal(uint32_t instance)
     }
 }
 
+/*
+    Function: ms_to_top
+*/
 static uint32_t ms_to_top(uint64_t clk_hz, uint32_t timeout_ms)
 {
     uint64_t ticks = 0UL;
@@ -419,6 +436,9 @@ static uint32_t ms_to_top(uint64_t clk_hz, uint32_t timeout_ms)
     return top;
 }
 
+/*
+    Function: top_to_ms
+*/
 static uint32_t top_to_ms(uint64_t clk_hz, uint8_t top)
 {
     uint64_t timeout_ms;

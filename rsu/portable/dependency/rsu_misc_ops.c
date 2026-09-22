@@ -6,6 +6,12 @@
  * HAL layer for RSU miscellaneous operations
  */
 
+/*
+    File: RSU Misc Ops Library Implementation
+
+    HAL layer for RSU miscellaneous operations.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -38,6 +44,9 @@ extern sdm_client_handle_t rsu_client;
 extern flash_handle_t rsu_rtos_qspi_handle;
 extern osal_semaphore_t rsu_sem;
 
+/*
+    Function: rsu_get_dcmf_status
+*/
 static RSU_OSAL_INT rsu_get_dcmf_status(struct rsu_dcmf_status *data)
 {
     uint32_t *rsu_status_resp;
@@ -120,6 +129,9 @@ static RSU_OSAL_INT rsu_get_dcmf_status(struct rsu_dcmf_status *data)
     return 0;
 }
 
+/*
+    Function: rsu_get_dcmf_version
+*/
 static RSU_OSAL_INT rsu_get_dcmf_version(struct rsu_dcmf_version *version)
 {
     int status;
@@ -175,6 +187,11 @@ static RSU_OSAL_INT rsu_get_dcmf_version(struct rsu_dcmf_version *version)
     return 0;
 }
 
+/*
+    Function: rsu_get_max_retry_count
+
+    Calls <flash_read_sync>.
+*/
 static RSU_OSAL_INT rsu_get_max_retry_count(RSU_OSAL_U8 *rsu_max_retry)
 {
     if (rsu_max_retry == NULL)
@@ -203,6 +220,9 @@ static RSU_OSAL_INT rsu_get_max_retry_count(RSU_OSAL_U8 *rsu_max_retry)
     return 0;
 }
 
+/*
+    Function: terminate
+*/
 static RSU_OSAL_INT terminate(RSU_OSAL_VOID)
 {
     return 0;

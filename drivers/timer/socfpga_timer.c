@@ -6,6 +6,12 @@
  * HAL driver implementation for timer
  */
 
+/*
+    File: Timer Driver Implementation
+
+    HAL driver implementation for timer.
+*/
+
  #include <errno.h>
 #include "socfpga_timer.h"
 #include "socfpga_timer_reg.h"
@@ -41,6 +47,9 @@ static struct timer_context timer_descriptor[TIMER_NUM_INSTANCE];
 
 void timer_irq_handler(void *data);
 
+/*
+    Function: timer_get_rst_instance
+*/
 static reset_periphrl_t timer_get_rst_instance (timer_instance_t instance)
 {
     reset_periphrl_t rst_instance = RST_PERIPHERAL_END;
@@ -65,7 +74,12 @@ static reset_periphrl_t timer_get_rst_instance (timer_instance_t instance)
     return rst_instance;
 }
 
-/* Convert microsecond delay to tick value */
+/*
+    Function: timer_us_to_ticks
+
+    Convert microsecond delay to tick value
+*/
+
 static inline uint32_t timer_us_to_ticks(uint32_t clk_hz, uint32_t time_us)
 {
     uint64_t ticks = (((uint64_t)clk_hz) * ((uint64_t)time_us));
@@ -374,6 +388,11 @@ int32_t timer_set_callback(timer_handle_t const htimer,
     return 0;
 }
 
+/*
+    Function: timer_irq_handler
+
+    Calls RD_REG32 and callback_func.
+*/
 void timer_irq_handler(void *data)
 {
     uint32_t val;

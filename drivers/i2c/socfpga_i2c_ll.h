@@ -6,6 +6,26 @@
  * Header file for i2c ll driver
  */
 
+/*
+    File: I2C Low-Level Driver
+
+    Header file for i2c ll driver.
+*/
+
+/*
+    Constants: I2C constants
+
+    MAX_I2C_INSTANCES - Max number of i2c instances.
+    I2C_NO_INT        - Value: 0U.
+    I2C_TX_EMPTY_INT  - Tx FIFO Empty interrupt.
+    I2C_RX_FULL_INT   - Rx FIFO Full interrupt.
+    I2C_TX_ABORT_INT  - Tx Abort interrupt.
+    I2C_STOP_DET_INT  - Stop detected interrupt.
+    I2C_RD_REQ_INT    - Read request interrupt (slave mode).
+    I2C_RX_OVER_INT   - Rx FIFO overflow interrupt.
+    I2C_FIFO_DEPTH    - I2C TX/RX FIFO depth (entries).
+*/
+
 #ifndef __SOCFPGA_I2C_LL_H__
 #define __SOCFPGA_I2C_LL_H__
 
@@ -15,15 +35,15 @@
 /*Max number of i2c instances*/
 #define MAX_I2C_INSTANCES   5U
 
-#define I2C_NO_INT          0U           /*!< No interrupt */
-#define I2C_TX_EMPTY_INT    1U           /*!< Tx FIFO Empty interrupt */
-#define I2C_RX_FULL_INT     2U           /*!< Rx FIFO Full interrupt */
-#define I2C_TX_ABORT_INT    4U           /*!< Tx Abort interrupt */
-#define I2C_STOP_DET_INT    8U           /*!< Stop detected interrupt */
-#define I2C_RD_REQ_INT      16U          /*!< Read request interrupt (slave mode) */
-#define I2C_RX_OVER_INT     32U          /*!< Rx FIFO overflow interrupt */
+#define I2C_NO_INT          0U           /* No interrupt */
+#define I2C_TX_EMPTY_INT    1U           /* Tx FIFO Empty interrupt */
+#define I2C_RX_FULL_INT     2U           /* Rx FIFO Full interrupt */
+#define I2C_TX_ABORT_INT    4U           /* Tx Abort interrupt */
+#define I2C_STOP_DET_INT    8U           /* Stop detected interrupt */
+#define I2C_RD_REQ_INT      16U          /* Read request interrupt (slave mode) */
+#define I2C_RX_OVER_INT     32U          /* Rx FIFO overflow interrupt */
 
-#define I2C_FIFO_DEPTH      64U         /*!< I2C TX/RX FIFO depth (entries) */
+#define I2C_FIFO_DEPTH      64U         /* I2C TX/RX FIFO depth (entries) */
 
 void i2c_enable_interrupt(uint32_t base_addr, uint32_t interrupt_req);
 

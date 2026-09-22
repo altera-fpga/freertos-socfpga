@@ -28,6 +28,13 @@
  * HAL driver implementation for PHY. Modified for SoC FPGA
  */
 
+/*
+    File: Ethernet XGMAC PHY Driver Implementation
+
+    Driver for the Ethernet XGMAC PHY: 9 functions, 4 of them local to this
+    file.
+*/
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +56,12 @@ static Basetype_t phy_set_parameters(uint32_t base_address, xgmac_phy_config_t *
 static Basetype_t phy_set_adv_cap(uint32_t base_address, xgmac_phy_config_t *pphy_config);
 static Basetype_t phy_reset(uint32_t base_address, xgmac_phy_config_t *pphy_config);
 
-/* Function to check the validity of the PHY ID */
+/*
+    Function: is_phy_id_valid
+
+    Function to check the validity of the PHY ID
+*/
+
 static bool is_phy_id_valid(uint32_t ulreg_val)
 {
     if ((ulreg_val != (uint16_t)~0U) && (ulreg_val != (uint16_t)0U))
@@ -215,6 +227,9 @@ int32_t xgmac_update_xgmac_speed_mode(xgmac_handle_t hxgmac, xgmac_phy_config_t 
     return 0;
 }
 
+/*
+    Function: phy_set_parameters
+*/
 static Basetype_t phy_set_parameters(uint32_t base_address, xgmac_phy_config_t *pphy_config)
 {
     uint32_t data;
@@ -341,6 +356,11 @@ static Basetype_t phy_set_parameters(uint32_t base_address, xgmac_phy_config_t *
     return true;
 }
 
+/*
+    Function: phy_set_adv_cap
+
+    Calls <write_phy_reg> and INFO.
+*/
 static Basetype_t phy_set_adv_cap(uint32_t base_address, xgmac_phy_config_t *pphy_config)
 {
     uint32_t adv;
@@ -379,6 +399,11 @@ static Basetype_t phy_set_adv_cap(uint32_t base_address, xgmac_phy_config_t *pph
     return true;
 }
 
+/*
+    Function: phy_reset
+
+    Calls <read_phy_reg> and <write_phy_reg>.
+*/
 static Basetype_t phy_reset(uint32_t base_address, xgmac_phy_config_t *pphy_config)
 {
     uint32_t data;

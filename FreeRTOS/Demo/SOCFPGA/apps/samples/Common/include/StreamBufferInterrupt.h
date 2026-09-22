@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Stream Buffer Interrupt
+
+    Declares the Stream Buffer Interrupt interface: 3 functions.
+
+    They are vBasicStreamBufferSendFromISR, vStartStreamBufferInterruptDemo
+    and xIsInterruptStreamBufferDemoStillRunning.
+*/
+
 #ifndef STREAM_BUFFER_INTERRUPT_H
 #define STREAM_BUFFER_INTERRUPT_H
 

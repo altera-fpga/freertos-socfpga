@@ -6,41 +6,33 @@
  * Sample application for fpga manager
  */
 
-/**
- * @file fpga_manager_sample.c
- * @brief Sample Application for fpga manager.
- */
+/*
+    File: FPGA Manager Sample
 
-/**
- * @defgroup fpga_manager_sample FPGA Manager - Fabric Configuration
- * @ingroup samples
- *
- * Sample Application for fpga manager.
- *
- * @details
- * @section fpga_mngr_desc Description
- * This is a sample application to demonstrate the use of the fpga manager to
- * configure the fpga. The fpga manager loads the rbf bitstream data to the
- * fpga fabric via the SDM. It also demonstrates the use of fpga partial
- * reconfiguration after completing the fpga configuration.
- *
- * @section fpga_mngr_pre Prerequisites
- * The required rbf file should be available in the sdmmc before running the sample.
- * By default, the name of the rbf file is core.rbf. If a different rbf file is used,
- * modify the @c RBF_FILENAME macro with the new rbf name to be used.
- *
- * @section fpga_mngr_how_to How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Copy all the required rbf file to the SD card, and run the sample. <br>
- *
- * @note File names should conform to the 8.3 format (maximum 8 characters for the name
- * and 3 for the extension).
- *
- * @section fpga_mngr_res Expected Results
- * The success/failure logs are displayed in the console.
- * @{
- */
-/** @} */
+    Sample application for the FPGA Manager: 1 function, local to this file.
+    Group: Description
+
+    This is a sample application to demonstrate the use of the fpga manager to
+    configure the fpga. The fpga manager loads the rbf bitstream data to the
+    fpga fabric via the SDM. It also demonstrates the use of fpga partial
+    reconfiguration after completing the fpga configuration.
+
+    Group: Prerequisites
+
+    The required rbf file should be available in the sdmmc before running the
+    sample. By default, the name of the rbf file is core.rbf. If a different
+    rbf file is used, modify the RBF_FILENAME macro with the new rbf name to
+    be used.
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Copy all the required rbf file to the SD card, and run the sample.
+
+    Group: Expected Results
+
+    The success/failure logs are displayed in the console.
+*/
 
 #include <stdio.h>
 #include "socfpga_mmc.h"
@@ -52,6 +44,9 @@
 
 void partial_reconfiguration_sample(void);
 
+/*
+    Function: fpga_manager_task
+*/
 void fpga_manager_task(void)
 {
     uint8_t *rbf_ptr;

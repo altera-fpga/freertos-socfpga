@@ -6,6 +6,12 @@
  * Implementation of interrupt APIs for SoC FPGA
  */
 
+/*
+    File: GIC Interrupt Driver Implementation
+
+    Implements the GIC Interrupt driver: 9 functions, 1 of them local to
+    this file.
+*/
 
 #include "socfpga_interrupt.h"
 #include "arm_gic.h"
@@ -23,6 +29,11 @@
 #define SOCFPGA_SPI_START    SDM_APS_MAILBOX_INTR
 #define SOCFPGA_MAX_SPI      MAX_HPU_SPI_INTERRUPT
 
+/*
+    Struct: interrupt_handler_t
+
+    Handler for the GIC Interrupt driver, holding callback and data. Declared as interrupt_callbacks[] in socfpga_interrupt.c.
+*/
 typedef struct
 {
     socfpga_interrupt_callback_t callback;
@@ -65,9 +76,9 @@ void interrupt_enable_core_redis(void)
     gic_reg_enable_group1_interrupts();
 }
 
-/**
- * @brief    Initializes the GIC600 interrupt controller.
- */
+/*
+    Initializes the GIC600 interrupt controller.
+*/
 void interrupt_init_gic(void)
 {
     /* Enable GIC. */
@@ -207,10 +218,11 @@ socfpga_interrupt_err_t interrupt_register_isr(socfpga_hpu_interrupt_t id,
 }
 
 /*
- * @func  : vInterruptIRQHandler
-   @brief : The IRQ interrupt handler. This function will determine the IRQ handler based on the interrupt ID.
-   @param : interrupt_id -> interruptID
- */
+    Function: interrupt_irq_handler
+
+    : The IRQ interrupt handler. This function will determine the IRQ handler
+    based on the interrupt ID.
+*/
 
 void interrupt_irq_handler(unsigned int interrupt_id)
 {

@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Poll Q Implementation
+
+    This version of PollQ.c is for use on systems that have limited stack space and no display facilities.
+*/
+
+/*
  * This version of PollQ. c is for use on systems that have limited stack
  * space and no display facilities.  The complete version can be found in
  * the Demo/Common/Full directory.
@@ -108,6 +114,11 @@ void vStartPolledQueueTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vPolledQueueProducer
+
+    Calls xQueueSend, portENTER_CRITICAL, portEXIT_CRITICAL and vTaskDelay.
+*/
 static portTASK_FUNCTION( vPolledQueueProducer, pvParameters )
 {
     uint16_t usValue = ( uint16_t ) 0;
@@ -147,6 +158,9 @@ static portTASK_FUNCTION( vPolledQueueProducer, pvParameters )
 } /*lint !e818 Function prototype must conform to API. */
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vPolledQueueConsumer
+*/
 static portTASK_FUNCTION( vPolledQueueConsumer, pvParameters )
 {
     uint16_t usData, usExpectedValue = ( uint16_t ) 0;

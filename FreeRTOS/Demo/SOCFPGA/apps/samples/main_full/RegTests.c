@@ -24,6 +24,12 @@
  *
  */
 
+/*
+    File: Reg Tests Implementation
+
+    Implements the Reg Tests: 6 functions, 4 of them local to this file.
+*/
+
 /* Scheduler include files. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -51,6 +57,14 @@ static volatile uint64_t ulRegisterTest4Counter = 0;
 
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRegisterTest1Task
+
+    Tasks that implement register tests.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvRegisterTest1Task( void * pvParameters )
 {
     ( void ) pvParameters;
@@ -270,6 +284,9 @@ static void prvRegisterTest1Task( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRegisterTest2Task
+*/
 static void prvRegisterTest2Task( void * pvParameters )
 {
     ( void ) pvParameters;
@@ -434,6 +451,9 @@ static void prvRegisterTest2Task( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRegisterTest3Task
+*/
 static void prvRegisterTest3Task( void * pvParameters )
 {
     ( void ) pvParameters;
@@ -594,6 +614,9 @@ static void prvRegisterTest3Task( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRegisterTest4Task
+*/
 static void prvRegisterTest4Task( void * pvParameters )
 {
     ( void ) pvParameters;

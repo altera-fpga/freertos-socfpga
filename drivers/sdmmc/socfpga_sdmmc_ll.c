@@ -6,6 +6,12 @@
  * Low level driver implementation for SoC FPGA SDMMC
  */
 
+/*
+    File: SD/MMC Low-Level Driver Implementation
+
+    Low level driver implementation for SoC FPGA SDMMC.
+*/
+
 #include <stdint.h>
 #include "osal_log.h"
 #include "socfpga_cache.h"
@@ -85,9 +91,9 @@ static void config_phy_xfer_params(void);
 static void sdmmc_enable_cmd_int(void);
 static void sdmmc_enable_xfer_int(void);
 
-/**
- * @brief Set up the command parameters and send the command to the card.
- */
+/*
+    Set up the command parameters and send the command to the card.
+*/
 int32_t sdmmc_send_command(const cmd_parameters_t *params)
 {
     uint32_t count = 0;
@@ -175,9 +181,9 @@ int32_t sdmmc_send_command(const cmd_parameters_t *params)
     return CMD_SND_OK;
 }
 
-/**
- * @brief Configure the host for data transmission and reception.
- */
+/*
+    Configure the host for data transmission and reception.
+*/
 void sdmmc_set_xfer_config(cmd_parameters_t const *params)
 {
     uint32_t srs11_reg_value = 0;
@@ -233,9 +239,9 @@ void sdmmc_set_xfer_config(cmd_parameters_t const *params)
     }
 }
 
-/**
- * @brief Set up DMA attributes.
- */
+/*
+    Set up DMA attributes.
+*/
 void sdmmc_set_up_xfer(dma_descriptor_t *pdesc, uint64_t *buff,
         uint32_t block_size, uint32_t block_ct)
 {
@@ -281,9 +287,9 @@ void sdmmc_set_up_xfer(dma_descriptor_t *pdesc, uint64_t *buff,
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS01, val);
 }
 
-/**
- * @brief Initialize sdmmc host configuration
- */
+/*
+    Initialize sdmmc host configuration
+*/
 void sdmmc_init_configs(uint32_t emmc_bus_width, uint32_t def_speed)
 {
     uint32_t srs10_reg_value = 0;
@@ -328,9 +334,9 @@ void sdmmc_init_configs(uint32_t emmc_bus_width, uint32_t def_speed)
     config_phy_xfer_params();
 }
 
-/**
- * @brief Parse and read relative card address from the response.
- */
+/*
+    Parse and read relative card address from the response.
+*/
 void sd_read_response_rel_addr(card_data_t *pxcard)
 {
     uint32_t srs04_reg_value = 0;
@@ -338,9 +344,9 @@ void sd_read_response_rel_addr(card_data_t *pxcard)
     pxcard->relative_address = ((uint64_t)srs04_reg_value >> 16U) & 0xFFFFUL;
 }
 
-/**
- * @brief Reset all sdmmc host configurations.
- */
+/*
+    Reset all sdmmc host configurations.
+*/
 int32_t sdmmc_reset_configs(void)
 {
     uint32_t count = 0;
@@ -370,9 +376,9 @@ int32_t sdmmc_reset_configs(void)
     return CTRL_CONFIG_PASS;
 }
 
-/**
- * @brief Configure the sdmmc combo-phy
- */
+/*
+    Configure the sdmmc combo-phy
+*/
 int32_t sdmmc_init_phy(void)
 {
     uint32_t reg_value;
@@ -411,9 +417,12 @@ int32_t sdmmc_init_phy(void)
 
 }
 
-/**
- * @brief Program phy registers.
- */
+/*
+    Function: program_reg
+
+    Program phy registers.
+*/
+
 static void program_reg(uint32_t val, uint32_t reg_add)
 {
     reg_add &= REG_ADD_LSB_MASK;
@@ -421,9 +430,12 @@ static void program_reg(uint32_t val, uint32_t reg_add)
     WR_REG32(HRS_BASE_ADDR + SDMMC_HRS05, val);
 }
 
-/**
- * @brief Reset all dll registers.
- */
+/*
+    Function: reset_dll
+
+    Reset all dll registers.
+*/
+
 static int32_t reset_dll(void)
 {
     uint32_t reg_val;
@@ -448,9 +460,12 @@ static int32_t reset_dll(void)
     return CTRL_CONFIG_PASS;
 }
 
-/**
- * @brief Program host configuration for cmd/xfer.
- */
+/*
+    Function: prgm_host_config
+
+    Program host configuration for cmd/xfer.
+*/
+
 static void prgm_host_config(void)
 {
     uint32_t reg_val;
@@ -476,9 +491,9 @@ static void prgm_host_config(void)
     WR_REG32(HRS_BASE_ADDR + SDMMC_HRS10, reg_val);
 }
 
-/**
- * @brief Calculate the sector count of the sd card.
- */
+/*
+    Calculate the sector count of the sd card.
+*/
 uint64_t sdmmc_read_sector_count(void)
 {
     /*C_SIZE is parsed from bit 40 to 61*/
@@ -499,9 +514,9 @@ uint64_t sdmmc_read_sector_count(void)
     return sector_count;
 }
 
-/**
- * @brief Reset the sdmmc peripherel.
- */
+/*
+    Reset the sdmmc peripherel.
+*/
 int32_t sdmmc_reset_per0(void)
 {
     uint32_t reg_add_val;
@@ -589,9 +604,12 @@ int32_t sdmmc_reset_per0(void)
     return CTRL_CONFIG_PASS;
 }
 
-/**
- * @brief Enable the extended read,write and command mode.
- */
+/*
+    Function: config_phy_xfer_params
+
+    Enable the extended read,write and command mode.
+*/
+
 static void config_phy_xfer_params(void)
 {
     uint32_t hrs09_reg_val;
@@ -609,9 +627,9 @@ static void config_phy_xfer_params(void)
     WR_REG32(HRS_BASE_ADDR + SDMMC_HRS09, hrs09_reg_val);
 }
 
-/**
- * @brief Parse the response and check if the card is ready.
- */
+/*
+    Parse the response and check if the card is ready.
+*/
 uint32_t sdmmc_is_card_ready(void)
 {
     uint32_t card_read_status = (RD_REG32(SRS_BASE_ADDR + SDMMC_SRS04) &
@@ -620,9 +638,9 @@ uint32_t sdmmc_is_card_ready(void)
     return card_read_status;
 }
 
-/**
- * @brief Parse the response and check the card type.
- */
+/*
+    Parse the response and check the card type.
+*/
 void sd_get_card_type(card_data_t *pxcard)
 {
     pxcard->card_type = ((RD_REG32(SRS_BASE_ADDR + SDMMC_SRS04) &
@@ -630,53 +648,59 @@ void sd_get_card_type(card_data_t *pxcard)
             ? SDHC_DETECTED : SDSC_DETECTED;
 }
 
-/**
- * @brief Enable command interrupts.
- */
+/*
+    Function: sdmmc_enable_cmd_int
+
+    Enable command interrupts.
+*/
+
 static void sdmmc_enable_cmd_int(void)
 {
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS14, EN_CMD_INT);
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS13, EN_CMD_INT);
 }
 
-/**
- * @brief Enable transaction interrupts.
- */
+/*
+    Function: sdmmc_enable_xfer_int
+
+    Enable transaction interrupts.
+*/
+
 static void sdmmc_enable_xfer_int(void)
 {
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS14, EN_XFER_INT);
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS13, EN_XFER_INT);
 }
 
-/**
- * @brief Clear sdmmc interrupt flags.
- */
+/*
+    Clear sdmmc interrupt flags.
+*/
 void sdmmc_clear_int(void)
 {
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS14, CLEAR_INT);
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS13, CLEAR_INT);
 }
 
-/**
- * @brief Read interrupt status register.
- */
+/*
+    Read interrupt status register.
+*/
 uint32_t sdmmc_get_int_status(void)
 {
     return RD_REG32(SRS_BASE_ADDR + SDMMC_SRS12);
 }
 
-/**
- * @brief Disable interrupts for data and response triggers.
- */
+/*
+    Disable interrupts for data and response triggers.
+*/
 void sdmmc_disable_int(void)
 {
     WR_REG32(SRS_BASE_ADDR + SDMMC_SRS12, CLEAR_INT);
 }
 
 
-/**
- * @brief Check if the SD/eMMC card detected.
- */
+/*
+    Check if the SD/eMMC card detected.
+*/
 uint32_t sdmmc_is_card_detected(void)
 {
     /*INFO:sdmmc_is_card_detected is used to check if the card is detected or not.

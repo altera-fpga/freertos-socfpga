@@ -11,37 +11,39 @@
 #include <task.h>
 #include "socfpga_i2c.h"
 
-/**
- * @defgroup i2c_sample I2C
- * @ingroup samples
- *
- * Sample application for I2C driver
- *
- * @details
- * @section i2c_desc Description
- * This sample application demonstrates the use of the I2C driver to
- * communicate with an EEPROM device over the I2C bus. It writes a block
- * of N bytes to a specific memory address in the EEPROM and then reads
- * back the same.
- *
- * @section i2c_pre Prerequisites
- * - The NAND daughter card shall be used.
- * - An EEPROM device must be connected to the I2C bus.
- *
- * @section i2c_param Configurable Parameters
- * - The I2C bus instance can be configured in @c I2CBUS macro.
- * - The I2C slave address can be configured in @c DEV_ADDR macro.
- * - The memory address in EEPROM can be configured in @c MEM_ADDR macro.
- * - The number of bytes to write and read back can be configured in @c NUM_TEST_BYTES macro.
- *
- * @section i2c_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board.
- * 3. Observe the results in the console
- *
- * @section i2c_result Expected Results
- * - The write and read data are verified and a success message is displayed.
- */
+/*
+    File: I2C Sample
+
+    Sample application for I2C driver
+    Group: Description
+
+    This sample application demonstrates the use of the I2C driver to
+    communicate with an EEPROM device over the I2C bus. It writes a block of N
+    bytes to a specific memory address in the EEPROM and then reads back the
+    same.
+
+    Group: Prerequisites
+
+    - The NAND daughter card shall be used.
+    - An EEPROM device must be connected to the I2C bus.
+
+    Group: Configurable Parameters
+
+    - The I2C bus instance can be configured in I2CBUS macro.
+    - The I2C slave address can be configured in DEV_ADDR macro.
+    - The memory address in EEPROM can be configured in MEM_ADDR macro.
+    - The number of bytes to write and read back can be configured in NUM_TEST_BYTES macro.
+
+    Group: How to Run
+
+    - Follow the common README instructions to build and flash the application.
+    - Run the application on the board.
+    - Observe the results in the console
+
+    Group: Expected Results
+
+    - The write and read data are verified and a success message is displayed.
+*/
 
 /* Test configuration parameters */
 
@@ -64,11 +66,14 @@
 static uint8_t wbuf[MEM_ADDR_SZ + NUM_TEST_BYTES];
 static uint8_t rbuf[NUM_TEST_BYTES];
 
-/**
- * @brief fill the buffer with an incremental pattern
- *
- * Fills buf with nbytes of incremental pattern starting with start_num
- */
+/*
+    Function: fill_buf
+
+    fill the buffer with an incremental pattern
+
+    Fills buf with nbytes of incremental pattern starting with start_num
+*/
+
 
 static void fill_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 {
@@ -79,13 +84,18 @@ static void fill_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
     }
 }
 
-/**
- * @brief verify the buffer contains and incremental pattern
- *
- * Verifies that buf contains an incremental pattern starting with start_num
- *
- * @return 0 on success -1 otherwise
- */
+/*
+    Function: verify_buf
+
+    verify the buffer contains and incremental pattern
+
+    Verifies that buf contains an incremental pattern starting with start_num
+
+    Returns:
+
+    0 on success -1 otherwise
+*/
+
 static int verify_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 {
     int ret = 0;
@@ -103,6 +113,9 @@ static int verify_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
     return ret;
 }
 
+/*
+    Function: i2c_task
+*/
 void i2c_task(void)
 {
     int retval = 0;

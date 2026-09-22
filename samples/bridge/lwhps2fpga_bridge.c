@@ -6,6 +6,20 @@
  * Implementation of LWHPS2FPGA bridge sample application
  */
 
+/*
+    File: Bridge Lwhps2fpga Sample
+
+    Implementation of LWHPS2FPGA bridge sample application.
+*/
+
+/*
+    Constants: Bridge Lwhps2fpga constants
+
+    LED_ON     - Value: (1U).
+    LED_OFF    - Value: (0U).
+    LED_SAMPLE - Enable this macro to run the LED toggling sample.
+*/
+
 #include "bridge_sample.h"
 #include "osal_log.h"
 #include "socfpga_defines.h"
@@ -16,6 +30,9 @@
 /* Enable this macro to run the LED toggling sample */
 #define LED_SAMPLE    (0)
 
+/*
+    Function: lwhps2fpga_bridge_sample
+*/
 int lwhps2fpga_bridge_sample(void)
 {
     uint64_t *write_ptr;

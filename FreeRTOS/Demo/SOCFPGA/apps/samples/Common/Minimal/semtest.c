@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Semtest Implementation
+
+    Creates two sets of two tasks.
+*/
+
+/*
  * Creates two sets of two tasks.  The tasks within a set share a variable, access
  * to which is guarded by a semaphore.
  *
@@ -71,7 +77,11 @@
 /* The task function as described at the top of the file. */
 static portTASK_FUNCTION_PROTO( prvSemaphoreTest, pvParameters );
 
-/* Structure used to pass parameters to each task. */
+/*
+    Struct: xSemaphoreParameters
+
+    Structure used to pass parameters to each task. Declared as pxFirstSemaphoreParameters in semtest.c.
+*/
 typedef struct SEMAPHORE_PARAMETERS
 {
     SemaphoreHandle_t xSemaphore;
@@ -156,6 +166,9 @@ void vStartSemaphoreTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSemaphoreTest
+*/
 static portTASK_FUNCTION( prvSemaphoreTest, pvParameters )
 {
     xSemaphoreParameters * pxParameters;

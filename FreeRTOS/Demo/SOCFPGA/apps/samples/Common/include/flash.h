@@ -24,6 +24,12 @@
  *
  */
 
+/*
+    File: Flash
+
+    Declares the Flash interface: 1 function.
+*/
+
 #ifndef FLASH_LED_H
 #define FLASH_LED_H
 

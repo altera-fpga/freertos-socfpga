@@ -6,37 +6,32 @@
  * Sample application for SoC FPGA sdmmc
  */
 
-/**
- * @file sdmmc_sample.c
- * @brief Sample Application for sdmmc operations.
- */
+/*
+    File: SD/MMC Sample
 
-/**
- * @defgroup sdmmc_rw_sample SD/eMMC
- * @ingroup samples
- *
- * Sample Application for SD/eMMC Block Read/Write Validation
- *
- * @details
- * @section sdmmc_des Description
- * This sample demonstrates the use of the SD/eMMC driver to perform block-level
- * read and write operations. It writes a pattern of data to a specified logical
- * block address (LBA), reads it back from the same address, and verifies the
- * correctness of the data.
- *
- * @section sdmmc_pre Prerequisites
- * - An SD card or eMMC device is present in the system
- *
- * @section sdmmc_howto How to Run
- * - Follow the common README for build and flashing instructions.
- *
- * @section sdmmc_res Expected Results
- * - Data write to SD/eMMC is successful.
- * - Data read back matches the originally written pattern.
- *
- * @{
- */
-/** @} */
+    Sample Application for sdmmc operations.
+
+    Sample Application for SD/eMMC Block Read/Write Validation
+    Group: Description
+
+    This sample demonstrates the use of the SD/eMMC driver to perform
+    block-level read and write operations. It writes a pattern of data to a
+    specified logical block address (LBA), reads it back from the same
+    address, and verifies the correctness of the data.
+
+    Group: Prerequisites
+
+    - An SD card or eMMC device is present in the system
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+
+    Group: Expected Results
+
+    - Data write to SD/eMMC is successful.
+    - Data read back matches the originally written pattern.
+*/
 
 
 #include <string.h>
@@ -67,12 +62,22 @@ static uint8_t write_buffer[BLK_SIZE * BLK_CNT];
 static uint8_t read_buffer[BLK_SIZE * BLK_CNT];
 
 #if !USE_SYNC
+/*
+    Function: sdmmc_cb
+
+    Calls osal_semaphore_post.
+*/
 static void sdmmc_cb(int32_t state)
 {
     xfer_resp = state;
     osal_semaphore_post(xfer_lock);
 }
 
+/*
+    Function: wait_xfer_done
+
+    Calls osal_semaphore_wait.
+*/
 static void wait_xfer_done()
 {
     osal_semaphore_wait(xfer_lock, OSAL_TIMEOUT_WAIT_FOREVER);
@@ -80,6 +85,9 @@ static void wait_xfer_done()
 #endif
 
 
+/*
+    Function: sdmmc_task
+*/
 void sdmmc_task(void)
 {
     int32_t status;

@@ -6,6 +6,15 @@
  * This contains the register defintions for SoC FPGA DMA
  */
 
+/*
+    File: DMA Registers
+
+    This contains the register defintions for SoC FPGA DMA.
+
+    The definitions fall into the DMA_CH1_*, DMA_CH2_*, DMA_CH3_*,
+    DMA_CH4_*, DMA_CH_* and DMA_DMAC_* families, plus 8 smaller groups.
+*/
+
 #ifndef __SOCFPGA_DMA_REG_H__
 #define __SOCFPGA_DMA_REG_H__
 

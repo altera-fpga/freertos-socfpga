@@ -13,6 +13,13 @@
 #include <stdbool.h>
 #include "xhci.h"
 
+/*
+    File: xHCI Endpoints Driver
+
+    Declares the xHCI Endpoints driver interface: 3 functions, 2 inline
+    functions and 22 constants.
+*/
+
 #define USB_EP_DIR_IN_MSK       (0x80U) /* !< Endpoint direction mask for xhci */
 #define USB_EP_DIR_OUT          (0U) /* !< OUT endpoint */
 #define USB_EP_DIR_IN           (1U) /* !< IN endpoint */
@@ -44,10 +51,19 @@
 #define MAX_TRB_LEN    (65536U)
 
 /*
- * @brief   get the endpoint direction
- * @param[in] ep_addr : endpoint address
- * @return  endpoint direction
- */
+    Function: get_endpoint_dir
+
+    get the endpoint direction
+
+    Parameters:
+
+    ep_addr - : endpoint address
+
+    Returns:
+
+    endpoint direction
+*/
+
 static inline uint8_t get_endpoint_dir(uint8_t ep_addr)
 {
     return (uint8_t)(((ep_addr &
@@ -55,42 +71,71 @@ static inline uint8_t get_endpoint_dir(uint8_t ep_addr)
 }
 
 /*
- * @brief   get the endpoint number
- * @param[in] ep_addr endpoint address
- * @return  endpoint number
- */
+    Function: get_endpoint_num
+
+    get the endpoint number
+
+    Parameters:
+
+    ep_addr - endpoint address
+
+    Returns:
+
+    endpoint number
+*/
+
 static inline uint8_t get_endpoint_num(uint8_t ep_addr)
 {
     return (uint8_t)(ep_addr & 0x3U);
 }
 
 /*
- * @brief   find the xhci device context index from the endpoint number
- * @param[in]  xhci_ptr -  endpoint address
- * @return  device context index
- */
+    Function: get_ep_dci
+
+    find the xhci device context index from the endpoint number
+
+    Parameters:
+
+        xhci_ptr - - endpoint address
+
+    Returns:
+
+        device context index
+*/
 uint8_t get_ep_dci(uint8_t ep_addr);
 
-/**
- * @brief  initialize the endpoint0 transfer ring for control transfers
- * @param[in]  xhci reference to xhci hcd structure
- * @param[in]  buffer reference to buffer to hold the control transfer data
- * @param[in]  setup_req reference to the USB control request
- */
+/*
+    Function: configure_setup_stage
+
+    initialize the endpoint0 transfer ring for control transfers
+
+    Parameters:
+
+        xhci - reference to xhci hcd structure
+        buffer - reference to buffer to hold the control transfer data
+        setup_req - reference to the USB control request
+*/
 void configure_setup_stage(struct xhci_data *xhci, void *buffer,
         usb_control_request_t *setup_req);
 
-/**
- * @brief  handle the bulk endpoint transfer
- * @param[in]  xhci reference to xhci hcd structure
- * @param[in]  ep_num endpoint number to initiate the transfer
- * @param[in]  dir endpoint direction
- * @param[in]  buffer reference to buffer to hold the control transfer data
- * @param[in]  buflen  number of bytes of data to transfer out/in
- * @return
- *  true  , on successful transfer
- *  false , on failure
- */
+/*
+    Function: endpoint_transfer
+
+    handle the bulk endpoint transfer
+
+    Parameters:
+
+        xhci - reference to xhci hcd structure
+        ep_num - endpoint number to initiate the transfer
+        dir - endpoint direction
+        buffer - reference to buffer to hold the control transfer data
+        buflen - number of bytes of data to transfer out/in
+
+    Returns:
+
+        true , on successful transfer
+        false , on failure
+*/
 bool endpoint_transfer(struct xhci_data *xhci, int ep_num, uint8_t dir,
         void *buffer, uint32_t buflen);
 

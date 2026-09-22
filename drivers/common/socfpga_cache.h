@@ -11,42 +11,61 @@
 #define __SOCFPGA_CACHE_H__
 #include <stddef.h>
 
-/**
- * @brief Force write-back of a specified cache region to main memory.
- *
- * This function ensures that any modified data in the specified cache
- * region is written back to main memory. It is useful in situations where
- * data coherence with other components, such as DMA devices, is required.
- *
- * @param[in] addr Starting address of the memory region.
- * @param[in] sz Size of the memory region, in bytes.
- */
+/*
+    File: Cache Driver
+
+    Declares the Cache driver interface: 3 functions.
+*/
+
+/*
+    Function: cache_force_write_back
+
+    Force write-back of a specified cache region to main memory.
+
+    This function ensures that any modified data in the specified cache region
+    is written back to main memory. It is useful in situations where data
+    coherence with other components, such as DMA devices, is required.
+
+    Parameters:
+
+        addr - Starting address of the memory region.
+        sz - Size of the memory region, in bytes.
+*/
 void cache_force_write_back(void *addr, size_t sz);
 
-/**
- * @brief Invalidate a specified cache region.
- *
- * This function invalidates a specified region of the cache, ensuring that
- * any subsequent access to this region will retrieve fresh data from main
- * memory. This is useful for preventing the use of stale data, particularly
- * after memory has been modified by an external device.
- *
- * @param[in] addr Starting address of the memory region.
- * @param[in] sz Size of the memory region, in bytes.
- */
+/*
+    Function: cache_force_invalidate
+
+    Invalidate a specified cache region.
+
+    This function invalidates a specified region of the cache, ensuring that
+    any subsequent access to this region will retrieve fresh data from main
+    memory. This is useful for preventing the use of stale data, particularly
+    after memory has been modified by an external device.
+
+    Parameters:
+
+        addr - Starting address of the memory region.
+        sz - Size of the memory region, in bytes.
+*/
 void cache_force_invalidate(void *addr, size_t sz);
 
-/**
- * @brief Flush a specified cache region by performing both write-back and invalidate.
- *
- * This function ensures that modified data in the specified region is written
- * back to main memory and then invalidates the cache. It guarantees data coherence
- * by making sure main memory holds the latest data and that future accesses reload
- * data from memory.
- *
- * @param[in] addr Starting address of the memory region.
- * @param[in] sz Size of the memory region, in bytes.
- */
+/*
+    Function: cache_flush
+
+    Flush a specified cache region by performing both write-back and
+    invalidate.
+
+    This function ensures that modified data in the specified region is
+    written back to main memory and then invalidates the cache. It guarantees
+    data coherence by making sure main memory holds the latest data and that
+    future accesses reload data from memory.
+
+    Parameters:
+
+        addr - Starting address of the memory region.
+        sz - Size of the memory region, in bytes.
+*/
 void cache_flush(void *addr, size_t sz);
 
 #endif

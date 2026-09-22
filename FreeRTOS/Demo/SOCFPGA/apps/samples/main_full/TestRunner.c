@@ -63,9 +63,17 @@
 #include "StreamBufferInterrupt.h"
 #include "RegTests.h"
 
-/**
- * Priorities at which the tasks are created.
- */
+/*
+    File: Test Runner Implementation
+
+    Implements the Test Runner: 3 functions, 2 of them local to this file.
+*/
+
+/*
+    Macro: testrunnerCHECK_TASK_PRIORITY
+
+    Priorities at which the tasks are created.
+*/
 #define testrunnerCHECK_TASK_PRIORITY         ( configMAX_PRIORITIES - 2 )
 #define testrunnerQUEUE_POLL_PRIORITY         ( tskIDLE_PRIORITY + 1 )
 #define testrunnerSEM_TEST_PRIORITY           ( tskIDLE_PRIORITY + 1 )
@@ -78,22 +86,26 @@
 #define testrunnerQUEUE_OVERWRITE_PRIORITY    ( tskIDLE_PRIORITY )
 #define testrunnerREGISTER_TEST_PRIORITY      ( tskIDLE_PRIORITY )
 
-/**
- * Period used in timer tests.
- */
+/*
+    Macro: testrunnerTIMER_TEST_PERIOD
+
+    Period used in timer tests.
+*/
 #define testrunnerTIMER_TEST_PERIOD           ( 50 )
 /*-----------------------------------------------------------*/
 
-/**
- * The variable into which error messages are latched.
- */
+/*
+    Variable: pcStatusMessage
+
+    The variable into which error messages are latched.
+*/
 static char * pcStatusMessage = "No errors";
 /*-----------------------------------------------------------*/
 
-/**
- * The task that periodically checks that all the standard demo tasks are
- * still executing and error free.
- */
+/*
+    The task that periodically checks that all the standard demo tasks are
+    still executing and error free.
+*/
 static void prvCheckTask( void * pvParameters );
 /*-----------------------------------------------------------*/
 
@@ -270,6 +282,15 @@ BaseType_t xResult;
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vApplicationTickHook
+
+    Tick hook, called by the kernel from the RTOS tick interrupt.
+
+    It runs in an interrupt context on every tick, so it must return quickly
+    and may only use the interrupt-safe API. FreeRTOS calls it only when
+    configUSE_TICK_HOOK is 1.
+*/
 void vApplicationTickHook( void )
 {
     #if ( configSTART_TASK_NOTIFY_TESTS == 1 )
@@ -341,6 +362,15 @@ void vApplicationTickHook( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvCheckTask
+
+    The task that periodically checks that all the standard demo tasks are
+    still executing and error free.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvCheckTask( void * pvParameters )
 {
     TickType_t xNextWakeTime;

@@ -1,10 +1,10 @@
-/**
- * SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
- *
- * SPDX-License-Identifier: MIT-0
- *
- * HAL driver implementation for I3C
- */
+/*
+    SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
+
+    SPDX-License-Identifier: MIT-0
+
+    HAL driver implementation for I3C
+*/
 
 #include <errno.h>
 #include <string.h>
@@ -32,17 +32,27 @@
     ((i3c_desc[(instance)].addr_allotment_table[(idx)] >> (pos)) & \
     ADDRESS_ENTRY_STATUS_MAX)
 
-/**
- * @brief I3C_CCC Common Command Codes (CCC)
- */
+/*
+    File: I3C Driver Implementation
+
+    Implements the I3C driver: 43 functions, 33 of them local to this file.
+*/
+
+/*
+    Macro: I3C_CCC_RSTDAA
+
+    I3C_CCC Common Command Codes (CCC)
+*/
 #define I3C_CCC_RSTDAA               (0x06U)
 #define I3C_CCC_RSTACT(broadcast)    ((broadcast) ? 0x2AU : 0x9AU)
 #define I3C_CCC_SETDASA              (0x87U)
 #define I3C_CCC_ENTDAA               (0x07U)
 
-/**
- * @brief I3C_CCC_Events Enable Events
- */
+/*
+    Macro: I3C_CCC_EVT_INTR
+
+    I3C_CCC_Events Enable Events
+*/
 #define I3C_CCC_EVT_INTR    ((uint32_t)1 << 0U)
 #define I3C_CCC_EVT_CR      ((uint32_t)1 << 1U)
 #define I3C_CCC_EVT_HJ      ((uint32_t)1 << 3U)
@@ -63,7 +73,12 @@
 #define I3C_DEVICE_ID_48_MASK    (0x0000FFFFFFFFFFFFULL)
 
 
-/* I3C Controller Instance object  */
+/*
+    Struct: i3c_descriptor
+
+    I3C Controller Instance object
+*/
+
 struct i3c_descriptor
 {
     uint8_t instance;
@@ -101,11 +116,16 @@ static bool i3c_isr_registered[I3C_NUM_INSTANCES] = { false };
 
 void i3c_isr(void *param);
 
-/**
- * @brief Delete OSAL primitives created for an I3C instance.
- *
- * @param[in] hi3c I3C handle.
- */
+/*
+    Function: i3c_delete_osal_primitives
+
+    Delete OSAL primitives created for an I3C instance.
+
+    Parameters:
+
+    hi3c - I3C handle.
+*/
+
 
 static void i3c_delete_osal_primitives(i3c_handle_t hi3c)
 {
@@ -127,14 +147,22 @@ static void i3c_delete_osal_primitives(i3c_handle_t hi3c)
     }
 }
 
-/**
- * @brief Detach a DAT entry for a device.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] pdevice_desc Device descriptor.
- * @param[in] addr Device address.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_detach_dat_entry
+
+    Detach a DAT entry for a device.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pdevice_desc - Device descriptor.
+    addr - Device address.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 
 static int32_t i3c_detach_dat_entry(uint8_t instance,
         struct i3c_device_desc *pdevice_desc, uint8_t addr)
@@ -152,13 +180,21 @@ static int32_t i3c_detach_dat_entry(uint8_t instance,
     return 0;
 }
 
-/**
- * @brief Process transfer response queue and aggregate status.
- *
- * @param[in] instance I3C controller instance.
- * @param[out] error Aggregated transfer status.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_process_xfer_response
+
+    Process transfer response queue and aggregate status.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    error - Aggregated transfer status.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_process_xfer_response(uint8_t instance, int32_t *error)
 {
     i3c_ll_cmd_response_t responses[I3C_MAX_XFER];
@@ -210,13 +246,21 @@ static int32_t i3c_process_xfer_response(uint8_t instance, int32_t *error)
     return 0;
 }
 
-/**
- * @brief Handle transfer completion actions for sync/async flow.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] error Aggregated transfer status.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_handle_xfer_complete
+
+    Handle transfer completion actions for sync/async flow.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    error - Aggregated transfer status.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_handle_xfer_complete(uint8_t instance, int32_t error)
 {
     if (instance >= I3C_NUM_INSTANCES)
@@ -257,12 +301,20 @@ static int32_t i3c_handle_xfer_complete(uint8_t instance, int32_t error)
     return 0;
 }
 
-/**
- * @brief Read transfer responses and complete sync/async transfer handling.
- *
- * @param[in] instance I3C controller instance.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_read_xfer_response
+
+    Read transfer responses and complete sync/async transfer handling.
+
+    Parameters:
+
+    instance - I3C controller instance.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_read_xfer_response(uint8_t instance)
 {
     int32_t error;
@@ -284,17 +336,25 @@ static int32_t i3c_read_xfer_response(uint8_t instance)
     return error;
 }
 
-/**
- * @brief Prepare transfer command metadata for sync/async operation.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] pcmd_payload Command payload array.
- * @param[in] num_cmds Number of commands.
- * @param[in] is_i2c True for I2C mode transfer.
- * @param[out] local_payload Local payload copy.
- * @param[out] dat_indices DAT indices for each command.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_prepare_transfer
+
+    Prepare transfer command metadata for sync/async operation.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pcmd_payload - Command payload array.
+    num_cmds - Number of commands.
+    is_i2c - True for I2C mode transfer.
+    local_payload - Local payload copy.
+    dat_indices - DAT indices for each command.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_prepare_transfer(uint8_t instance,
         struct i3c_cmd_payload *pcmd_payload, uint8_t num_cmds,
         bool is_i2c, struct i3c_cmd_payload *local_payload,
@@ -359,15 +419,23 @@ static int32_t i3c_prepare_transfer(uint8_t instance,
             local_payload, dat_indices, num_cmds, is_i2c);
 }
 
-/**
- * @brief Execute prepared transfer and collect sync results.
- *
- * @param[in] instance I3C controller instance.
- * @param[in,out] pcmd_payload Command payload array.
- * @param[in] num_cmds Number of commands.
- * @param[in] is_async True for async mode transfer.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_execute_transfer
+
+    Execute prepared transfer and collect sync results.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pcmd_payload - Command payload array.
+    num_cmds - Number of commands.
+    is_async - True for async mode transfer.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_execute_transfer(uint8_t instance,
         struct i3c_cmd_payload *pcmd_payload, uint8_t num_cmds,
         bool is_async)
@@ -409,16 +477,24 @@ static int32_t i3c_execute_transfer(uint8_t instance,
     return ret;
 }
 
-/**
- * @brief Build and submit transfer command(s) for sync or async operation.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] pcmd_payload Command payload array.
- * @param[in] num_cmds Number of commands.
- * @param[in] is_i2c True for I2C mode transfer.
- * @param[in] is_async True for async mode transfer.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_send_xfer_command
+
+    Build and submit transfer command(s) for sync or async operation.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pcmd_payload - Command payload array.
+    num_cmds - Number of commands.
+    is_i2c - True for I2C mode transfer.
+    is_async - True for async mode transfer.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_send_xfer_command(uint8_t instance,
         struct i3c_cmd_payload *pcmd_payload,
         uint8_t num_cmds, bool is_i2c, bool is_async)
@@ -437,14 +513,22 @@ static int32_t i3c_send_xfer_command(uint8_t instance,
     return i3c_execute_transfer(instance, pcmd_payload, num_cmds, is_async);
 }
 
-/**
- * @brief Prepare address assignment command for DASA/DAA flow.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] pcmd_payload Address assignment command payload.
- * @param[in] start_idx DAT start index for assignment flow.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_prepare_addr_assign
+
+    Prepare address assignment command for DASA/DAA flow.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pcmd_payload - Address assignment command payload.
+    start_idx - DAT start index for assignment flow.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_prepare_addr_assign(uint8_t instance,
         struct i3c_cmd_payload *pcmd_payload, uint32_t start_idx)
 {
@@ -474,12 +558,20 @@ static int32_t i3c_prepare_addr_assign(uint8_t instance,
     return 0;
 }
 
-/**
- * @brief Complete address assignment command and collect response.
- *
- * @param[in] instance I3C controller instance.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_complete_addr_assign
+
+    Complete address assignment command and collect response.
+
+    Parameters:
+
+    instance - I3C controller instance.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_complete_addr_assign(uint8_t instance)
 {
     int32_t ret;
@@ -496,14 +588,22 @@ static int32_t i3c_complete_addr_assign(uint8_t instance)
             (uint8_t)i3c_desc[instance].num_xfers);
 }
 
-/**
- * @brief Send address assignment command for DASA/DAA flow.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] pcmd_payload Address assignment command payload.
- * @param[in] start_idx DAT start index for assignment flow.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_execute_addr_assign
+
+    Send address assignment command for DASA/DAA flow.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pcmd_payload - Address assignment command payload.
+    start_idx - DAT start index for assignment flow.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_execute_addr_assign(uint8_t instance,
         struct i3c_cmd_payload *pcmd_payload, uint32_t start_idx)
 {
@@ -519,14 +619,22 @@ static int32_t i3c_execute_addr_assign(uint8_t instance,
 }
 
 
-/**
- * @brief Get the status of the entry in the Address allotment table corresponding
- *        to the I3C address specified.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @param[in] address   Address for which the status is inquired.
- * @return uint8_t      Entry in the location corresponding to the address.
- */
+/*
+    Function: get_addr_allotment_table_entry
+
+    Get the status of the entry in the Address allotment table corresponding
+    to the I3C address specified.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    address - Address for which the status is inquired.
+
+    Returns:
+
+    uint8_t Entry in the location corresponding to the address.
+*/
+
 static uint32_t get_addr_allotment_table_entry(uint8_t instance, uint8_t
         addr)
 {
@@ -543,14 +651,22 @@ static uint32_t get_addr_allotment_table_entry(uint8_t instance, uint8_t
 }
 
 
-/**
- * @brief Get the status of the entry in the Address allotment table corresponding
- *        to the I3C address specified.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @param[in] address   Address for which the status is inquired.
- * @return uint8_t      Entry in the location corresponding to the address.
- */
+/*
+    Function: get_next_free_addr_allotment_table_entry
+
+    Get the status of the entry in the Address allotment table corresponding
+    to the I3C address specified.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    address - Address for which the status is inquired.
+
+    Returns:
+
+    uint8_t Entry in the location corresponding to the address.
+*/
+
 static uint8_t get_next_free_addr_allotment_table_entry(uint8_t instance)
 {
     uint8_t addr;
@@ -572,14 +688,23 @@ static uint8_t get_next_free_addr_allotment_table_entry(uint8_t instance)
     return addr;
 }
 
-/**
- * @brief Initialize address allotment table.
- *
- * Reserve addresses 0x00-0x07, broadcast address 0x7E and reserved address 0x7F.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @return None.
- */
+/*
+    Function: i3c_init_addr_table
+
+    Initialize address allotment table.
+
+    Reserve addresses 0x00-0x07, broadcast address 0x7E and reserved address
+    0x7F.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+
+    Returns:
+
+    None.
+*/
+
 static void i3c_init_addr_table(uint8_t instance)
 {
     uint8_t idx, bit_index;
@@ -608,13 +733,22 @@ static void i3c_init_addr_table(uint8_t instance)
     return;
 }
 
-/**
- * @brief Get initial address for the device, preferring static or preferred dynamic addr, or find a free address.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @param[in] pdevice   Pointer to the device descriptor.
- * @return uint8_t      Initial (potential dynamic) address for the device.
- */
+/*
+    Function: i3c_prepare_addr
+
+    Get initial address for the device, preferring static or preferred dynamic
+    addr, or find a free address.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    pdevice - Pointer to the device descriptor.
+
+    Returns:
+
+    uint8_t Initial (potential dynamic) address for the device.
+*/
+
 static uint8_t i3c_prepare_addr(uint8_t instance,
         struct i3c_device *pdevice)
 {
@@ -657,12 +791,20 @@ static uint8_t i3c_prepare_addr(uint8_t instance,
 
 }
 
-/**
- * @brief Assign a free dynamic address to the controller.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @return 0          If the operation was successful.
- */
+/*
+    Function: i3c_assign_own_da
+
+    Assign a free dynamic address to the controller.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+
+    Returns:
+
+    0 If the operation was successful.
+*/
+
 static int32_t i3c_assign_own_da(uint8_t instance)
 {
     uint8_t addr, idx, bit_index;
@@ -687,14 +829,22 @@ static int32_t i3c_assign_own_da(uint8_t instance)
 }
 
 
-/**
- * @brief Remove device from controller and update address allotment table.
- *
- * @param[in] instance     Instance of the I3C controller.
- * @param[in] pdevice_desc  Pointer to the device descriptor.
- * @param[in] address      Address of the device.
- * @return 0             If the operation was successful.
- */
+/*
+    Function: i3c_detach_device
+
+    Remove device from controller and update address allotment table.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    pdevice_desc - Pointer to the device descriptor.
+    address - Address of the device.
+
+    Returns:
+
+    0 If the operation was successful.
+*/
+
 static int32_t i3c_detach_device(uint8_t instance,
         struct i3c_device_desc *pdevice_desc,
         uint8_t addr)
@@ -718,14 +868,22 @@ static int32_t i3c_detach_device(uint8_t instance,
     return ret;
 }
 
-/**
- * @brief Add device to controller and update address allotment table.
- *
- * @param[in] instance     Instance of the I3C controller.
- * @param[in] pdevice_desc  Pointer to the device descriptor.
- * @param[in] address      Address of the device.
- * @return 0               If the operation was successful.
- */
+/*
+    Function: i3c_attach_i2c_device
+
+    Add device to controller and update address allotment table.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    pdevice_desc - Pointer to the device descriptor.
+    address - Address of the device.
+
+    Returns:
+
+    0 If the operation was successful.
+*/
+
 static int32_t i3c_attach_i2c_device(uint8_t instance,
         struct i3c_device_desc *pdevice_desc,
         uint8_t addr)
@@ -751,14 +909,22 @@ static int32_t i3c_attach_i2c_device(uint8_t instance,
     return ret;
 }
 
-/**
- * @brief Add device to controller and update address allotment table.
- *
- * @param[in] instance     Instance of the I3C controller.
- * @param[in] pdevice_desc  Pointer to the device descriptor.
- * @param[in] address      Address of the device.
- * @return 0               If the operation was successful.
- */
+/*
+    Function: i3c_attach_i3c_device
+
+    Add device to controller and update address allotment table.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    pdevice_desc - Pointer to the device descriptor.
+    address - Address of the device.
+
+    Returns:
+
+    0 If the operation was successful.
+*/
+
 static int32_t i3c_attach_i3c_device(uint8_t instance,
         struct i3c_device_desc *pdevice_desc,
         uint8_t addr)
@@ -783,14 +949,22 @@ static int32_t i3c_attach_i3c_device(uint8_t instance,
     return ret;
 }
 
-/**
- * @brief Add devices to the driver object for DASA and DAA checks.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @param[in] pdev_list  Pointer to the device list.
- * @return 0            If the operation was successful.
- * @return -EINVAL      If arguments were incorrect.
- */
+/*
+    Function: i3c_add_devices
+
+    Add devices to the driver object for DASA and DAA checks.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    pdev_list - Pointer to the device list.
+
+    Returns:
+
+    0 If the operation was successful.
+    -EINVAL If arguments were incorrect.
+*/
+
 static int32_t i3c_add_devices(uint8_t instance, struct i3c_dev_list *pdev_list)
 {
     int32_t ret = 0;
@@ -870,12 +1044,20 @@ static int32_t i3c_add_devices(uint8_t instance, struct i3c_dev_list *pdev_list)
     return ret;
 }
 
-/**
- * @brief Select the DASA dynamic address for a static-address device.
- *
- * @param[in] desc I3C device descriptor.
- * @return Dynamic address candidate, or 0 if invalid input.
- */
+/*
+    Function: i3c_select_dasa_dynamic_addr
+
+    Select the DASA dynamic address for a static-address device.
+
+    Parameters:
+
+    desc - I3C device descriptor.
+
+    Returns:
+
+    Dynamic address candidate, or 0 if invalid input.
+*/
+
 static uint8_t i3c_select_dasa_dynamic_addr(const struct i3c_device_desc *desc)
 {
     if ((desc == NULL) || (desc->device.static_address == 0U))
@@ -886,24 +1068,40 @@ static uint8_t i3c_select_dasa_dynamic_addr(const struct i3c_device_desc *desc)
     return desc->device.static_address;
 }
 
-/**
- * @brief Validate that a dynamic address is in valid I3C range.
- *
- * @param[in] addr Dynamic address.
- * @return true if valid, false otherwise.
- */
+/*
+    Function: i3c_is_valid_dynamic_addr
+
+    Validate that a dynamic address is in valid I3C range.
+
+    Parameters:
+
+    addr - Dynamic address.
+
+    Returns:
+
+    true if valid, false otherwise.
+*/
+
 static bool i3c_is_valid_dynamic_addr(uint8_t addr)
 {
     return ((addr >= 8U) && (addr < I3C_BROADCAST_ADDR));
 }
 
 
-/**
- * @brief Perform DASA to assign dynamic addresses to devices with static addresses.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @return None.
- */
+/*
+    Function: i3c_perform_dasa
+
+    Perform DASA to assign dynamic addresses to devices with static addresses.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+
+    Returns:
+
+    None.
+*/
+
 static int32_t i3c_perform_dasa(uint8_t instance, bool *require_daa)
 {
     uint8_t addr, pos;
@@ -973,12 +1171,20 @@ static int32_t i3c_perform_dasa(uint8_t instance, bool *require_daa)
 }
 
 
-/**
- * @brief Perform DAA to assign dynamic addresses to remaining devices after DASA.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @return None.
- */
+/*
+    Function: i3c_perform_daa
+
+    Perform DAA to assign dynamic addresses to remaining devices after DASA.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+
+    Returns:
+
+    None.
+*/
+
 static int32_t i3c_perform_daa(uint8_t instance)
 {
     uint8_t addr, pos, dev_idx;
@@ -1096,12 +1302,20 @@ static int32_t i3c_perform_daa(uint8_t instance)
 }
 
 
-/**
- * @brief Initialize I3C bus and assign dynamic addresses to connected devices.
- *
- * @param[in] instance  Instance of the I3C controller.
- * @return None.
- */
+/*
+    Function: i3c_init_bus
+
+    Initialize I3C bus and assign dynamic addresses to connected devices.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+
+    Returns:
+
+    None.
+*/
+
 static int32_t i3c_init_bus(uint8_t instance)
 {
     uint8_t def_byte = 0;
@@ -1171,13 +1385,22 @@ static int32_t i3c_init_bus(uint8_t instance)
     return 0;
 }
 
-/**
- * @brief Validate that an I2C static address belongs to an attached I2C target.
- *
- * @param[in] instance     Instance of the I3C controller.
- * @param[in] pi3c_device  I2C-style device descriptor containing static_address.
- * @return 0 on success, -EINVAL if the device is not attached.
- */
+/*
+    Function: i3c_validate_i2c_device_addr
+
+    Validate that an I2C static address belongs to an attached I2C target.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    pi3c_device - I2C-style device descriptor containing
+    static_address.
+
+    Returns:
+
+    0 on success, -EINVAL if the device is not attached.
+*/
+
 static int32_t i3c_validate_i2c_device_addr(uint8_t instance,
         struct i3c_device *pi3c_device)
 {
@@ -1205,15 +1428,25 @@ static int32_t i3c_validate_i2c_device_addr(uint8_t instance,
     return ret;
 }
 
-/**
- * @brief Retrieve the dynamic address assigned to the device identified by its PID.
- *
- * @param[in] instance     Instance of the I3C controller.
- * @param[in] pdevice      Pointer to the device object. dynamic_address field of this struct
- *                         would be updated if a matching deviceID is found in the controller.
- * @return 0               If success.
- * @return -EINVAL         If deviceID is not found in the list of devices managed by controller.
- */
+/*
+    Function: i3c_get_device_dyn_addr
+
+    Retrieve the dynamic address assigned to the device identified by its PID.
+
+    Parameters:
+
+    instance - Instance of the I3C controller.
+    pdevice - Pointer to the device object. dynamic_address field of
+    this struct would be updated if a matching deviceID is found in
+    the controller.
+
+    Returns:
+
+    0 If success.
+    -EINVAL If deviceID is not found in the list of devices managed by
+    controller.
+*/
+
 static int32_t i3c_get_device_dyn_addr(uint8_t instance,
         struct i3c_device *pdevice)
 {
@@ -1248,15 +1481,21 @@ static int32_t i3c_get_device_dyn_addr(uint8_t instance,
     return ret;
 }
 
-/**
- *
- * @brief Lookup internal device descriptor for a target device object.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] pdevice Target device descriptor.
- * @return Pointer to device descriptor on success, NULL if not found.
- *
- */
+/*
+    Function: i3c_get_device_desc
+
+    Lookup internal device descriptor for a target device object.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pdevice - Target device descriptor.
+
+    Returns:
+
+    Pointer to device descriptor on success, NULL if not found.
+*/
+
 static struct i3c_device_desc *i3c_get_device_desc(uint8_t instance,
         struct i3c_device *pdevice)
 {
@@ -1292,15 +1531,21 @@ static struct i3c_device_desc *i3c_get_device_desc(uint8_t instance,
     return NULL;
 }
 
-/**
- *
- * @brief Lookup internal descriptor by dynamic address for I3C device.
- *
- * @param[in] instance I3C controller instance.
- * @param[in] dynamic_addr Dynamic address from IBI source.
- * @return Pointer to descriptor on success, NULL if not found.
- *
- */
+/*
+    Function: i3c_get_i3c_desc_by_dynamic_addr
+
+    Lookup internal descriptor by dynamic address for I3C device.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    dynamic_addr - Dynamic address from IBI source.
+
+    Returns:
+
+    Pointer to descriptor on success, NULL if not found.
+*/
+
 static struct i3c_device_desc *i3c_get_i3c_desc_by_dynamic_addr(uint8_t instance,
         uint8_t dynamic_addr)
 {
@@ -1320,15 +1565,21 @@ static struct i3c_device_desc *i3c_get_i3c_desc_by_dynamic_addr(uint8_t instance
     return NULL;
 }
 
-/**
- *
- * @brief Read target BCR through directed CCC GETBCR.
- *
- * @param[in] instance I3C controller instance.
- * @param[in,out] pdevice Device object to update.
- * @return 0 on success, negative errno on failure.
- *
- */
+/*
+    Function: i3c_get_device_bcr
+
+    Read target BCR through directed CCC GETBCR.
+
+    Parameters:
+
+    instance - I3C controller instance.
+    pdevice - Device object to update.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_get_device_bcr(uint8_t instance,
         struct i3c_device *pdevice)
 {
@@ -1363,13 +1614,21 @@ static int32_t i3c_get_device_bcr(uint8_t instance,
     return 0;
 }
 
-/**
- * @brief Validate an I3C handle and return its instance.
- *
- * @param[in] hi3c I3C handle.
- * @param[out] instance I3C instance.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_validate_handle
+
+    Validate an I3C handle and return its instance.
+
+    Parameters:
+
+    hi3c - I3C handle.
+    instance - I3C instance.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_validate_handle(i3c_handle_t hi3c, uint8_t *instance)
 {
     if ((hi3c == NULL) || (instance == NULL) || (hi3c->is_open == false))
@@ -1784,17 +2043,25 @@ int32_t i3c_disable_ibi(i3c_handle_t hi3c, struct i3c_device *pdevice)
             pdevice->dynamic_address, false, false);
 }
 
-/**
- * @brief Validate and prepare transfer payload list for sync/async transfer.
- *
- * @param[in] hi3c I3C handle.
- * @param[in] addr Target address.
- * @param[in] pxfer_request Transfer request list.
- * @param[in] num_xfers Number of requests.
- * @param[out] cmd_payload Prepared command payloads.
- * @param[out] instance Controller instance.
- * @return 0 on success, negative errno on failure.
- */
+/*
+    Function: i3c_prepare_transfer_payload
+
+    Validate and prepare transfer payload list for sync/async transfer.
+
+    Parameters:
+
+    hi3c - I3C handle.
+    addr - Target address.
+    pxfer_request - Transfer request list.
+    num_xfers - Number of requests.
+    cmd_payload - Prepared command payloads.
+    instance - Controller instance.
+
+    Returns:
+
+    0 on success, negative errno on failure.
+*/
+
 static int32_t i3c_prepare_transfer_payload(i3c_handle_t hi3c, uint8_t addr,
         struct i3c_xfer_request *pxfer_request, uint8_t num_xfers,
         struct i3c_cmd_payload *cmd_payload, uint8_t *instance)
@@ -1962,11 +2229,15 @@ int32_t i3c_transfer_async(i3c_handle_t hi3c, uint8_t addr,
     return ret;
 }
 
-/**
- * @brief Interrupt handler for I3C transfer and IBI events.
- *
- * @param[in] param I3C handle pointer.
- */
+/*
+    Function: i3c_isr
+
+    Interrupt handler for I3C transfer and IBI events.
+
+    Parameters:
+
+        param - I3C handle pointer.
+*/
 void i3c_isr(void *param)
 {
     i3c_handle_t i3c_handle = (i3c_handle_t)param;

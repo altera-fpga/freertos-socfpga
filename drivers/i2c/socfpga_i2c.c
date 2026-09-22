@@ -6,6 +6,12 @@
  * HAL driver implementation for i2c
  */
 
+/*
+    File: I2C Driver Implementation
+
+    Implements the I2C driver: 29 functions, 20 of them local to this file.
+*/
+
 #include "socfpga_interrupt.h"
 #include "socfpga_i2c.h"
 #include "socfpga_i2c_ll.h"
@@ -74,6 +80,11 @@ static dma_xfer_cfg_t rdma_blk_xfer_list[MAX_I2C_INSTANCES][MAX_I2C_BLK_XFERS] =
 static uint32_t i2c_transfer_buf[MAX_I2C_INSTANCES]
         [MAX_I2C_BLK_XFERS * I2C_DMA_XFER_BLK_SIZE] = {0};
 
+/*
+    Function: i2c_delete_osal_primitives
+
+    Calls <osal_mutex_delete> and <osal_semaphore_delete>.
+*/
 static void i2c_delete_osal_primitives(i2c_handle_t hi2c)
 {
     if (hi2c == NULL)
@@ -92,14 +103,20 @@ static void i2c_delete_osal_primitives(i2c_handle_t hi2c)
         hi2c->sem = NULL;
     }
 }
+/*
+    Function: i2c_isr
 
-/**
- * @brief handle the interrupt
- */
+    handle the interrupt
+*/
 void i2c_isr(void *data);
 static void i2c_wdma_callback(void *data);
 static void i2c_rdma_callback(void *data);
 
+/*
+    Function: i2c_drain_rx_fifo
+
+    Calls <i2c_read_fifo>.
+*/
 static void i2c_drain_rx_fifo(uint32_t base_addr)
 {
     uint8_t discard;
@@ -112,9 +129,12 @@ static void i2c_drain_rx_fifo(uint32_t base_addr)
 static int32_t i2c_slave_init(i2c_handle_t const hi2c, const i2c_slave_config_t *cfg);
 static int32_t i2c_slave_deinit(i2c_handle_t const hi2c);
 
-/**
- * @brief Get the reset instance for the I2C peripheral
- */
+/*
+    Function: i2c_get_rst_instance
+
+    Get the reset instance for the I2C peripheral
+*/
+
 static reset_periphrl_t i2c_get_rst_instance(uint32_t instance)
 {
     reset_periphrl_t rst_instance = RST_PERIPHERAL_END;
@@ -142,9 +162,12 @@ static reset_periphrl_t i2c_get_rst_instance(uint32_t instance)
     return rst_instance;
 }
 
-/**
- * @brief Get the interrupt instance for the I2C peripheral
- */
+/*
+    Function: i2c_get_interrupt_instance
+
+    Get the interrupt instance for the I2C peripheral
+*/
+
 static socfpga_hpu_interrupt_t i2c_get_interrupt_instance(uint32_t instance)
 {
     socfpga_hpu_interrupt_t interrupt_instance = MAX_HPU_SPI_INTERRUPT;
@@ -172,6 +195,9 @@ static socfpga_hpu_interrupt_t i2c_get_interrupt_instance(uint32_t instance)
     return interrupt_instance;
 }
 
+/*
+    Function: i2c_get_dma_interface_id
+*/
 static void i2c_get_dma_interface_id(uint32_t instance, uint32_t *i2c_tx_peri_id,
         uint32_t *i2c_rx_peri_id)
 {
@@ -207,6 +233,9 @@ static void i2c_get_dma_interface_id(uint32_t instance, uint32_t *i2c_tx_peri_id
 
 }
 
+/*
+    Function: i2c_dma_config
+*/
 static int32_t i2c_dma_config(i2c_handle_t hi2c, i2c_dma_config_t *pconfig)
 {
     int32_t ret = 0;
@@ -294,6 +323,11 @@ static int32_t i2c_dma_config(i2c_handle_t hi2c, i2c_dma_config_t *pconfig)
     return ret;
 }
 
+/*
+    Function: i2c_dma_close
+
+    Calls <dma_close>.
+*/
 static int32_t i2c_dma_close(i2c_handle_t hi2c)
 {
     if ((hi2c == NULL) || (hi2c->is_open == false))
@@ -318,6 +352,9 @@ static int32_t i2c_dma_close(i2c_handle_t hi2c)
     return 0;
 }
 
+/*
+    Function: i2c_find_burst_params
+*/
 static void i2c_find_burst_params(uint32_t nbytes,
         dma_burst_len_t *burst_len, uint32_t *burst)
 {
@@ -340,6 +377,11 @@ static void i2c_find_burst_params(uint32_t nbytes,
     }
 }
 
+/*
+    Function: i2c_slave_handle_tx_abort
+
+    Calls i2c_ll_clear_tx_abrt.
+*/
 static void i2c_slave_handle_tx_abort(i2c_handle_t pi2c_peripheral)
 {
     uint32_t base_addr;
@@ -373,6 +415,11 @@ static void i2c_slave_handle_tx_abort(i2c_handle_t pi2c_peripheral)
     i2c_ll_clear_tx_abrt(base_addr);
 }
 
+/*
+    Function: i2c_slave_handle_stop_detect
+
+    Calls i2c_ll_clear_stop_det.
+*/
 static void i2c_slave_handle_stop_detect(i2c_handle_t pi2c_peripheral)
 {
     uint32_t base_addr;
@@ -396,6 +443,9 @@ static void i2c_slave_handle_stop_detect(i2c_handle_t pi2c_peripheral)
     i2c_ll_clear_stop_det(base_addr);
 }
 
+/*
+    Function: i2c_slave_handle_read_request
+*/
 static void i2c_slave_handle_read_request(i2c_handle_t pi2c_peripheral)
 {
     uint32_t base_addr;
@@ -604,15 +654,18 @@ void i2c_set_callback(i2c_handle_t const hi2c, i2c_callback_t callback, void *pa
 }
 
 /*
- * Configure the controller for slave role and enable the interrupt-driven
- * slave state machine.
- *
- * This:
- * - requires the bus to be idle (no ongoing activity)
- * - disables any I2C DMA enables (TDMAE/RDMAE) and clears per-transfer state
- * - programs slave address/10-bit/general-call/STOP_DET behavior and FIFO TLs
- * - unmasks the set of interrupts needed for slave operation
- */
+    Function: i2c_slave_init
+
+    Configure the controller for slave role and enable the interrupt-driven
+    slave state machine.
+
+    This:
+    - requires the bus to be idle (no ongoing activity)
+    - disables any I2C DMA enables (TDMAE/RDMAE) and clears per-transfer state
+    - programs slave address/10-bit/general-call/STOP_DET behavior and FIFO TLs
+    - unmasks the set of interrupts needed for slave operation
+*/
+
 static int32_t i2c_slave_init(i2c_handle_t const hi2c, const i2c_slave_config_t *cfg)
 {
     uint32_t mask;
@@ -686,12 +739,15 @@ static int32_t i2c_slave_init(i2c_handle_t const hi2c, const i2c_slave_config_t 
 }
 
 /*
- * Disable slave role and restore a master-default controller configuration.
- *
- * This masks all I2C interrupts, disables the controller, clears any TX abort
- * state, then calls i2c_init() so the instance is ready to be reconfigured as
- * a master (speed/target address set by subsequent IOCTLs).
- */
+    Function: i2c_slave_deinit
+
+    Disable slave role and restore a master-default controller configuration.
+
+    This masks all I2C interrupts, disables the controller, clears any TX abort
+    state, then calls i2c_init() so the instance is ready to be reconfigured as
+    a master (speed/target address set by subsequent IOCTLs).
+*/
+
 static int32_t i2c_slave_deinit(i2c_handle_t const hi2c)
 {
     if ((hi2c == NULL) || (hi2c->is_open == false))
@@ -907,6 +963,9 @@ int32_t i2c_ioctl(i2c_handle_t const hi2c, i2c_ioctl_t cmd, void *const pparam)
     return ret;
 }
 
+/*
+    Function: i2c_start_xfer_int_mode
+*/
 static int32_t i2c_start_xfer_int_mode(i2c_handle_t hi2c, i2c_operation_t op,
         uint8_t *buf, size_t nbytes)
 {
@@ -942,6 +1001,9 @@ static int32_t i2c_start_xfer_int_mode(i2c_handle_t hi2c, i2c_operation_t op,
     return 0;
 }
 
+/*
+    Function: i2c_dma_setup_wdma
+*/
 static int32_t i2c_dma_setup_wdma(i2c_handle_t hi2c, uint32_t *psrc_words,
         size_t nwords, uint32_t blk_cnt, dma_burst_len_t burst_len)
 {
@@ -985,6 +1047,9 @@ static int32_t i2c_dma_setup_wdma(i2c_handle_t hi2c, uint32_t *psrc_words,
     return 0;
 }
 
+/*
+    Function: i2c_dma_setup_rdma
+*/
 static int32_t i2c_dma_setup_rdma(i2c_handle_t hi2c, uint8_t *pdst_bytes,
         size_t nbytes, uint32_t blk_cnt, dma_burst_len_t burst_len)
 {
@@ -1028,6 +1093,9 @@ static int32_t i2c_dma_setup_rdma(i2c_handle_t hi2c, uint8_t *pdst_bytes,
     return 0;
 }
 
+/*
+    Function: i2c_start_xfer_dma_mode
+*/
 static int32_t i2c_start_xfer_dma_mode(i2c_handle_t hi2c, i2c_operation_t op,
         void *buf, size_t nitems)
 {
@@ -1857,6 +1925,11 @@ void i2c_isr(void *data)
     }
 }
 
+/*
+    Function: i2c_wdma_callback
+
+    Calls i2c_ll_tdma_disable.
+*/
 static void i2c_wdma_callback(void *data)
 {
     i2c_handle_t pi2c_peripheral;
@@ -1894,6 +1967,11 @@ static void i2c_wdma_callback(void *data)
 }
 
 
+/*
+    Function: i2c_rdma_callback
+
+    Calls i2c_ll_rdma_disable.
+*/
 static void i2c_rdma_callback(void *data)
 {
     i2c_handle_t pi2c_peripheral;

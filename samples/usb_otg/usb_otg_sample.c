@@ -6,46 +6,43 @@
  * Sample fatfs application for SoC FPGA USB2.0 driver
  */
 
-/**
- * @file usb_otg_sample.c
- * @brief Sample Application for usb2.0 driver.
- */
+/*
+    File: USB OTG Sample
 
-/**
- * @defgroup usb_otg_sample USB2.0
- * @ingroup samples
- *
- * Sample Application for USB2.0 OTG
- *
- * @details
- * @section usb_otg_desc Description
- * This is a sample application to demonstrate the fatfs operations using the synopsys dwc2 USB2.0 controller. The sample performs the following operations sequentially on the first fat partitions:
- * - Identify the total fatfs partition in the disk.
- * - Mount the first fat partition.
- * - Write data to a text file.
- * - Create a directory in the partition.
- * - Delete the directry.
- * - Read and display data from the text file.
- * - Delete the file.
- * - Unmount the fat partition.
- *
- * @section usb_otg_pre Prerequisites
- * The USB disk should be partitioned as FAT partition. For Linux based systems, you may use the below commands :
- *  - Use fdisk to partition the USB mass storage device.
- *        - Use mkfs tool to format the USB disk partition into FAT.
- *            - sudo mkfs.fat /dev/&lt;partition&gt;
- *
- * @section usb_otg_howto How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Insert the partitioned USB device into the device, and run the sample..
- *
- * @section usb_otg_res Expected Results
- * The result of fat operations are displayed in the console.
- *
- * @note File names used in application should conform to the 8.3 format (maximum 8 characters for the name.
- * @{
- */
-/** @} */
+    Sample Application for usb2.0 driver.
+
+    Sample Application for USB2.0 OTG
+    Group: Description
+
+    This is a sample application to demonstrate the fatfs operations using the
+    synopsys dwc2 USB2.0 controller. The sample performs the following
+    operations sequentially on the first fat partitions:
+    - Identify the total fatfs partition in the disk.
+    - Mount the first fat partition.
+    - Write data to a text file.
+    - Create a directory in the partition.
+    - Delete the directry.
+    - Read and display data from the text file.
+    - Delete the file.
+    - Unmount the fat partition.
+
+    Group: Prerequisites
+
+    The USB disk should be partitioned as FAT partition. For Linux based
+    systems, you may use the below commands :
+     - Use fdisk to partition the USB mass storage device.
+           - Use mkfs tool to format the USB disk partition into FAT.
+               - sudo mkfs.fat /dev/&lt;partition&gt;
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Insert the partitioned USB device into the device, and run the sample..
+
+    Group: Expected Results
+
+    The result of fat operations are displayed in the console.
+*/
 
 
 #include "ff_sddisk.h"
@@ -62,6 +59,11 @@
 
 void run_usb_fatfs(void);
 
+/*
+    Function: usb_otg_sample_task
+
+    Calls xTaskCreate and <run_usb_fatfs>.
+*/
 void usb_otg_sample_task(void)
 {
     BaseType_t xReturn;
@@ -78,6 +80,9 @@ void usb_otg_sample_task(void)
     run_usb_fatfs();
 }
 
+/*
+    Function: run_usb_fatfs
+*/
 void run_usb_fatfs(void)
 {
     const char *file_name = "/b.txt";

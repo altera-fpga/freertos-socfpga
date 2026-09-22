@@ -6,39 +6,37 @@
  * Implementation of reboot command
  */
 
-/**
- * @defgroup cli_reboot Reboot
- * @ingroup cli
- *
- * Perform system reboot operations
- *
- * @details
- * It supports the following commands:
- * - reboot &lt;type&gt;
- * - reboot help
- *
- * Typical usage:
- * - Use 'reboot cold' for a cold reboot.
- * - Use 'reboot warm' for a warm reboot.
- *
- * @section rbt_commands Commands
- * @subsection reboot reboot
- * Reboot system <br>
- *
- * Usage: <br>
- * reboot &lt;type&gt; <br>
- *
- * It requires the following arguments:
- * - type - The reboot type. Valid values are: <br>
- * - cold – REBOOT_COLD <br>
- * - warm – REBOOT_WARM <br>
- *
- * @subsection rbt_help reboot help
- * Show reboot command help <br>
- *
- * Usage: <br>
- * reboot help <br>
- */
+/*
+    File: Reboot CLI Commands
+
+    Perform system reboot operations
+
+    It supports the following commands:
+    - reboot &lt;type&gt;
+    - reboot help
+
+    Typical usage:
+    - Use 'reboot cold' for a cold reboot.
+    - Use 'reboot warm' for a warm reboot.
+    Group: Commands
+
+    reboot:
+
+    Reboot system
+
+    Usage: reboot &lt;type&gt;
+
+    It requires the following arguments:
+    - type - The reboot type. Valid values are:
+    - cold – REBOOT_COLD
+    - warm – REBOOT_WARM
+
+    reboot help:
+
+    Show reboot command help
+
+    Usage: reboot help
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,17 +49,29 @@
 #include "semphr.h"
 
 
+/*
+    Function: cold_reboot_callback
+*/
 void cold_reboot_callback(void *buff)
 {
     (void)buff;
     printf("\r\n Initiating a COLD REBOOT \r\n");
 }
+/*
+    Function: warm_reboot_callback
+*/
 void warm_reboot_callback(void *buff)
 {
     (void)buff;
     printf("\r\n Initiating a WARM REBOOT \r\n");
 }
 
+/*
+    Function: cmd_reboot
+
+    Implements the reboot command of the CLI sample: perform reboot operation
+    (warm/cold).
+*/
 BaseType_t cmd_reboot(char *write_buffer, size_t write_buffer_len,
         const char *command_string)
 {

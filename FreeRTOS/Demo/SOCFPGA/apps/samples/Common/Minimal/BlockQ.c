@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Block Q Implementation
+
+    Creates six tasks that operate on three queues as follows: The first two tasks send and receive an incrementing number to/from a queue.
+*/
+
+/*
  * Creates six tasks that operate on three queues as follows:
  *
  * The first two tasks send and receive an incrementing number to/from a queue.
@@ -65,7 +71,11 @@
     #error This example cannot be used if dynamic allocation is not allowed.
 #endif
 
-/* Structure used to pass parameters to the blocking queue tasks. */
+/*
+    Struct: xBlockingQueueParameters
+
+    Structure used to pass parameters to the blocking queue tasks. Declared as pxQueueParameters1 in BlockQ.c.
+*/
 typedef struct BLOCKING_QUEUE_PARAMETERS
 {
     QueueHandle_t xQueue;             /*< The queue to be used by the task. */
@@ -136,8 +146,6 @@ void vStartBlockingQueueTasks( UBaseType_t uxPriority )
     xTaskCreate( vBlockingQueueConsumer, "QConsB1", blckqSTACK_SIZE, ( void * ) pxQueueParameters1, uxPriority, NULL );
     xTaskCreate( vBlockingQueueProducer, "QProdB2", blckqSTACK_SIZE, ( void * ) pxQueueParameters2, tskIDLE_PRIORITY, NULL );
 
-
-
     /* Create the second two tasks as described at the top of the file.   This uses
      * the same mechanism but reverses the task priorities. */
 
@@ -153,8 +161,6 @@ void vStartBlockingQueueTasks( UBaseType_t uxPriority )
 
     xTaskCreate( vBlockingQueueConsumer, "QConsB3", blckqSTACK_SIZE, ( void * ) pxQueueParameters3, tskIDLE_PRIORITY, NULL );
     xTaskCreate( vBlockingQueueProducer, "QProdB4", blckqSTACK_SIZE, ( void * ) pxQueueParameters4, uxPriority, NULL );
-
-
 
     /* Create the last two tasks as described above.  The mechanism is again just
      * the same.  This time both parameter structures are given a block time. */
@@ -173,6 +179,11 @@ void vStartBlockingQueueTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vBlockingQueueProducer
+
+    Calls xQueueSend and taskYIELD.
+*/
 static portTASK_FUNCTION( vBlockingQueueProducer, pvParameters )
 {
     uint16_t usValue = 0;
@@ -208,6 +219,11 @@ static portTASK_FUNCTION( vBlockingQueueProducer, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vBlockingQueueConsumer
+
+    Calls xQueueReceive and taskYIELD.
+*/
 static portTASK_FUNCTION( vBlockingQueueConsumer, pvParameters )
 {
     uint16_t usData, usExpectedValue = 0;

@@ -24,6 +24,13 @@
  *
  */
 
+/*
+    File: Message Buffer Demo Implementation
+
+    Implements the Message Buffer demo: 11 functions, 9 of them local to
+    this file.
+*/
+
 /* Standard includes. */
 #include "stdio.h"
 #include "string.h"
@@ -114,7 +121,11 @@ static void prvNonBlockingSenderTask( void * pvParameters );
 
 /*-----------------------------------------------------------*/
 
-/* The buffers used by the echo client and server tasks. */
+/*
+    Struct: EchoMessageBuffers_t
+
+    The buffers used by the echo client and server tasks. Declared as pxMessageBuffers in MessageBufferDemo.c.
+*/
 typedef struct ECHO_MESSAGE_BUFFERS
 {
     /* Handles to the data structures that describe the message buffers. */
@@ -184,6 +195,11 @@ void vStartMessageBufferTasks( configSTACK_DEPTH_TYPE xStackSize )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSingleTaskTests
+
+    Performs various tests that do not require multiple tasks to interact.
+*/
 static void prvSingleTaskTests( MessageBufferHandle_t xMessageBuffer )
 {
     size_t xReturned, xItem, xExpectedSpace, xNextLength;
@@ -458,6 +474,9 @@ static void prvSingleTaskTests( MessageBufferHandle_t xMessageBuffer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNonBlockingSenderTask
+*/
 static void prvNonBlockingSenderTask( void * pvParameters )
 {
     MessageBufferHandle_t xMessageBuffer;
@@ -502,6 +521,13 @@ static void prvNonBlockingSenderTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNonBlockingReceiverTask
+
+    Tasks that send and receive to a message buffer at a low priority and
+    without blocking, so the send and receive functions interleave in time as
+    the tasks are switched in and out.
+*/
 static void prvNonBlockingReceiverTask( void * pvParameters )
 {
     MessageBufferHandle_t xMessageBuffer;
@@ -574,6 +600,9 @@ static void prvNonBlockingReceiverTask( void * pvParameters )
 
 #if ( configSUPPORT_STATIC_ALLOCATION == 1 )
 
+    /*
+        Function: prvSenderTask
+    */
     static void prvSenderTask( void * pvParameters )
     {
         MessageBufferHandle_t xMessageBuffer, xTempMessageBuffer;
@@ -659,6 +688,13 @@ static void prvNonBlockingReceiverTask( void * pvParameters )
 
 #if ( configSUPPORT_STATIC_ALLOCATION == 1 )
 
+    /*
+        Function: prvReceiverTask
+
+        This file tests both statically and dynamically allocated message
+        buffers. Allocate the structures and buffers to be used by the
+        statically allocated objects, which get used in the echo tests.
+    */
     static void prvReceiverTask( void * pvParameters )
     {
         MessageBufferHandle_t const pxMessageBuffer = ( MessageBufferHandle_t ) pvParameters;
@@ -692,6 +728,14 @@ static void prvNonBlockingReceiverTask( void * pvParameters )
 #endif /* configSUPPORT_STATIC_ALLOCATION */
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvEchoClient
+
+    Tests sending and receiving various lengths of messages via a message
+    buffer. The echo client sends the messages to the echo server, which then
+    sends the message back to the echo client which, checks it receives
+    exactly what it sent.
+*/
 static void prvEchoClient( void * pvParameters )
 {
     size_t xSendLength = 0, ux;
@@ -773,6 +817,9 @@ static void prvEchoClient( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvEchoServer
+*/
 static void prvEchoServer( void * pvParameters )
 {
     MessageBufferHandle_t xTempMessageBuffer;
@@ -847,6 +894,15 @@ static void prvEchoServer( void * pvParameters )
  * projects to run out of program or data memory. */
 #if ( configRUN_ADDITIONAL_TESTS == 1 )
 
+    /*
+        Function: prvSpaceAvailableCoherenceActor
+
+        Calls xMessageBufferSend, xMessageBufferSpacesAvailable and
+        xMessageBufferReceive.
+
+        Parameters:
+            pvParameters - Not used.
+    */
     static void prvSpaceAvailableCoherenceActor( void * pvParameters )
     {
         static char * cTxString = "12345";
@@ -870,6 +926,9 @@ static void prvEchoServer( void * pvParameters )
     }
     /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSpaceAvailableCoherenceTester
+    */
     static void prvSpaceAvailableCoherenceTester( void * pvParameters )
     {
         size_t xSpaceAvailable;

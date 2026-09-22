@@ -6,9 +6,18 @@
  * Implementation of HPS2FPGA bridge sample application
  */
 
+/*
+    File: Bridge Hps2fpga Sample
+
+    Implementation of HPS2FPGA bridge sample application.
+*/
+
 #include "bridge_sample.h"
 #include "osal_log.h"
 
+/*
+    Function: hps2fpga_bridge_sample
+*/
 int hps2fpga_bridge_sample(void)
 {
     uint64_t *first_word_ptr;

@@ -4,6 +4,15 @@
  * SPDX-License-Identifier: MIT-0
  */
 
+/*
+    File: RSU OSAL FreeRTOS Library
+
+    Library routines for the RSU OSAL FreeRTOS: 8 functions.
+
+    They are rsu_malloc, rsu_free, rsu_memset, rsu_memcpy, rsu_mutex_init,
+    rsu_mutex_timedlock, rsu_mutex_unlock and rsu_mutex_destroy.
+*/
+
 #include <libRSU_OSAL.h>
 #include <stdlib.h>
 #include <string.h>

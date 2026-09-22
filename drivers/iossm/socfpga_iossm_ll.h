@@ -6,6 +6,57 @@
  * Header file for iossm ll driver
  */
 
+/*
+    File: IOSSM Low-Level Driver
+
+    Header file for iossm ll driver.
+*/
+
+/*
+    Constants: IOSSM constants
+
+    IOSSM0_BASE_ADDR            - Value: 0x18400000U.
+    IOSSM1_BASE_ADDR            - Value: 0x18800000U.
+    IOSSM_ECC_ERROR_STATUS      - Value: 0x300U.
+    IOSSM_ECC_COUNT_MASK        - Value: 0xFFU.
+    IOSSM_ECC_ERR_DATA_START    - Value: 0x310U.
+    IOSSM_ECC_GET_ERR_TYPE      - Expands to (IOSSM_ECC_ERR_DATA_START + ((idx) * 8U)).
+    IOSSM_ECC_ERR_TYP_FIELD     - Expands to (((data) >> 6) & 0xFU).
+    IOSSM_ECC_GET_ERR_OFFSET    - Expands to (IOSSM_ECC_ERR_DATA_START + ((idx) * 8U) + 4U).
+    CALIBRATION_STAT_REG_OFFSET - Value: 0x400U.
+    CMD_PARAM0_REG_OFFSET       - Value: 0x438U.
+    CMD_PARAM1_REG_OFFSET       - Value: 0x434U.
+    CMD_PARAM2_REG_OFFSET       - Value: 0x430U.
+    CMD_PARAM3_REG_OFFSET       - Value: 0x42CU.
+    CMD_PARAM4_REG_OFFSET       - Value: 0x428U.
+    CMD_PARAM5_REG_OFFSET       - Value: 0x424U.
+    CMD_PARAM6_REG_OFFSET       - Value: 0x420U.
+    CMD_RESP0_REG_OFF           - Value: 0x458U.
+    CMD_RESP1_REG_OFF           - Value: 0x454U.
+    CMD_RESP2_REG_OFF           - Value: 0x450U.
+    RESP_STAT_REG_OFF           - Value: 0x45CU.
+    CMD_REQ_REG_OFFSET          - Value: 0x43CU.
+    NO_PARAM                    - Value: 0U.
+    CMD_TYPE_NO_OP              - Value: 0U.
+    TRIG_CNTRL_OP               - Value: 4U.
+    SYSTEM_INFO                 - Value: 1U.
+    NO_TYPE                     - Value: 0U.
+    NO_ID                       - Value: 0U.
+    SING_BIT_ERR_PARAM          - Value: 0xF4U.
+    DBL_BIT_ERR_PARAM           - Value: 0x03U.
+    GET_SYS_INFO                - Value: 0x01U.
+    ECC_EN                      - Value: 0x101U.
+    ECC_EN_STAT                 - Value: 0x102U.
+    ECC_INT_STAT                - Value: 0x103U.
+    ECC_INT_ACK                 - Value: 0x104U.
+    ECC_INT_MASK                - Value: 0x105U.
+    ECC_WRBK_EN                 - Value: 0x106U.
+    ECC_GET_SBE_INFO            - Value: 0x107U.
+    ECC_GET_DBE_INFO            - Value: 0x108U.
+    ECC_ERR_INJ                 - Value: 0x109U.
+    ECC_CLEAR_ERR               - Value: 0x110U.
+*/
+
 #ifndef __SOCFPGA_IOSSM_LL_H__
 #define __SOCFPGA_IOSSM_LL_H__
 
@@ -69,8 +120,10 @@
 #define ECC_CLEAR_ERR       0x110U
 
 /*
- * iossm command request data
- */
+    Struct: iossm_req_payload_t
+
+    IOSSM command request data. Declared as req_format in socfpga_iossm_ll.c.
+*/
 typedef struct
 {
     uint32_t param_type;
@@ -80,8 +133,10 @@ typedef struct
 } iossm_req_payload_t;
 
 /*
- * iossm command response data
- */
+    Struct: iossm_response_data_t
+
+    IOSSM command response data. Passed to iossm_send_command and iossm_err_inject_command.
+*/
 typedef struct
 {
     uint32_t resp0;
@@ -91,8 +146,10 @@ typedef struct
 } iossm_response_data_t;
 
 /*
- * iossm interface data
- */
+    Struct: iossm_type_t
+
+    IOSSM interface data. Passed to iossm_send_command and iossm_err_inject_command.
+*/
 typedef struct
 {
     uint32_t base_addr;

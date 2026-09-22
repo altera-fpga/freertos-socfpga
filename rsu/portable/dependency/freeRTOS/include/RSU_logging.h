@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: MIT-0
  */
 
-/**
- *
- * @file RSU_logging.h
- * @brief logging API used inside LibRSU
- */
+/*
+    File: FreeRTOS RSU Logging Library
+
+    logging API used inside LibRSU
+*/
 
 #ifndef RSU_LOGGING_H
 #define RSU_LOGGING_H
@@ -21,10 +21,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/**
- * @brief RSU log levels
- *
- */
+/*
+    Enum: rsu_loglevel_t
+
+    RSU log levels
+*/
 typedef enum {
 	L_LOG_OFF = 0,
 	L_LOG_ERR = 1,
@@ -34,68 +35,119 @@ typedef enum {
 	L_LOG_MAX
 } rsu_loglevel_t;
 
-/**
- * @brief default log level
- *
- */
+/*
+    default log level
+*/
 #ifndef L_LOG_LVL
 #define L_LOG_LVL L_LOG_INF
 #endif
 
-/** debug log API */
+/*
+    Macro: RSU_LOG_DBG
+
+    debug log API
+*/
 #define RSU_LOG_DBG(...)  LogDebug((__VA_ARGS__))
-/** info log API */
+/*
+    Macro: RSU_LOG_INF
+
+    info log API
+*/
 #define RSU_LOG_INF(...)  LogInfo((__VA_ARGS__))
-/** warn log API */
+/*
+    Macro: RSU_LOG_WRN
+
+    warn log API
+*/
 #define RSU_LOG_WRN(...)  LogWarn((__VA_ARGS__))
-/** error log API */
+/*
+    Macro: RSU_LOG_ERR
+
+    error log API
+*/
 #define RSU_LOG_ERR(...)  LogError((__VA_ARGS__))
 
-/**
- * @brief set logging level of logger system
- *
- * @note for zephyr, the logging system is integrated with zephyr, so this function is redundant.
- *
- * @param level logging level
- * @return 0 on success, negative number on error.
- */
+/*
+    Function: RSU_set_logging
+
+    set logging level of logger system
+
+    Parameters:
+
+        level - logging level
+
+    Returns:
+
+        0 on success, negative number on error.
+
+    Notes:
+
+        for zephyr, the logging system is integrated with zephyr, so this
+        function is redundant.
+*/
 RSU_OSAL_INT RSU_set_logging(rsu_loglevel_t level);
 
-/**
- * @brief initialize logging
- *
- * @note for zephyr, the logging system is integrated with zephyr, so this function is redundant.
- *
- * @param cfg_file file to configuration file which provides parameters during initialization.
- * @return 0 on success, negative number on error.
- */
+/*
+    Function: RSU_logging_init
+
+    initialize logging
+
+    Parameters:
+
+        cfg_file - file to configuration file which provides parameters
+            during initialization.
+
+    Returns:
+
+        0 on success, negative number on error.
+
+    Notes:
+
+        for zephyr, the logging system is integrated with zephyr, so this
+        function is redundant.
+*/
 RSU_OSAL_INT RSU_logging_init(RSU_OSAL_CHAR *cfg_file);
 
-/**
- * @brief exit logging
- *
- * @note for zephyr, the logging system is integrated with zephyr, so this function is redundant.
- * @return Nil
- */
+/*
+    Function: RSU_logging_exit
+
+    exit logging
+
+    Returns:
+
+        Nil
+
+    Notes:
+
+        for zephyr, the logging system is integrated with zephyr, so this
+        function is redundant.
+*/
 RSU_OSAL_VOID RSU_logging_exit(RSU_OSAL_VOID);
 
-/**
- * @brief logging function each platform needs to define
- *
- * @param level logging level
- * @param format format string
- *
- * @return Nil
- */
+/*
+    Function: RSU_logger
+
+    logging function each platform needs to define
+
+    Parameters:
+
+        level - logging level
+        format - format string
+
+    Returns:
+
+        Nil
+*/
 RSU_OSAL_VOID RSU_logger(rsu_loglevel_t level, const RSU_OSAL_CHAR *format, ...);
 
 #if PLATFORM_ZEPHYR
 #include <zephyr/logging/log.h>
 
-/**
- * @brief integrate RSU logging with zephyr logging system.
- *
- */
+/*
+    Function: OG_MODULE_DECLARE
+
+    integrate RSU logging with zephyr logging system.
+*/
 
 LOG_MODULE_DECLARE(uniLibRSU, CONFIG_UNILIBRSU_LOG_LEVEL);
 

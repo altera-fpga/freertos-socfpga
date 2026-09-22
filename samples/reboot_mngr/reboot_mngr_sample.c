@@ -6,10 +6,11 @@
  * Sample application for SoC FPGA reboot manager
  */
 
-/**
- * @file reboot_mngr_sample.c
- * @brief Sample Application for Reboot Manager
- */
+/*
+    File: Reboot Manager Sample
+
+    Sample Application for Reboot Manager
+*/
 
 #include <stdlib.h>
 #include <string.h>
@@ -19,53 +20,64 @@
 #include "socfpga_reboot_mngr.h"
 #include "socfpga_defines.h"
 
-/**
- * @defgroup rbt_sample Reboot Manager
- * @ingroup samples
- *
- * Sample Application for Reboot Manager
- *
- * @details
- * @section rbt_desc Description
- * This sample application demonstrates the use of the reboot manager driver to
- * perform cold or warm reboot. It sets a user-defined callback function that
- * is invoked before the reboot occurs.
- *
- * @section rbt_param Configurable Parameters
- * The reboot type can be configured using the @c DO_COLD_BOOT macro.
- * If set to 1, a cold reboot is performed; otherwise, a warm reboot.
- * @note The sample application will reboot the system.
- *
- * @section rbt_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board.
- * 3. Output can be observed in the UART terminal.
- *
- * @section rbt_result Expected Results
- * - The application will print a message indicating the type of reboot
- * being performed.
- * - The system will reboot, either performing a cold or warm reboot based
- * on the configuration.
- * - The user-defined callback function will be invoked before the reboot.
- */
+/*
+    Group: Reboot Manager
 
-/**
- * @brief Set the value 1 for cold reboot and 0 for warm reboot
- */
+    Sample Application for Reboot Manager
+
+    Description:
+
+    This sample application demonstrates the use of the reboot manager driver
+    to perform cold or warm reboot. It sets a user-defined callback function
+    that is invoked before the reboot occurs.
+
+    Configurable Parameters:
+
+    The reboot type can be configured using the DO_COLD_BOOT macro. If set to
+    1, a cold reboot is performed; otherwise, a warm reboot.
+
+    How to Run:
+
+    1. Follow the common README instructions to build and flash the application.
+    2. Run the application on the board.
+    3. Output can be observed in the UART terminal.
+
+    Expected Results:
+
+    - The application will print a message indicating the type of reboot
+    being performed.
+    - The system will reboot, either performing a cold or warm reboot based
+    on the configuration.
+    - The user-defined callback function will be invoked before the reboot.
+
+    Notes:
+
+        The sample application will reboot the system.
+*/
+
+/*
+    Constant: DO_COLD_BOOT
+
+    Set the value 1 for cold reboot and 0 for warm reboot
+*/
 #define DO_COLD_BOOT    1
 
-/**
- * @brief Callback function for handing off before warm boot
- */
+/*
+    Function: warm_reboot_callback
+
+    Callback function for handing off before warm boot
+*/
 void warm_reboot_callback(void *buff)
 {
     (void)buff;
     PRINT("Warm reboot");
 }
 
-/**
- * @brief Callback function for handing off before cold boot
- */
+/*
+    Function: cold_reboot_callback
+
+    Callback function for handing off before cold boot
+*/
 
 void cold_reboot_callback(void *buff)
 {
@@ -73,6 +85,11 @@ void cold_reboot_callback(void *buff)
     PRINT("Cold reboot");
 }
 
+/*
+    Function: reboot_task
+
+    Calls <reboot_mngr_set_callback> and <reboot_mngr_do_reboot>.
+*/
 void reboot_task(void)
 {
     int status;

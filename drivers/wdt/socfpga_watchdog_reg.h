@@ -6,6 +6,84 @@
  * Register defintions for SoC FPGA Watchdog timer
  */
 
+/*
+    File: Watchdog Timer Registers
+
+    Register defintions for SoC FPGA Watchdog timer.
+*/
+
+/*
+    Constants: Watchdog Timer constants
+
+    GET_WDT_BASE_ADDRESS                    - Get base address.
+    MAX_WATCHDOG_INSTANCES                  - Maximum watchdog instances.
+    SOCFPGA_RESET_MANAGER_BASE              - Value: 0x10D11000U.
+    WDT_PER1MODRST_OFFSET                   - Value: 0x28U.
+    WDT0_RESET_BIT                          - Value: 0U.
+    WDT1_RESET_BIT                          - Value: 1U.
+    WDT2_RESET_BIT                          - Value: 2U.
+    WDT3_RESET_BIT                          - Value: 3U.
+    WDT4_RESET_BIT                          - Value: 26U.
+    WDT_CR                                  - Control Register.
+    WDT_TORR                                - Timeout Range Register.
+    WDT_CCVR                                - Current Counter Value Register.
+    WDT_CRR                                 - Counter Restart Register.
+    WDT_STAT                                - Interrupt Status Register.
+    WDT_EOI                                 - Interrupt Clear Register.
+    WDT_COMP_PARAM_1                        - Component Parameters Register 1.
+    WDT_COMP_VERSION                        - Component Version Register.
+    WDT_COMP_TYPE                           - Component Type Register.
+    WDT_CR_RPL_MASK                         - Value: 0x0000001CU.
+    WDT_CR_RPL_POS                          - Value: 2U.
+    WDT_CR_RMOD_MASK                        - Value: 0x00000002U.
+    WDT_CR_RMOD_POS                         - Value: 1U.
+    WDT_CR_WDT_EN_MASK                      - Value: 0x00000001U.
+    WDT_CR_WDT_EN_POS                       - Value: 0U.
+    WDT_TORR_TOP_INIT_MASK                  - Value: 0x000000F0U.
+    WDT_TORR_TOP_INIT_POS                   - Value: 4U.
+    WDT_TORR_TOP_MASK                       - Value: 0x0000000FU.
+    WDT_TORR_TOP_POS                        - Value: 0U.
+    WDT_CCVR_WDT_CCVR_MASK                  - Value: 0xFFFFFFFFU.
+    WDT_CCVR_WDT_CCVR_POS                   - Value: 0U.
+    WDT_CRR_WDT_CRR_MASK                    - Value: 0x000000FFU.
+    WDT_CRR_WDT_CRR_POS                     - Value: 0U.
+    WDT_CRR_RESTART_VAL                     - WDT Restart command.
+    WDT_STAT_WDT_STAT_MASK                  - Value: 0x00000001U.
+    WDT_STAT_WDT_STAT_POS                   - Value: 0U.
+    WDT_EOI_WDT_EOI_MASK                    - Value: 0x00000001U.
+    WDT_EOI_WDT_EOI_POS                     - Value: 0U.
+    WDT_COMP_PARAM_1_WDT_CNT_WIDTH_MASK     - Value: 0x1F000000U.
+    WDT_COMP_PARAM_1_WDT_CNT_WIDTH_POS      - Value: 24U.
+    WDT_COMP_PARAM_1_WDT_DFLT_TOP_INIT_MASK - Value: 0x00F00000U.
+    WDT_COMP_PARAM_1_WDT_DFLT_TOP_INIT_POS  - Value: 20U.
+    WDT_COMP_PARAM_1_WDT_DFLT_TOP_MASK      - Value: 0x000F0000U.
+    WDT_COMP_PARAM_1_WDT_DFLT_TOP_POS       - Value: 16U.
+    WDT_COMP_PARAM_1_WDT_DFLT_RPL_MASK      - Value: 0x00001C00U.
+    WDT_COMP_PARAM_1_WDT_DFLT_RPL_POS       - Value: 10U.
+    WDT_COMP_PARAM_1_APB_DATA_WIDTH_MASK    - Value: 0x00000300U.
+    WDT_COMP_PARAM_1_APB_DATA_WIDTH_POS     - Value: 8U.
+    WDT_COMP_PARAM_1_WDT_PAUSE_MASK         - Value: 0x00000080U.
+    WDT_COMP_PARAM_1_WDT_PAUSE_POS          - Value: 7U.
+    WDT_COMP_PARAM_1_WDT_USE_FIX_TOP_MASK   - Value: 0x00000040U.
+    WDT_COMP_PARAM_1_WDT_USE_FIX_TOP_POS    - Value: 6U.
+    WDT_COMP_PARAM_1_WDT_HC_TOP_MASK        - Value: 0x00000020U.
+    WDT_COMP_PARAM_1_WDT_HC_TOP_POS         - Value: 5U.
+    WDT_COMP_PARAM_1_WDT_HC_RPL_MASK        - Value: 0x00000010U.
+    WDT_COMP_PARAM_1_WDT_HC_RPL_POS         - Value: 4U.
+    WDT_COMP_PARAM_1_WDT_HC_RMOD_MASK       - Value: 0x00000008U.
+    WDT_COMP_PARAM_1_WDT_HC_RMOD_POS        - Value: 3U.
+    WDT_COMP_PARAM_1_WDT_DUAL_TOP_MASK      - Value: 0x00000004U.
+    WDT_COMP_PARAM_1_WDT_DUAL_TOP_POS       - Value: 2U.
+    WDT_COMP_PARAM_1_WDT_DFLT_RMOD_MASK     - Value: 0x00000002U.
+    WDT_COMP_PARAM_1_WDT_DFLT_RMOD_POS      - Value: 1U.
+    WDT_COMP_PARAM_1_WDT_ALWAYS_EN_MASK     - Value: 0x00000001U.
+    WDT_COMP_PARAM_1_WDT_ALWAYS_EN_POS      - Value: 0U.
+    WDT_COMP_VERSION_WDT_COMP_VERSION_MASK  - Value: 0xFFFFFFFFU.
+    WDT_COMP_VERSION_WDT_COMP_VERSION_POS   - Value: 0U.
+    WDT_COMP_TYPE_WDT_COMP_TYPE_MASK        - Value: 0xFFFFFFFFU.
+    WDT_COMP_TYPE_WDT_COMP_TYPE_POS         - Value: 0U.
+*/
+
 #ifndef __SOCFPGA_WATCHDOG_REG_H__
 #define __SOCFPGA_WATCHDOG_REG_H__
 

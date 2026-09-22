@@ -6,6 +6,12 @@
  * Helper routines to load image files from storage
  */
 
+/*
+    File: MMC Sample Implementation
+
+    Helper routines to load image files from storage.
+*/
+
 #include "osal_log.h"
 #include "ff_sddisk.h"
 #include "socfpga_mmc.h"

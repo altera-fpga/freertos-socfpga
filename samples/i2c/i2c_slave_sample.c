@@ -22,36 +22,34 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup i2c_slave_sample I2C
- * @ingroup samples
- *
- * Sample application for I2C slave loopback (IRQ callbacks).
- *
- * @details
- * This sample configures I2C0 as master and I2C1 as slave, connected by the
- * FPGA fabric. The master writes a buffer to the slave, then reads back a
- * different buffer from the slave. The slave side uses byte callbacks to
- * receive and provide data.
- *
- * System flow overview
- * - Load core.rbf to wire I2C0 <-> I2C1 in the FPGA fabric.
- * - Create two tasks:
- *   - Slave task sets I2C1 to slave mode and arms a buffer for RX/TX.
- *   - Master task sets I2C0 to master mode and performs write/read transfers.
- * - The tasks coordinate with semaphores so the master only transfers when the
- *   slave is ready.
- * - Each transfer is verified and results are printed to UART.
- *
- * Prerequisites
- * - The FPGA bitstream (`/core.rbf`) must be present on the SD card.
- * - The bitstream must connect I2C0 <-> I2C1 for loopback.
- *
- * How to run
- * 1. Set `I2C_SAMPLE_ENABLE_SLAVE` to 1 in `samples/i2c/main.c`.
- * 2. Build and flash the application.
- * 3. Observe UART for per-iteration status messages.
- */
+/*
+    File: I2C Slave Sample
+
+    Sample application for I2C slave loopback (IRQ callbacks).
+
+    This sample configures I2C0 as master and I2C1 as slave, connected by the
+    FPGA fabric. The master writes a buffer to the slave, then reads back a
+    different buffer from the slave. The slave side uses byte callbacks to
+    receive and provide data.
+
+    System flow overview
+    - Load core.rbf to wire I2C0 <-> I2C1 in the FPGA fabric.
+    - Create two tasks:
+      - Slave task sets I2C1 to slave mode and arms a buffer for RX/TX.
+      - Master task sets I2C0 to master mode and performs write/read transfers.
+    - The tasks coordinate with semaphores so the master only transfers when the
+    slave is ready.
+    - Each transfer is verified and results are printed to UART.
+
+    Prerequisites
+    - The FPGA bitstream (`/core.rbf`) must be present on the SD card.
+    - The bitstream must connect I2C0 <-> I2C1 for loopback.
+
+    How to run
+    1. Set `I2C_SAMPLE_ENABLE_SLAVE` to 1 in `samples/i2c/main.c`.
+    2. Build and flash the application.
+    3. Observe UART for per-iteration status messages.
+*/
 
 /* Configuration */
 #define MASTER_INST         0U
@@ -93,6 +91,11 @@ static osal_semaphore_t rx_done_sem;
 
 static volatile bool is_stop_xfers;
 
+/*
+    Struct: slave_ctx_t
+
+    Context for the I2C Slave sample, holding rx_len, expected_rx_len, rx_buf and 4 more. Declared as ctx in i2c_slave_sample.c.
+*/
 typedef struct
 {
     volatile uint32_t rx_len;
@@ -106,6 +109,9 @@ typedef struct
 
 static slave_ctx_t ctx;
 
+/*
+    Function: fill_buf
+*/
 static void fill_buf(uint8_t *buf, uint32_t len, uint8_t seed)
 {
     uint32_t i;
@@ -130,7 +136,12 @@ static void fill_buf(uint8_t *buf, uint32_t len, uint8_t seed)
  * - Use read_requested/read_processed to stream out a TX buffer.
  * - If you need larger payloads, increase XFER_SIZE and buffers.
  */
-/* Called once when master starts a write to this slave. */
+/*
+    Function: handle_slave_write_requested
+
+    Called once when master starts a write to this slave.
+*/
+
 static void handle_slave_write_requested(i2c_handle_t hi2c, void *param)
 {
     slave_ctx_t *c = (slave_ctx_t *)param;
@@ -142,7 +153,12 @@ static void handle_slave_write_requested(i2c_handle_t hi2c, void *param)
     }
 }
 
-/* Called for each byte written by master to this slave. */
+/*
+    Function: handle_slave_write_received
+
+    Called for each byte written by master to this slave.
+*/
+
 static void handle_slave_write_received(i2c_handle_t hi2c, uint8_t data, void *param)
 {
     slave_ctx_t *c = (slave_ctx_t *)param;
@@ -163,7 +179,12 @@ static void handle_slave_write_received(i2c_handle_t hi2c, uint8_t data, void *p
     }
 }
 
-/* Called on first RD_REQ; provide first byte for master read. */
+/*
+    Function: handle_slave_read_requested
+
+    Called on first RD_REQ; provide first byte for master read.
+*/
+
 static void handle_slave_read_requested(i2c_handle_t hi2c, uint8_t *data, void *param)
 {
     slave_ctx_t *c = (slave_ctx_t *)param;
@@ -179,7 +200,12 @@ static void handle_slave_read_requested(i2c_handle_t hi2c, uint8_t *data, void *
     }
 }
 
-/* Called on subsequent RD_REQ events; provide next read byte. */
+/*
+    Function: handle_slave_read_processed
+
+    Called on subsequent RD_REQ events; provide next read byte.
+*/
+
 static void handle_slave_read_processed(i2c_handle_t hi2c, uint8_t *data, void *param)
 {
     slave_ctx_t *c = (slave_ctx_t *)param;
@@ -201,13 +227,23 @@ static void handle_slave_read_processed(i2c_handle_t hi2c, uint8_t *data, void *
     }
 }
 
-/* Called when STOP is detected for current transaction. */
+/*
+    Function: handle_slave_stop
+
+    Called when STOP is detected for current transaction.
+*/
+
 static void handle_slave_stop(i2c_handle_t hi2c, void *param)
 {
     (void)hi2c;
     (void)param;
 }
 
+/*
+    Function: load_bitstream
+
+    Calls <mmc_read_file> and <load_fpga_bitstream>.
+*/
 static int load_bitstream(void)
 {
     uint8_t *rbf;
@@ -234,6 +270,9 @@ static int load_bitstream(void)
     return 0;
 }
 
+/*
+    Function: i2c_slave_xfer_task
+*/
 static void i2c_slave_xfer_task(void *arg)
 {
     i2c_handle_t slave = NULL;
@@ -315,6 +354,9 @@ out:
     osal_task_delete();
 }
 
+/*
+    Function: i2c_master_xfer_task
+*/
 static void i2c_master_xfer_task(void *arg)
 {
     i2c_handle_t master = NULL;
@@ -439,6 +481,9 @@ out:
     osal_task_delete();
 }
 
+/*
+    Function: i2c_slave_sample
+*/
 int i2c_slave_sample(void)
 {
     bool master_task_ok;
@@ -486,6 +531,11 @@ int i2c_slave_sample(void)
     return 0;
 }
 
+/*
+    Function: i2c_slave_task
+
+    Calls <i2c_slave_sample>.
+*/
 void i2c_slave_task(void)
 {
     (void)i2c_slave_sample();

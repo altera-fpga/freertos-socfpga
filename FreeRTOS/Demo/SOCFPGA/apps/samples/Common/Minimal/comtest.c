@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Comtest Implementation
+
+    This version of comtest.c is for use on systems that have limited stack space and no display facilities.
+*/
 
 /*
  * This version of comtest. c is for use on systems that have limited stack
@@ -126,6 +131,9 @@ void vAltStartComTestTasks( UBaseType_t uxPriority,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vComTxTask
+*/
 static portTASK_FUNCTION( vComTxTask, pvParameters )
 {
     char cByteToSend;
@@ -168,6 +176,9 @@ static portTASK_FUNCTION( vComTxTask, pvParameters )
 } /*lint !e715 !e818 pvParameters is required for a task function even if it is not referenced. */
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vComRxTask
+*/
 static portTASK_FUNCTION( vComRxTask, pvParameters )
 {
     signed char cExpectedByte, cByteRxed;

@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Message Buffer Amp Implementation
+
+    An example that mimics a message buffer being used to pass data from one core to another.
+*/
+
+/*
  * An example that mimics a message buffer being used to pass data from one core
  * to another.  The core that sends the data is referred to as core A.  The core
  * that receives the data is referred to as core B.  The task implemented by
@@ -156,6 +162,15 @@ void vStartMessageBufferAMPTasks( configSTACK_DEPTH_TYPE xStackSize )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvCoreATask
+
+    Implementation of the task that, on a real dual core device, would run on
+    core A and send message to tasks running on core B.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvCoreATask( void * pvParameters )
 {
     BaseType_t x;
@@ -198,6 +213,13 @@ static void prvCoreATask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvCoreBTasks
+
+    Implementation of the task that, on a real dual core device, would run on
+    core B and receive message from core A. The demo creates two instances of
+    this task.
+*/
 static void prvCoreBTasks( void * pvParameters )
 {
     BaseType_t x;
@@ -277,8 +299,13 @@ void vGenerateCoreBInterrupt( void * xUpdatedMessageBuffer )
 }
 /*-----------------------------------------------------------*/
 
-/* Handler for the interrupts that are triggered on core A but execute on core
- * B. */
+/*
+    Function: prvCoreBInterruptHandler
+
+    Handler for the interrupts that are triggered on core A but execute on core
+    B.
+*/
+
 static void prvCoreBInterruptHandler( void )
 {
     MessageBufferHandle_t xUpdatedMessageBuffer;

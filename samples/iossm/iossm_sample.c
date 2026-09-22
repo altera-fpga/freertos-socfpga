@@ -15,36 +15,43 @@
 #include "iossm_sample.h"
 #include "osal_log.h"
 
-/**
- * @defgroup iossm_sample IOSSM
- * @ingroup samples
- * Sample Application for IOSSM
- * @details
- * @section iossm_desc Description
- * The Sample application demonstrates the use of the IOSSM driver.
- * It performs the following operations:
- * - Initializes the IOSSM module.
- * - Injects single-bit and double-bit ECC errors to simulate fault conditions.
- * - Demonstrates the handling and reporting of ECC error events.
- *
- * This sample can be used as a reference for understanding how to:
- * - Simulate ECC error scenarios for testing and validation.
- * - Integrate IOSSM callbacks for error reporting in embedded systems.
- * @section iossm_pre Prerequisites
- * - Requires IOSSM enabled jic image
- *
- * @section iossm_how_to How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Ensure IOSSM is enabled in the ATF
- * 3. Run the sample binary
- *
- * @section iossm_result Expected Results
- * - Demonstrates the handling and reporting of ECC error events.
- */
+/*
+    File: IOSSM Sample Implementation
+
+    Sample Application for IOSSM
+    Group: Description
+
+    The Sample application demonstrates the use of the IOSSM driver. It
+    performs the following operations:
+    - Initializes the IOSSM module.
+    - Injects single-bit and double-bit ECC errors to simulate fault conditions.
+    - Demonstrates the handling and reporting of ECC error events.
+
+    This sample can be used as a reference for understanding how to:
+    - Simulate ECC error scenarios for testing and validation.
+    - Integrate IOSSM callbacks for error reporting in embedded systems.
+
+    Group: Prerequisites
+
+    - Requires IOSSM enabled jic image
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Ensure IOSSM is enabled in the ATF
+    - Run the sample binary
+
+    Group: Expected Results
+
+    - Demonstrates the handling and reporting of ECC error events.
+*/
 
 static iossm_context_t *handle;
 
 void error_handler(void);
+/*
+    Function: iossm_task
+*/
 void iossm_task(void)
 {
     int ret;
@@ -135,6 +142,11 @@ void iossm_task(void)
     vTaskDelete(NULL);
 }
 
+/*
+    Function: error_handler
+
+    Calls <iossm_read_ecc_status>.
+*/
 void error_handler(void)
 {
     uint32_t ecc_status;

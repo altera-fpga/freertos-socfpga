@@ -6,6 +6,13 @@
  * Low level driver implementation for UART
  */
 
+/*
+    File: UART Low-Level Driver Implementation
+
+    Implements the UART low-level driver: 17 functions, 4 of them local to
+    this file.
+*/
+
 #include <string.h>
 #include "osal.h"
 
@@ -17,9 +24,12 @@
 #include "socfpga_clk_mngr.h"
 #include "socfpga_rst_mngr.h"
 
-/**
- * @brief Enable clock for UART
- */
+/*
+    Function: uart_enable_clock
+
+    Enable clock for UART
+*/
+
 static void uart_enable_clock(uint32_t instance)
 {
     uint32_t val;
@@ -28,9 +38,12 @@ static void uart_enable_clock(uint32_t instance)
     WR_REG32(CLK_PERPLL_EN, val);
 }
 
-/**
- * @brief Disable UART clock
- */
+/*
+    Function: uart_disable_clock
+
+    Disable UART clock
+*/
+
 static void uart_disable_clock(uint32_t instance)
 {
     uint32_t val;
@@ -39,9 +52,12 @@ static void uart_disable_clock(uint32_t instance)
     WR_REG32(CLK_PERPLL_EN, val);
 }
 
-/**
- * @brief Assert UART reset
- */
+/*
+    Function: uart_assert_reset
+
+    Assert UART reset
+*/
+
 static void uart_assert_reset(uint32_t instance)
 {
     reset_periphrl_t reset_inst;
@@ -49,19 +65,23 @@ static void uart_assert_reset(uint32_t instance)
     (void)rstmgr_assert_reset(reset_inst);
 }
 
-/**
- * @brief Deassert UART reset
- */
+/*
+    Function: uart_deassert_reset
+
+    Deassert UART reset
+*/
+
 static void uart_deassert_reset(uint32_t instance)
 {
     reset_periphrl_t reset_inst;
     reset_inst = (instance == 1U) ? RST_UART1: RST_UART0;
     (void)rstmgr_deassert_reset(reset_inst);
 }
+/*
+    Function: uart_init
 
-/**
- * @brief Initialize UART and configure the FIFO
- */
+    Initialize UART and configure the FIFO
+*/
 void uart_init(uint32_t instance)
 {
     volatile int32_t i = 0;
@@ -85,17 +105,21 @@ void uart_init(uint32_t instance)
     uart_config_fifo(GET_UART_BASE_ADDRESS(instance));
 }
 
-/**
- * @brief Deinitialize UART
- */
+/*
+    Function: uart_deinit
+
+    Deinitialize UART
+*/
 void uart_deinit(uint32_t instance)
 {
     uart_disable_clock(instance);
 }
 
-/**
- * @brief Configure UART
- */
+/*
+    Function: uart_set_config
+
+    Configure UART
+*/
 void uart_set_config(uint32_t base_address, uart_partity_t parity,
         uart_stop_bits_t stopbit, uint32_t wordlen)
 {
@@ -129,9 +153,11 @@ void uart_set_config(uint32_t base_address, uart_partity_t parity,
     WR_REG32((base_address + UART_LCR), val);
 }
 
-/**
- * @brief Set UART baud rate
- */
+/*
+    Function: uart_set_baud
+
+    Set UART baud rate
+*/
 uint32_t uart_set_baud(uint32_t base_address, uint32_t baud)
 {
     uint32_t peri_clk = 0U;
@@ -170,9 +196,11 @@ uint32_t uart_set_baud(uint32_t base_address, uint32_t baud)
     return 1U;
 }
 
-/**
- * @brief Configure UART FIFO
- */
+/*
+    Function: uart_config_fifo
+
+    Configure UART FIFO
+*/
 void uart_config_fifo(uint32_t base_address)
 {
     uint32_t val = 0U;
@@ -188,9 +216,11 @@ void uart_config_fifo(uint32_t base_address)
     WR_REG32((base_address + UART_FCR), val);
 }
 
-/**
- * @brief Get UART configuration parameters
- */
+/*
+    Function: uart_get_config
+
+    Get UART configuration parameters
+*/
 void uart_get_config(uint32_t base_address, uint32_t *baud,
         uart_partity_t *parity, uart_stop_bits_t *stopbit,
         uint32_t *wordlen)
@@ -229,9 +259,11 @@ void uart_get_config(uint32_t base_address, uint32_t *baud,
     *wordlen = bf_val + 5U;
 }
 
-/**
- * @brief Get UART baud rate
- */
+/*
+    Function: uart_get_baud
+
+    Get UART baud rate
+*/
 uint32_t uart_get_baud(uint32_t base_address)
 {
     uint32_t lcr_var;
@@ -276,9 +308,11 @@ uint32_t uart_get_baud(uint32_t base_address)
     return baud;
 }
 
-/**
- * @brief Get UART interrupt status
- */
+/*
+    Function: get_int_status
+
+    Get UART interrupt status
+*/
 uint32_t get_int_status(uint32_t base_address)
 {
     volatile uint32_t val;
@@ -310,9 +344,11 @@ uint32_t get_int_status(uint32_t base_address)
     return ret;
 }
 
-/**
- * @brief Write data to UART transmit FIFO
- */
+/*
+    Function: uart_write_fifo
+
+    Write data to UART transmit FIFO
+*/
 uint16_t uart_write_fifo(uint32_t base_address, uint8_t *const buf,
         uint32_t bytes)
 {
@@ -336,9 +372,11 @@ uint16_t uart_write_fifo(uint32_t base_address, uint8_t *const buf,
     return bytes_done;
 }
 
-/**
- * @brief Read data from UART receive FIFO
- */
+/*
+    Function: uart_read_fifo
+
+    Read data from UART receive FIFO
+*/
 uint16_t uart_read_fifo(uint32_t base_address, uint8_t *const buf,
         uint32_t bytes)
 {
@@ -363,9 +401,11 @@ uint16_t uart_read_fifo(uint32_t base_address, uint8_t *const buf,
     return bytes_done;
 }
 
-/**
- * @brief Enable UART interrupts
- */
+/*
+    Function: uart_enable_interrupt
+
+    Enable UART interrupts
+*/
 void uart_enable_interrupt(uint32_t base_address, uart_interrupt_id_t id)
 {
     uint32_t val;
@@ -395,9 +435,11 @@ void uart_enable_interrupt(uint32_t base_address, uart_interrupt_id_t id)
     }
 }
 
-/**
- * @brief Disable UART interrupts
- */
+/*
+    Function: uart_disable_interrupt
+
+    Disable UART interrupts
+*/
 void uart_disable_interrupt(uint32_t base_address, uart_interrupt_id_t id)
 {
     uint32_t val;
@@ -427,9 +469,11 @@ void uart_disable_interrupt(uint32_t base_address, uart_interrupt_id_t id)
     }
 }
 
-/**
- * @brief Polling write to UART Tx
- */
+/*
+    Function: uart_tx_polling
+
+    Polling write to UART Tx
+*/
 uint32_t uart_tx_polling(uint32_t base_address, uint8_t *const buf,
         uint32_t nbytes)
 {

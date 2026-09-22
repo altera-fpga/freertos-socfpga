@@ -16,22 +16,39 @@
 #include "osal_log.h"
 #include "socfpga_defines.h"
 
-/*@brief Maximum number of supported instances for I2C*/
+/*
+    File: CLI Utilities Implementation
+
+    Implements the CLI utilities: 7 functions, 1 of them local to this file.
+*/
+
+/*
+    Constant: MAX_I2C_NUM_INST
+
+    Maximum number of supported instances for I2C
+*/
 #define MAX_I2C_NUM_INST    5
 
-/*@brief Maximum number of pinmux that can configured as I2C SDA*/
+/*
+    Constant: MAX_I2C_SDA_PINS
+
+    Maximum number of pinmux that can configured as I2C SDA
+*/
 #define MAX_I2C_SDA_PINS    3
 
-/*@brief Maximum number of pinmux that can configured as I2C SCL*/
+/*
+    Constant: MAX_I2C_SCL_PINS
+
+    Maximum number of pinmux that can configured as I2C SCL
+*/
 #define MAX_I2C_SCL_PINS    3
 
-/*@brief Table of pinmux that can be configured as SDA for each instance
- *     I2C0         - [pin4sel, pin22sel, pin26sel]
- *     I2C1         - [pin2sel, pin20sel, pin36sel]
- *     I2C2_EMAC0   - [pin8sel, pin34sel, pin46sel]
- *     I2C2_EMAC1   - [pin8sel, pin42sel, pin8sel ]
- *     I2C2_EMAC2   - [pin6sel, pin32sel, pin44sel]
- */
+/*
+    Table of pinmux that can be configured as SDA for each instance I2C0 -
+    [pin4sel, pin22sel, pin26sel] I2C1 - [pin2sel, pin20sel, pin36sel]
+    I2C2_EMAC0 - [pin8sel, pin34sel, pin46sel] I2C2_EMAC1 - [pin8sel,
+    pin42sel, pin8sel ] I2C2_EMAC2 - [pin6sel, pin32sel, pin44sel]
+*/
 const uint32_t i2c_sda_pins[MAX_I2C_NUM_INST][MAX_I2C_SDA_PINS] =
 {
     {0x10D13010, 0x10D13058, 0x10D13068},
@@ -41,13 +58,12 @@ const uint32_t i2c_sda_pins[MAX_I2C_NUM_INST][MAX_I2C_SDA_PINS] =
     {0x10D13018, 0x10D13080, 0x10D13110}
 };
 
-/*@brief Table of pinmux that can be configured as SCL for each instance
- *     I2C0         - [pin4sel, pin23sel, pin27sel]
- *     I2C1         - [pin3sel, pin21sel, pin37sel]
- *     I2C2_EMAC0   - [pin9sel, pin35sel, pin47sel]
- *     I2C2_EMAC1   - [pin9sel, pin43sel, pin9sel ]
- *     I2C2_EMAC2   - [pin7sel, pin33sel, pin44sel]
- */
+/*
+    Table of pinmux that can be configured as SCL for each instance I2C0 -
+    [pin4sel, pin23sel, pin27sel] I2C1 - [pin3sel, pin21sel, pin37sel]
+    I2C2_EMAC0 - [pin9sel, pin35sel, pin47sel] I2C2_EMAC1 - [pin9sel,
+    pin43sel, pin9sel ] I2C2_EMAC2 - [pin7sel, pin33sel, pin44sel]
+*/
 const uint32_t i2c_scl_pins[MAX_I2C_NUM_INST][MAX_I2C_SCL_PINS] =
 {
     {0x10D13014, 0x10D1305C, 0x10D1306C},
@@ -57,8 +73,9 @@ const uint32_t i2c_scl_pins[MAX_I2C_NUM_INST][MAX_I2C_SCL_PINS] =
     {0x10D1301C, 0x10D13084, 0x10D13114}
 };
 
-/*@brief Table of states for a pimux to be configured as a SCL/SDA
- */
+/*
+    Table of states for a pimux to be configured as a SCL/SDA
+*/
 const uint8_t i2c_mux_sel[MAX_I2C_NUM_INST][MAX_I2C_SDA_PINS] =
 {
     {4, 4, 4},
@@ -68,9 +85,9 @@ const uint8_t i2c_mux_sel[MAX_I2C_NUM_INST][MAX_I2C_SDA_PINS] =
     {4, 4, 4}
 };
 
-/**
- * @brief Get the decimal value from the cli command and validate it.
- */
+/*
+    Get the decimal value from the cli command and validate it.
+*/
 int cli_get_decimal(const char *cmd, const char *param, const char *input,
         long int lo_bound,long int hi_bound, uint32_t *val)
 {
@@ -106,9 +123,9 @@ int cli_get_decimal(const char *cmd, const char *param, const char *input,
     return 0;
 }
 
-/**
- * @brief Get the hexa decimal value from the cli command and validate it.
- */
+/*
+    Get the hexa decimal value from the cli command and validate it.
+*/
 int cli_get_hex(const char  *cmd, const char  *param, const char  *input,
         long int lo_bound, long int hi_bound, uint32_t *val)
 {
@@ -147,9 +164,9 @@ int cli_get_hex(const char  *cmd, const char  *param, const char  *input,
 }
 
 
-/**
- * @brief Get the file name for FAT cli and check if it is valid.
- */
+/*
+    Get the file name for FAT cli and check if it is valid.
+*/
 int cli_get_file_name(const char *name, const char *command)
 {
     char cmpBuf[14];
@@ -199,9 +216,9 @@ int cli_get_file_name(const char *name, const char *command)
     return 0;
 }
 
-/**
- * @brief Get the directory name for FAT cli and check if it is valid.
- */
+/*
+    Get the directory name for FAT cli and check if it is valid.
+*/
 int cli_get_dir_name(const char *name, const char *command)
 {
     char *dir_name = strrchr(name, '/');
@@ -218,9 +235,11 @@ int cli_get_dir_name(const char *name, const char *command)
     return 0;
 }
 
-/**
- * @brief Get the state of the pinmux
- */
+/*
+    Function: pinmux_get_sel
+
+    Get the state of the pinmux
+*/
 uint8_t pinmux_get_sel(uint32_t pin_reg)
 {
     uint32_t val;
@@ -231,9 +250,9 @@ uint8_t pinmux_get_sel(uint32_t pin_reg)
     return pinVal;
 }
 
-/**
- * @brief Check if I2C instance is supported in hardware.
- */
+/*
+    Check if I2C instance is supported in hardware.
+*/
 int cli_is_pinmux_i2c(uint8_t instance)
 {
     /*Iterate throught all the pinmuxes that can
@@ -257,9 +276,9 @@ int cli_is_pinmux_i2c(uint8_t instance)
     return -1;
 }
 
-/**
- * @brief Check if IP is valid.
- */
+/*
+    Check if IP is valid.
+*/
 int cli_is_valid_ip(const char *ip)
 {
     int num, dots = 0;

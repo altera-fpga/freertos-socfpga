@@ -6,6 +6,18 @@
  * Low level driver implementation for SoC FPGA XGMAC
  */
 
+/*
+    File: Ethernet XGMAC Low-Level Driver Implementation
+
+    Low level driver implementation for SoC FPGA XGMAC.
+*/
+
+/*
+    Constants: Ethernet XGMAC constants
+
+    XGMAC_CLEAR_SPEED_MASK - Value: 0x1FFFFFFFU.
+*/
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -16,6 +28,9 @@
 
 #define XGMAC_CLEAR_SPEED_MASK     0x1FFFFFFFU
 
+/*
+    Function: xgmac_set_macaddress
+*/
 void xgmac_set_macaddress(uint32_t base_address, void *address_ptr, uint8_t
         index_val)
 {
@@ -52,6 +67,11 @@ void xgmac_set_macaddress(uint32_t base_address, void *address_ptr, uint8_t
             ((uint32_t)XGMAC_MAC_ADDRESS0_HIGH + (uint32_t)addr_offset), mac_addr);
 }
 
+/*
+    Function: xgmac_setduplex
+
+    Calls DISABLE_BIT and ENABLE_BIT.
+*/
 void  xgmac_setduplex(uint32_t base_address, uint8_t duplex)
 {
     /* Full Duplex */
@@ -65,6 +85,11 @@ void  xgmac_setduplex(uint32_t base_address, uint8_t duplex)
         ENABLE_BIT(base_address + XGMAC_MAC_EXTENDED_CONFIGURATION, XGMAC_MAC_EXT_CONF_HD);
     }
 }
+/*
+    Function: xgmac_setspeed
+
+    Calls RD_REG32 and WR_REG32.
+*/
 void xgmac_setspeed(uint32_t base_address, uint32_t speed)
 {
     uint32_t reg_data = 0;
@@ -90,6 +115,11 @@ void xgmac_setspeed(uint32_t base_address, uint32_t speed)
     WR_REG32(base_address + XGMAC_MAC_TX_CONFIGURATION, reg_data);
 }
 
+/*
+    Function: xgmac_dma_software_reset
+
+    Sets the SWR bit in the XGMAC_DMA_MODE register.
+*/
 int32_t xgmac_dma_software_reset(uint32_t base_address)
 {
     ENABLE_BIT(base_address + XGMAC_DMA_MODE, XGMAC_DMA_MODE_SWR_MASK);
@@ -97,6 +127,11 @@ int32_t xgmac_dma_software_reset(uint32_t base_address)
     return XGMAC_LL_RETVAL_SUCCESS;
 }
 
+/*
+    Function: xgmac_is_dma_reset_done
+
+    Reads the XGMAC_DMA_MODE register.
+*/
 bool xgmac_is_dma_reset_done(uint32_t base_address)
 {
     uint32_t reg_data;
@@ -106,6 +141,11 @@ bool xgmac_is_dma_reset_done(uint32_t base_address)
     return ((reg_data & XGMAC_DMA_MODE_SWR_MASK) == 0U);
 }
 
+/*
+    Function: xgmac_dma_init
+
+    Wrapper around <xgmac_config_dma_sysbus_mode>.
+*/
 void xgmac_dma_init(uint32_t base_address, const
         xgmac_dev_config_str_t *xgmacdevconfig)
 {
@@ -114,6 +154,11 @@ void xgmac_dma_init(uint32_t base_address, const
 }
 
 
+/*
+    Function: xgmac_start_dma
+
+    Calls RD_DMA_CHNL_REG32 and WR_DMA_CHNL_REG32.
+*/
 void xgmac_start_dma(uint32_t base_address, uint8_t dmachindx, uint8_t txrxflag)
 {
     uint32_t val;
@@ -133,6 +178,9 @@ void xgmac_start_dma(uint32_t base_address, uint8_t dmachindx, uint8_t txrxflag)
     }
 }
 
+/*
+    Function: xgmac_config_dma_sysbus_mode
+*/
 void xgmac_config_dma_sysbus_mode(uint32_t base_address, const
         xgmacdma_config_t *dmaconfig)
 {
@@ -242,6 +290,9 @@ void xgmac_config_dma_sysbus_mode(uint32_t base_address, const
     DISABLE_BIT(base_address + XGMAC_DMA_SYSBUS_MODE, clrmask);
 }
 
+/*
+    Function: xgmac_init_dma_channel_desc_reg
+*/
 void xgmac_init_dma_channel_desc_reg(uint32_t base_address, uint8_t dmachindx,
         xgmac_dma_desc_addr_t *dmadescparams)
 {
@@ -276,6 +327,9 @@ void xgmac_init_dma_channel_desc_reg(uint32_t base_address, uint8_t dmachindx,
     WR_DMA_CHNL_REG32(base_address, dmachindx, XGMAC_DMA_CH_RXDESC_TAIL_LPOINTER, val);
 }
 
+/*
+    Function: xgmac_config_dma_channel_control
+*/
 void xgmac_config_dma_channel_control(uint32_t base_address, uint8_t dmachindx,
         const xgmacdma_chanl_config_t *dmachnlconfig)
 {
@@ -342,6 +396,9 @@ void xgmac_config_dma_channel_control(uint32_t base_address, uint8_t dmachindx,
     WR_DMA_CHNL_REG32(base_address, dmachindx, XGMAC_DMA_CH_RX_CONTROL, val);
 
 }
+/*
+    Function: xgmac_enable_dma_interrupt
+*/
 int32_t xgmac_enable_dma_interrupt(uint32_t base_address, uint8_t chindx,
         xgmac_dma_interrupt_id_t id)
 {
@@ -381,6 +438,9 @@ int32_t xgmac_enable_dma_interrupt(uint32_t base_address, uint8_t chindx,
     return XGMAC_LL_RETVAL_SUCCESS;
 }
 
+/*
+    Function: xgmac_mac_init
+*/
 void xgmac_mac_init(uint32_t base_address, const
         xgmac_dev_config_str_t *xgmacdevconfig)
 {
@@ -429,6 +489,11 @@ void xgmac_mac_init(uint32_t base_address, const
     xgmac_mmc_setup(base_address);
 }
 
+/*
+    Function: xgmac_start_stop_mac_tx
+
+    Calls ENABLE_BIT and DISABLE_BIT.
+*/
 void xgmac_start_stop_mac_tx(uint32_t base_address, bool stflag)
 {
     if (stflag == true)
@@ -441,6 +506,11 @@ void xgmac_start_stop_mac_tx(uint32_t base_address, bool stflag)
     }
 }
 
+/*
+    Function: xgmac_start_stop_mac_rx
+
+    Calls ENABLE_BIT and DISABLE_BIT.
+*/
 void xgmac_start_stop_mac_rx(uint32_t base_address, bool stflag)
 {
     if (stflag == true)
@@ -453,6 +523,11 @@ void xgmac_start_stop_mac_rx(uint32_t base_address, bool stflag)
     }
 }
 
+/*
+    Function: xgmac_config_macrxqctrl_regs
+
+    Calls DISABLE_BIT and ENABLE_BIT.
+*/
 void xgmac_config_macrxqctrl_regs(uint32_t base_address, const
         xgmacmac_rx_q_ctrl_config_t *macrxqctrlconfig)
 {
@@ -474,6 +549,9 @@ void xgmac_config_macrxqctrl_regs(uint32_t base_address, const
     }
 }
 
+/*
+    Function: xgmac_config_mac_frame_filter
+*/
 void xgmac_config_mac_frame_filter(uint32_t base_address, const
         xgmacmac_pkt_filter_config_t *macpktfilterconfig)
 {
@@ -615,6 +693,11 @@ void xgmac_config_mac_frame_filter(uint32_t base_address, const
     }
 }
 
+/*
+    Function: xgmac_config_mac_tx
+
+    Calls ENABLE_BIT and DISABLE_BIT.
+*/
 void xgmac_config_mac_tx(uint32_t base_address, const
         xgmacmac_tx_config_t *mactxconfig)
 {
@@ -629,6 +712,9 @@ void xgmac_config_mac_tx(uint32_t base_address, const
     }
 }
 
+/*
+    Function: xgmac_config_mac_rx
+*/
 void xgmac_config_mac_rx(uint32_t base_address, const
         xgmacmac_rx_config_t *macrxconfig)
 {
@@ -745,6 +831,11 @@ void xgmac_config_mac_rx(uint32_t base_address, const
     WR_REG32(base_address + XGMAC_MAC_RX_CONFIGURATION, val);
 }
 
+/*
+    Function: xgmac_enable_tx_flow_control
+
+    Calls ENABLE_MAC_FLOW_CNTL_REGBIT and DISABLE_MAC_FLOW_CNTL_REGBIT.
+*/
 void xgmac_enable_tx_flow_control(uint32_t base_address, uint8_t qindx, const
         xgmacmac_tx_flow_ctrl_config_t *mactxflowctrlconfig)
 {
@@ -797,6 +888,11 @@ void xgmac_enable_tx_flow_control(uint32_t base_address, uint8_t qindx, const
     }
 }
 
+/*
+    Function: xgmac_enable_rx_flow_control
+
+    Calls ENABLE_BIT and DISABLE_BIT.
+*/
 void xgmac_enable_rx_flow_control(uint32_t base_address, const
         xgmacmac_rx_flow_ctrl_config_t *macrxflowctrlconfig)
 {
@@ -829,6 +925,11 @@ void xgmac_enable_rx_flow_control(uint32_t base_address, const
     }
 }
 
+/*
+    Function: xgmac_mtl_init
+
+    Calls <xgmac_set_mtl_tx_regs> and <xgmac_set_mtl_rx_regs>.
+*/
 void xgmac_mtl_init (uint32_t base_address, const
         xgmac_dev_config_str_t *xgmacdevconfig)
 {
@@ -860,7 +961,12 @@ void xgmac_mtl_init (uint32_t base_address, const
     }
 }
 
-/* XGMAC Device start */
+/*
+    Function: xgmac_dev_start
+
+    XGMAC Device start
+*/
+
 void xgmac_dev_start(uint32_t base_address)
 {
     /* Start the MAC Transmitter */
@@ -870,6 +976,9 @@ void xgmac_dev_start(uint32_t base_address)
     xgmac_start_stop_mac_rx(base_address, true);
 }
 
+/*
+    Function: xgmac_set_mtl_tx_regs
+*/
 void xgmac_set_mtl_tx_regs(uint32_t base_address, uint8_t qindx, const
         xgmacmtl_tx_queue_config_t *mtltxqcfgparams)
 {
@@ -905,6 +1014,12 @@ void xgmac_set_mtl_tx_regs(uint32_t base_address, uint8_t qindx, const
     WR_MTL_QX_REG32(base_address, qindx, XGMAC_MTL_TXQ_OPERATION_MODE, val);
 }
 
+/*
+    Function: xgmac_set_mtl_rx_regs
+
+    Calls RD_REG32, XGMAC_MTL_RX_FIFO_BLK_CNT, RD_MTL_QX_REG32 and
+    WR_MTL_QX_REG32.
+*/
 void xgmac_set_mtl_rx_regs(uint32_t base_address, uint8_t qindx, const
         xgmacmtl_rx_queue_config_t *mtlrxqcfgparams)
 {
@@ -950,6 +1065,11 @@ void xgmac_set_mtl_rx_regs(uint32_t base_address, uint8_t qindx, const
     WR_MTL_QX_REG32(base_address, qindx, XGMAC_MTL_RXQ_OPERATION_MODE, val);
 }
 
+/*
+    Function: xgmac_disable_interrupt
+
+    Clears the LSI bit in the XGMAC_MAC_INTERRUPT_STATUS register.
+*/
 void xgmac_disable_interrupt(uint32_t base_address)
 {
     /* Read the XGMAC interrupt status register */
@@ -963,6 +1083,9 @@ void xgmac_disable_interrupt(uint32_t base_address)
     WR_REG32(base_address + XGMAC_MAC_INTERRUPT_STATUS, mac_intr_status);
 }
 
+/*
+    Function: xgmac_start_dma_dev
+*/
 void xgmac_start_dma_dev(uint32_t base_address, const
         xgmac_dev_config_str_t *xgmacdevconfig)
 {
@@ -980,6 +1103,11 @@ void xgmac_start_dma_dev(uint32_t base_address, const
     }
 }
 
+/*
+    Function: check_and_clear_xgmac_interrupt_status
+
+    Calls RD_REG32 and WR_REG32.
+*/
 xgmac_dma_interrupt_id_t check_and_clear_xgmac_interrupt_status(uint32_t
         base_address)
 {
@@ -1023,6 +1151,11 @@ xgmac_dma_interrupt_id_t check_and_clear_xgmac_interrupt_status(uint32_t
 
     return res;
 }
+/*
+    Function: check_and_clear_link_interrupt_status
+
+    Calls RD_REG32.
+*/
 void check_and_clear_link_interrupt_status(uint32_t base_address)
 {
     uint32_t val;
@@ -1032,16 +1165,32 @@ void check_and_clear_link_interrupt_status(uint32_t base_address)
     (void)val;
 }
 
+/*
+    Function: xgmac_flush_buffer
+
+    Wrapper around <cache_force_write_back>.
+*/
 void xgmac_flush_buffer(void *buf, size_t size)
 {
     cache_force_write_back(buf, size);
 }
 
+/*
+    Function: xgmac_invalidate_buffer
+
+    Wrapper around <cache_force_invalidate>.
+*/
 void xgmac_invalidate_buffer(void *buf, size_t size)
 {
     cache_force_invalidate(buf, size);
 }
 
+/*
+    Function: xgmac_mmc_setup
+
+    Clears the XGMAC_MMC_IPC_RX_INTR_MASK_ALL bit in the
+    XGMAC_MMC_IPC_RX_INTERRUPT_MASK register.
+*/
 void xgmac_mmc_setup(uint32_t base_address)
 {
     /*

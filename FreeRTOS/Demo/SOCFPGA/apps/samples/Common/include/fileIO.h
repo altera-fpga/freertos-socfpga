@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: File IO
+
+    Declares the File IO interface: 3 functions.
+
+    They are vDisplayMessage, vWriteBufferToDisk and vWriteMessageToDisk.
+*/
+
 #ifndef FILE_IO_H
 #define FILE_IO_H
 

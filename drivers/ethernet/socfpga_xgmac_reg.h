@@ -6,6 +6,16 @@
  * This contains the register defintions for SoC FPGA XGMAC
  */
 
+/*
+    File: Ethernet XGMAC Registers
+
+    This contains the register defintions for SoC FPGA XGMAC.
+
+    The definitions fall into the XGMAC_MAC_*, XGMAC_DMA_*, XGMAC_MTL_*,
+    XGMAC_MDIO_*, XGMAC_MMC_* and XGMAC_RX_* families, plus 34 smaller
+    groups.
+*/
+
 #ifndef __SOCFPGA_XGMAC_REG_H__
 #define __SOCFPGA_XGMAC_REG_H__
 

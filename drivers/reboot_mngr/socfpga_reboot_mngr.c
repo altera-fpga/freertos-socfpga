@@ -6,6 +6,21 @@
  * HAL driver implementation for reboot
  */
 
+/*
+    File: Reboot Manager Driver Implementation
+
+    HAL driver implementation for reboot.
+*/
+
+/*
+    Constants: Reboot Manager constants
+
+    COLD_REBOOT_CMD       - Value: 0x84000009U.
+    WARM_REBOOT_CMD       - Value: 0x84000012U.
+    PSCI_E_NOT_SUPPORTED  - Value: -1.
+    PSCI_E_INVALID_PARAMS - Value: -2.
+*/
+
 #include <stdint.h>
 #include "socfpga_reboot_mngr.h"
 #include "socfpga_sip_handler.h"

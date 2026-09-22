@@ -6,6 +6,13 @@
  * Header file for SoC FPGA XGMAC low level driver
  */
 
+/*
+    File: Ethernet XGMAC Low-Level Driver
+
+    Declares the Ethernet XGMAC low-level driver interface: 36 functions, 15
+    types and 66 constants.
+*/
+
 #ifndef __SOCFPGA_XGMAC_LL_H__
 #define __SOCFPGA_XGMAC_LL_H__
 
@@ -132,7 +139,11 @@
 #define WR_DMA_CHNL_REG32(base_address, channel, reg_offset, data)    (*(uint32_t \
     volatile *)((uintptr_t)(base_address) + XGMAC_DMA_CHANNEL_BASE + ((channel) * \
     XGMAC_DMA_CHANNEL_INC) + (reg_offset)) = (data))
+/*
+    Struct: xgmac_dma_interrupt_id_t
 
+    Interrupt ID enumeration for XGMAC DMA Parameters
+*/
 typedef enum
 {
     INTERRUPT_TI,       /* Transmit Interrupt .*/
@@ -151,6 +162,11 @@ typedef enum
 
 typedef bool Basetype_t;
 
+/*
+    Struct: xgmac_dma_desc_addr_t
+
+    Descriptor address structure for XGMAC DMA Parameters
+*/
 typedef struct
 {
     uint32_t tx_ring_len;
@@ -163,9 +179,12 @@ typedef struct
     uint32_t rx_last_desc_addr;
 } xgmac_dma_desc_addr_t;
 
+
 /*
- * @brief  Configuration structure for XGMAC DMA Parameters
- */
+    Struct: xgmacdma_config_t
+
+    Configuration structure for XGMAC DMA Parameters
+*/
 typedef struct
 {
     bool ubl;
@@ -184,8 +203,10 @@ typedef struct
 
 
 /*
- * @brief  Configuration structure for XGMAC DMA Channel Parameters
- */
+    Struct: xgmacdma_chanl_config_t
+
+    Configuration structure for XGMAC DMA Channel Parameters
+*/
 typedef struct
 {
     /* DMA channel Control register fields */
@@ -206,8 +227,10 @@ typedef struct
 
 
 /*
- * @brief  Configuration structure for XGMAC MAC Rx parameters
- */
+    Struct: xgmacmac_rx_q_ctrl_config_t
+
+    Configuration structure for XGMAC MAC Rx parameters
+*/
 typedef struct
 {
     /* MAC RxQ control0 register fields */
@@ -226,8 +249,10 @@ typedef struct
 
 
 /*
- * @brief   Configuration structure for XGMAC MTL Tx Queue parameters
- */
+    Struct: xgmacmtl_tx_queue_config_t
+
+    Configuration structure for XGMAC MTL Tx Queue parameters
+*/
 typedef struct
 {
     bool tsf;
@@ -237,8 +262,10 @@ typedef struct
 
 
 /*
- * @brief   Configuration structure for XGMAC MTL Rx Queue parameters
- */
+    Struct: xgmacmtl_rx_queue_config_t
+
+    Configuration structure for XGMAC MTL Rx Queue parameters
+*/
 typedef struct
 {
     bool rsf;
@@ -248,8 +275,10 @@ typedef struct
 
 
 /*
- * @brief  Configuration structure for XGMAC MAC Tx Flow Control parameters
- */
+    Struct: xgmacmac_tx_flow_ctrl_config_t
+
+    Configuration structure for XGMAC MAC Tx Flow Control parameters
+*/
 typedef struct
 {
     bool fcb;
@@ -260,8 +289,10 @@ typedef struct
 } xgmacmac_tx_flow_ctrl_config_t;
 
 /*
- * @brief  Configuration structure for XGMAC MAC Rx Flow Control parameters
- */
+    Struct: xgmacmac_rx_flow_ctrl_config_t
+
+    Configuration structure for XGMAC MAC Rx Flow Control parameters
+*/
 typedef struct
 {
     bool rfe;
@@ -271,8 +302,10 @@ typedef struct
 
 
 /*
- * @brief  Configuration structure for XGMAC MAC Tx parameters
- */
+    Struct: xgmacmac_tx_config_t
+
+    Configuration structure for XGMAC MAC Tx parameters
+*/
 typedef struct
 {
     bool jd;
@@ -280,8 +313,10 @@ typedef struct
 
 
 /*
- * @brief  Configuration structure for XGMAC MAC Rx parameters
- */
+    Struct: xgmacmac_rx_config_t
+
+    Configuration structure for XGMAC MAC Rx parameters
+*/
 typedef struct
 {
     bool acs;
@@ -298,8 +333,10 @@ typedef struct
 } xgmacmac_rx_config_t;
 
 /*
- * @brief  Configuration structure for XGMAC MAC Packet Filter parameters
- */
+    Struct: xgmacmac_pkt_filter_config_t
+
+    Configuration structure for XGMAC MAC Packet Filter parameters
+*/
 typedef struct
 {
     bool pr;
@@ -320,8 +357,10 @@ typedef struct
 } xgmacmac_pkt_filter_config_t;
 
 /*
- * @brief  Configuration structure for XGMAC Device Parameters
- */
+    Struct: xgmac_dev_config_t
+
+    Configuration structure for XGMAC Device Parameters
+*/
 typedef struct
 {
     uint8_t nofdmachannels;
@@ -330,8 +369,10 @@ typedef struct
 } xgmac_dev_config_t;
 
 /*
- * @brief  Configuration structure for XGMAC DMA, MTL and MAC Parameters
- */
+    Struct: xgmac_dev_config_str_t
+
+    Configuration structure for XGMAC DMA, MTL and MAC Parameters
+*/
 typedef struct
 {
     const xgmac_dev_config_t *mac_dev_config;

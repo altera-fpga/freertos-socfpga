@@ -141,7 +141,7 @@ You need to have the SOF file for your design for the next step, We assume that 
 ```bash
   cd $TOP_FOLDER/qspi_bin
   cp $TOP_FOLDER/ghrd_a5ed065bb32ae6sr0.sof .
-  wget https://releases.rocketboards.org/2024.11/zephyr/agilex5/hps_zephyr/hello_world/qspi_boot/qspi_flash_image_agilex5_boot.pfg
+  cp $TOP_FOLDER/freertos-socfpga/tools/qspi_flash_image_agilex5_boot.pfg .
   quartus_pfg -c qspi_flash_image_agilex5_boot.pfg
 ```
 The following output files are generated from the above steps:
@@ -172,13 +172,7 @@ The following output files are generated from the above steps:
 - Create qspi jic to boot from SD card
 ```bash
   cd $TOP_FOLDER/sd_bin
-  wget https://releases.rocketboards.org/2024.11/zephyr/agilex5/hps_zephyr/hello_world/qspi_boot/qspi_flash_image_agilex5_boot.pfg
-  sed \
-    -e '/^[[:space:]]*<raw_files>/,/^[[:space:]]*<\/raw_files>/d' \
-    -e '/^[[:space:]]*<partition[^>]*id="fip"[^>]*\/>[[:space:]]*$/d' \
-    -e '/^[[:space:]]*<assignment[[:space:]]\+page="0"[[:space:]]\+partition_id="fip">/,/^[[:space:]]*<\/assignment>/d' \
-    qspi_flash_image_agilex5_boot.pfg > qspi_flash_image_agilex5_sdmmc.pfg
-
+  cp $TOP_FOLDER/freertos-socfpga/tools/qspi_flash_image_agilex5_sdmmc.pfg .
   cp $TOP_FOLDER/ghrd_a5ed065bb32ae6sr0.sof .
   quartus_pfg -c qspi_flash_image_agilex5_sdmmc.pfg
 
@@ -225,13 +219,7 @@ The following output files are generated from the above steps:
 ```bash
   cd $TOP_FOLDER/emmc_bin
   cp $TOP_FOLDER/ghrd_a5ed065bb32ae6sr0.sof .
-  wget https://releases.rocketboards.org/2024.11/zephyr/agilex5/hps_zephyr/hello_world/qspi_boot/qspi_flash_image_agilex5_boot.pfg
-  sed \
-    -e '/^[[:space:]]*<raw_files>/,/^[[:space:]]*<\/raw_files>/d' \
-    -e '/^[[:space:]]*<partition[^>]*id="fip"[^>]*\/>[[:space:]]*$/d' \
-    -e '/^[[:space:]]*<assignment[[:space:]]\+page="0"[[:space:]]\+partition_id="fip">/,/^[[:space:]]*<\/assignment>/d' \
-    qspi_flash_image_agilex5_boot.pfg > qspi_flash_image_agilex5_sdmmc.pfg
-
+  cp $TOP_FOLDER/freertos-socfpga/tools/qspi_flash_image_agilex5_sdmmc.pfg .
   quartus_pfg -c qspi_flash_image_agilex5_sdmmc.pfg
 
   #create core.rbf

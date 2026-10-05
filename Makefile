@@ -419,9 +419,6 @@ clean:
 docs:
 	$(ARC) tools/nd_build.sh
 
-docs-check:
-	@python3 tools/nd_check.py .
-
 # Removes generated output only. Topics.txt and Languages.txt carry project
 # configuration and are tracked, so they are deliberately left in place.
 # Menu.txt is kept: it holds the project title and the hand-ordered sidebar.

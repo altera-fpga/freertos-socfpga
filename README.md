@@ -134,7 +134,7 @@ rm arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf.tar.xz
 export PATH=$AARCH64_TOOLCHAINPATH/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf/bin/:$PATH
 ```
 ## Getting Quartus
-Follow the steps in the official [website](https://www.intel.com/content/www/us/en/software-kit/865547/intel-quartus-prime-pro-edition-design-software-version-25-3-for-windows.html).<br>
+Follow the steps in the official [website](https://www.altera.com/downloads/fpga-development-tools/quartus-prime-pro-edition-design-software-version-26-1-1-windows).<br>
 Download and install Quartus
 
 ## Building the image

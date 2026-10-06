@@ -70,14 +70,12 @@ get_parts() {
 }
 
 total_size=0
-declare -A partitions
 declare -A partitions_file_list
 
 if argsparse_is_option_set parts; then
     count=${program_options[parts]}   # number of occurrences
     for spec in "${cumulated_values_parts[@]}"; do
         get_parts "$spec"
-        partitions[$PNO]="$spec"
         if [[ $PTYPE == "c" ]]; then
             if [ -z "$PSIZE" ] || [ $PSIZE -lt 32 ]; then
                 PSIZE=32
@@ -105,7 +103,9 @@ rm -f fdisk_cmd
 echo "o" >> fdisk_cmd
 index=1   # number of occurrences
 is_first_pass=0
-for spec in "${partitions[@]}"; do
+# Preserve the user-specified partition order so a size-less partition
+# does not consume the whole disk before later fixed-size partitions.
+for spec in "${cumulated_values_parts[@]}"; do
     get_parts "$spec"
     echo "n" >> fdisk_cmd
     echo "p" >> fdisk_cmd
@@ -134,11 +134,11 @@ dd if=/dev/zero of="$IMG_FILE" bs=1M count=$IMG_SIZE_MB > /dev/null 2>&1
 echo "Creating partitions"
 fdisk "$IMG_FILE" < fdisk_cmd > /dev/null 2>&1
 
-start_block=( $(fdisk -l "$IMG_FILE" | awk -v f="$IMG_FILE" '$0 ~ ("^" f) { print $2 }') )
-end_block=( $(fdisk -l "$IMG_FILE" | awk -v f="$IMG_FILE" '$0 ~ ("^" f) { print $3 }') )
-num_blocks=( $(fdisk -l "$IMG_FILE" | awk -v f="$IMG_FILE" '$0 ~ ("^" f) { print $4 }') )
-part_size=( $(fdisk -l "$IMG_FILE" | awk -v f="$IMG_FILE" '$0 ~ ("^" f) { print $5 }') )
-part_type=( $(fdisk -l "$IMG_FILE" | awk -v f="$IMG_FILE" '$0 ~ ("^" f) { print $6 }') )
+start_block=( $(fdisk -l -o Device,Start,End,Sectors,Size,Id "$IMG_FILE" | awk -v f="$IMG_FILE" '$1 ~ ("^" f) { print $2 }') )
+end_block=( $(fdisk -l -o Device,Start,End,Sectors,Size,Id "$IMG_FILE" | awk -v f="$IMG_FILE" '$1 ~ ("^" f) { print $3 }') )
+num_blocks=( $(fdisk -l -o Device,Start,End,Sectors,Size,Id "$IMG_FILE" | awk -v f="$IMG_FILE" '$1 ~ ("^" f) { print $4 }') )
+part_size=( $(fdisk -l -o Device,Start,End,Sectors,Size,Id "$IMG_FILE" | awk -v f="$IMG_FILE" '$1 ~ ("^" f) { print $5 }') )
+part_type=( $(fdisk -l -o Device,Start,End,Sectors,Size,Id "$IMG_FILE" | awk -v f="$IMG_FILE" '$1 ~ ("^" f) { print tolower($6) }') )
 
 #setup fat filesystem
 fat_offset=0

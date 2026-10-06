@@ -11,32 +11,33 @@
 #include "socfpga_ecc.h"
 #include "socfpga_defines.h"
 
-/**
- * @defgroup ecc_sample ECC
- * @ingroup samples
- *
- * Sample Application for ECC driver.
- *
- * @details
- * @section description Description
- * This is a sample application to demonstrate the usage of the ECC driver.
- * It performs a single bit and double bit error injection to a specified ECC
- * module.
- *
- * @section prerequisites Prerequisites
- * None
- *
- * @section ecc_param Configurable Parameters
- * - The module to perform error injection can be modified in the @c ECC_MODULE macro
- * @section how_to_run How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Run the sample.
- *
- * @section expected_results Expected Results
- * - The success/failure logs are displayed in the console.
- * @{
- */
-/** @} */
+/*
+    File: ECC Sample
+
+    Sample Application for ECC driver.
+    Group: Description
+
+    This is a sample application to demonstrate the usage of the ECC driver.
+    It performs a single bit and double bit error injection to a specified ECC
+    module.
+
+    Group: Prerequisites
+
+    None
+
+    Group: Configurable Parameters
+
+    - The module to perform error injection can be modified in the ECC_MODULE macro
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Run the sample.
+
+    Group: Expected Results
+
+    - The success/failure logs are displayed in the console.
+*/
 
 #define ECC_MODULE     ECC_QSPI
 /* Wait time for callback in ms */
@@ -44,6 +45,11 @@
 
 osal_semaphore_t callback_sem;
 
+/*
+    Function: ecc_callback
+
+    Calls osal_semaphore_post.
+*/
 void ecc_callback(uint32_t error_type)
 {
     if (error_type == ECC_SINGLE_BIT_ERROR)
@@ -59,6 +65,9 @@ void ecc_callback(uint32_t error_type)
     osal_semaphore_post(callback_sem);
 }
 
+/*
+    Function: ecc_task
+*/
 void ecc_task(void)
 {
     int ret;

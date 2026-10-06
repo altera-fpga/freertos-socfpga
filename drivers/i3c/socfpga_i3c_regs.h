@@ -1,10 +1,20 @@
-/**
- * SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
- *
- * SPDX-License-Identifier: MIT-0
- *
- * Header file for I3C register definitions
- */
+/*
+    SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
+
+    SPDX-License-Identifier: MIT-0
+
+    Header file for I3C register definitions
+*/
+
+/*
+    File: I3C Regs Driver
+
+    Header file for I3C register definitions.
+
+    The definitions fall into the I3C_DEV_*, I3C_INTR_*, I3C_SCL_*,
+    I3C_QUEUE_*, I3C_DEVICE_* and I3C_HW_* families, plus 13 smaller groups.
+*/
+
 #ifndef __SOCFPGA_I3C_REGS_H__
 #define __SOCFPGA_I3C_REGS_H__
 /* Device Control Register */

@@ -24,6 +24,13 @@
  *
  */
 
+/*
+    File: Int Queue Timer Implementation
+
+    Implements the Int Queue Timer: 3 functions, 1 of them local to this
+    file.
+*/
+
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -39,6 +46,14 @@
 
 static timer_handle_t pxTimerHandle;
 
+/*
+    Function: vTimerInterruptCallback
+
+    Calls <IntQueueTestTimerHandler>.
+
+    Parameters:
+        data - Not used.
+*/
 static void vTimerInterruptCallback( void * data )
 {
     ( void ) data;

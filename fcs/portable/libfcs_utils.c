@@ -1,4 +1,12 @@
 // SPDX-License-Identifier: MIT-0
+
+/*
+    File: FCS Library Utilities Definitions
+
+    Helper routines for the FCS Library: 5 functions, 3 of them local to
+    this file.
+*/
+
 /*
  * Copyright (C) 2025 Altera
  */
@@ -19,6 +27,11 @@ static const char *usb_mount = "/usb/";
 FF_Disk_t *xDiskObj = NULL;
 uint8_t ucMountStatus = UNMOUNTED;
 
+/*
+    Function: fat_get_disk_type
+
+    Calls strncmp.
+*/
 static int fat_get_disk_type(const char *mptr)
 {
     if (strncmp(mptr, sdmmc_mount, 4) == 0)
@@ -35,6 +48,11 @@ static int fat_get_disk_type(const char *mptr)
     }
 }
 
+/*
+    Function: fat_mount
+
+    Calls <fat_get_disk_type>.
+*/
 static int fat_mount( const char *MountName )
 {
     int mount_type = fat_get_disk_type(MountName);
@@ -63,6 +81,11 @@ static int fat_mount( const char *MountName )
     }
 }
 
+/*
+    Function: fat_unmount
+
+    Calls FF_Unmount and FF_SDDiskDelete.
+*/
 static void fat_unmount( void )
 {
     if (xDiskObj == NULL)

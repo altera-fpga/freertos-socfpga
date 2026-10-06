@@ -5,373 +5,383 @@
  *
  * Implementation of CLI commands for FCS
  */
-/**
- * @defgroup cli_fcs FCS
- * @ingroup cli
- *
- * Performs cryptographic services
- *
- * @details
- * It supports the following subcommands:
- * - fcs open_session
- * - fcs close_session
- * - fcs random_number &lt;rand_size&gt; &lt;file&gt;
- * - fcs import_key &lt;file&gt;
- * - fcs export_key &lt;file&gt;
- * - fcs remove_key &lt;key_id&gt;
- * - fcs get_key_info &lt;key_id&gt; &lt;file&gt;
- * - fcs create_key &lt;file&gt;
- * - fcs provision_data &lt;file&gt;
- * - fcs counter_set &lt;file&gt;
- * - fcs counter_set_preauth &lt;type&gt; &lt;value&gt;
- * - fcs sdos_encrypt &lt;owner_id&gt; &lt;identifier&gt; &lt;input_file&gt; &lt;output_file&gt;
- * - fcs sdos_decrypt &lt;input_file&gt; &lt;output_file&gt;
- * - fcs get_digest &lt;key_id&gt; &lt;op_mode&gt; &lt;dig_size&gt; &lt;src_file&gt; &lt;digest_file&gt;
- * - fcs mac_verify &lt;key_id&gt; &lt;dig_size&gt; &lt;src_file&gt; &lt;mac_file&gt;
- * - fcs chip_id
- * - fcs attestation_get_cert &lt;cert_req&gt; &lt;file&gt;
- * - fcs attestation_cert_reload &lt;cert_req&gt;
- * - fcs mctp_cmd_send &lt;input_file&gt; &lt;output_file&gt;
- * - fcs jtag_idcode
- * - fcs device_identity &lt;file&gt;
- * - fcs aes_cryption &lt;key_id&gt; &lt;crypt_mode&gt; &lt;block_mode&gt; &lt;tag_len&gt; &lt;iv_src&gt; &lt;iv_file&gt; &lt;aad_file&gt; &lt;input_file&gt; &lt;output_file&gt;
- * - fcs ecdsa_hash_sign &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;output_file&gt;
- * - fcs ecdsa_hash_verify &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]
- * - fcs ecdsa_sha2_sign &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;output_file&gt;
- * - fcs ecdsa_sha2_verify &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]
- * - fcs ecdsa_get_public_key &lt;key_id&gt; &lt;ecc_algo&gt; &lt;file&gt;
- * - fcs ecdh_request &lt;key_id&gt; &lt;ecc_algo&gt; &lt;pub_key_file&gt; &lt;shared_sec_file&gt;
- * - fcs hkdf_request &lt;key_id&gt; &lt;step_type&gt; &lt;mac_mode&gt; &lt;input_file&gt; &lt;input_file_2&gt; &lt;key_object_file&gt;
- * - fcs validate_image &lt;cert_file&gt;
- *
- * Typical usage:
- * - Use 'fcs open_session' to initiate a session for cryptographic functions.
- * - Ensure correct keys are present for performing cryptographic operations.
- * - Import a corresponding cryptographic key before executing a function.
- * - Provide File names as `/source/file_name`. Source should be `/sd/` for SD/MMC and `/usb/` for USB.
- *
- * For help on a specific command, use:
- *   fcs &lt;command&gt; help
- *
- * @section fcs_commands Commands
- * @subsection fcs_open_session fcs open_session
- * Opens a service session.  <br>
- *
- * Usage:  <br>
- *   fcs open_session  <br>
- *
- * @subsection fcs_close_session fcs close_session
- * Closes a service session.  <br>
- *
- * Usage:  <br>
- *   fcs close_session  <br>
- *
- * @subsection fcs_random_number fcs random_number
- * Generates a random number.  <br>
- *
- * Usage:  <br>
- *   fcs random_number &lt;rand_size&gt; &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - rand_size    – Size of random number in bytes (maximum 4084).  <br>
- * - file         – File name to store the random number <br>
- *
- * @subsection fcs_import_key fcs import_key
- * Imports a service key identified by the given session.  <br>
- *
- * Usage:  <br>
- *   fcs import_key &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - file         – ile name containing the key to be imported <br>
- *
- * @subsection fcs_export_key fcs export_key
- * Exports a service key identified by the given session.<br>
- *
- * It requires the following arguments:  <br>
- * - key_id       – ID of the key to be exported.  <br>
- * - file         – File name to store the exported key <br>
- *
- * Usage:  <br>
- *   fcs export_key &lt;file&gt;  <br>
- *
- * @subsection fcs_remove_key fcs remove_key
- * Removes a service key identified by the given session. <br>
- *
- * Usage:  <br>
- *   fcs remove_key &lt;key_id&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id       – ID of the key to be removed <br>
- *
- * @subsection fcs_get_key_info fcs get_key_info
- * Get the service key information. <br>
- *
- * Usage:  <br>
- *   fcs get_key_info &lt;key_id&gt; &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id       – ID of the key to get information  <br>
- * - file         – File name to store the key information.  <br>
- *
- * @subsection fcs_create_key fcs create_key
- * Create a service key.  <br>
- *
- * Usage:  <br>
- *   fcs create_key &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - file         – File name to store the created key <br>
- *
- * @subsection fcs_provision_data fcs provision_data
- * Retrieves the provision data.  <br>
- *
- * Usage:  <br>
- *   fcs provision_data &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - file         –  File name to store provision data <br>
- *
- * @subsection fcs_counter_set fcs counter_set
- * Sets the service counter with the provided certificate.  <br>
- *
- * Usage:  <br>
- *   fcs counter_set &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - file         – File name containing counter set certificate <br>
- *
- * @subsection fcs_counter_set_preauth fcs counter_set_preauth
- * Sets counter value w/o signed certificate. <br>
- *
- * Usage:  <br>
- *   fcs counter_set_preauth &lt;type&gt; &lt;value&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - type         – (1-5) - type of counter  <br>
- * - value        – Value to set.  <br>
- * - Ensure certificate is already sent to device with this capabililty
- *
- * @subsection fcs_sdos_encrypt fcs sdos_encrypt
- * Perform encryption on file data  <br>
- *
- * Usage:  <br>
- * fcs sdos_encrypt &lt;owner_id&gt; &lt;identifier&gt; &lt;iv_file&gt; &lt;input_file&gt; &lt;output_file&gt;
- *
- * It requires the following arguments:
- * - owner_id     – 8-byte owner identifier.
- * - identifier   – 2-byte application-specific object identifier.
- * - iv_file      – File containing 16 bytes of IV. Must follow 'gc/source/filename` format.
- * - input_file   – File containing plaintext. Must follow 'gc/source/filename` format.
- * - output_file  – File to store ciphertext. Must follow 'gc/source/filename` format.
- *
- * @subsection fcs_sdos_decrypt fcs sdos_decrypt
- * Perform decryption on file data <br>
- *
- * Usage:  <br>
- *   fcs sdos_decrypt &lt;input_file&gt; &lt;output_file&gt; <br>
- *
- * It requires the following arguments:
- * - input_file   – File containing ciphertext. Must follow 'gc/source/filename` format.
- * - output_file  – File to store decrypted plaintext. Must follow 'gc/source/filename` format.
- *
- * @subsection fcs_get_digest fcs get_digest
- * Computes the digest data for specified key ID, SHA operation mode and SHA digest size <br>
- *
- * Usage:  <br>
- *   fcs get_digest &lt;key_id&gt; &lt;op_mode&gt; &lt;dig_size&gt; &lt;src_file&gt; &lt;digest_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id       – ID of the key to be used for digest <br>
- * - op_mode      – Operation mode: 1 - SHA2, 2 - HMAC <br>
- * - dig_size     – Digest size: 0 - 256, 1 - 384, 2 - 512  <br>
- * - src_file     – File name containing the data to get digest <br>
- * - digest_file  – File name to store the digest <br>
- *
- * @subsection fcs_mac_verify fcs mac_verify
- * Verfies the MAC. <br>
- *
- * Usage:  <br>
- *   fcs mac_verify &lt;key_id&gt; &lt;dig_size&gt; &lt;src_file&gt; &lt;mac_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id       – ID of the key to be used for MAC verification <br>
- * - dig_size     – Digest size: 0 - 256, 1 - 384, 2 - 512 <br>
- * - src_file     – File name containing the data to verify MAC  <br>
- * - mac_file     – File name containing the MAC to verify. Should be generated using fcs get_digest in HMAC mode <br>
- *
- * @subsection fcs_chip_id fcs chip_id
- * Get the chip ID. <br>
- *
- * Usage:  <br>
- *   fcs chip_id  <br>
- *
- * @subsection fcs_attestation_get_cert fcs attestation_get_cert
- * Request to get the certificate. <br>
- *
- * Usage:  <br>
- *   fcs attestation_get_cert &lt;cert_req&gt; &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - cert_req     – Bitmask for certificate type <br>
- * - file         – File name to store the certificate <br>
- *
- * @subsection fcs_attestation_cert_reload fcs attestation_cert_reload
- * Reloads the attestation certificate. <br>
- *
- * Usage:  <br>
- *   fcs attestation_cert_reload &lt;cert_req&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - cert_req     – Bitmask for certificate type <br>
- *
- * @subsection fcs_mctp_cmd_send fcs mctp_cmd_send
- * Sends a MCTP request. <br>
- *
- * Usage:  <br>
- *   fcs mctp_cmd_send &lt;input_file&gt; &lt;output_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - input_file   – File name containing the MCTP header and payload <br>
- * - output_file  – File name to store the MCTP response <br>
- *
- * @subsection fcs_jtag_idcode fcs jtag_idcode
- * Get the JTAG IDCODE. <br>
- *
- * Usage:  <br>
- *   fcs jtag_idcode  <br>
- *
- * @subsection fcs_device_identity fcs device_identity
- * Get the device identity. <br>
- *
- * Usage:  <br>
- *   fcs device_identity &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - file         – File name to store device identity <br>
- *
- * @subsection fcs_aes_cryption fcs aes_cryption
- * Request AES encryption/decryption operation <br>
- *
- * Usage:  <br>
- *   fcs aes_cryption &lt;key_id&gt; &lt;crypt_mode&gt; &lt;block_mode&gt; &lt;tag_len&gt; &lt;iv_src&gt; &lt;iv_file&gt; &lt;aad_file&gt; &lt;input_file&gt; &lt;output_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id       – Key ID to be used for AES cryption  <br>
- * - crypt_mode   – 0 = Encrypt, 1 = Decrypt (0 for GCM-GHASH).  <br>
- * - block_mode   – Block mode: 0 = ECB, 1 = CBC, 2 = CTR, 3 = GCM, 4 = GCM-GHASH.  <br>
- * - tag_len      – (For GCM, GCM-GHASH) Tag length: 0 = 32-bit, 1 = 64-bit, 2 = 96-bit, 3 = 128-bit.  <br>
- * - iv_src       – (For GCM, GCM-GHASH) IV source: 0 = external, 1 = internal (DRNG), 2 = internal (IV base + key).  <br>
- * - iv_file      – (For non-ECB modes) File name containing 16 bytes of IV <br>
- * - aad_file     – (For GCM, GCM-GHASH) File name containing AAD data <br>
- * - input_file   – File name to read input data <br>
- * - output_file  – File name to store output data <br>
- *
- * @subsection fcs_ecdsa_hash_sign fcs ecdsa_hash_sign
- * Signs the hash using the specified key ID, ECC curve and source data. <br>
- *
- * Usage:  <br>
- *   fcs ecdsa_hash_sign &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id         – ID of the key to be used for hash verification <br>
- * - ecc_algo       – ECC algorithm: 1 - NISTP256, 2 - NISTP384, 3 - Brainpool256, 4 - Brainpool384  <br>
- * - input_file     – File name to read input data <br>
- * - signature_file – File name which to store signature <br>
- *
- * @subsection fcs_ecdsa_hash_verify fcs ecdsa_hash_verify
- * Verfies the hash using the specified key ID, ECC curve, source data, signature data and public key data if key ID is not known.  <br>
- *
- * Usage:  <br>
- *   fcs ecdsa_hash_verify &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id         – ID of the key to be used for hash verification, 0 for using public key <br>
- * - ecc_algo       – ECC algorithm: 1 - NISTP256, 2 - NISTP384, 3 - Brainpool256, 4 - Brainpool384.  <br>
- * - input_file     – File name to read input data <br>
- * - signature_file – File name which contains signature of input <br>
- * - pubkey_file    – Public file if key id is not known(provide key id as 0). <br>
- *                    This file is optional and only provided when key id is 0 <br>
- *
- * @subsection fcs_ecdsa_sha2_sign fcs ecdsa_sha2_sign
- * Signs the data using SHA2 with the specified key_id, ECC curve and source data. <br>
- *
- * Usage:  <br>
- *   fcs ecdsa_sha2_sign &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id         – ID of the key to be used for SHA2 data sign. <br>
- * - ecc_algo       – ECC algorithm: 1 - NISTP256, 2 - NISTP384, 3 - Brainpool256, 4 - Brainpool384.  <br>
- * - input_file     – File name to read input data  <br>
- * - signature_file – File name which to store signature  <br>
- *
- * @subsection fcs_ecdsa_sha2_verify fcs ecdsa_sha2_verify
- * Verfies the hash using the specified key ID, ECC curve, source data, signature data and public key data if key ID is not known. <br>
- *
- * Usage:  <br>
- *   fcs ecdsa_sha2_verify &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id         – ID of the key to be used for SHA2 data verification, 0 for using public key <br>
- * - ecc_algo       – ECC algorithm: 1 = NISTP256, 2 = NISTP384, 3 = Brainpool256, 4 = Brainpool384.  <br>
- * - input_file     – File name to read input data <br>
- * - signature_file – File name which contains signature of input <br>
- * - pubkey_file    – Public file if key id is not known(provide key id as 0). <br>
- *                    This file is optional and only provided when key id is 0 <br>
- *
- * @subsection fcs_ecdsa_get_public_key fcs ecdsa_get_public_key
- * Generates a public key for the specified key ID and ECC curve. <br>
- *
- * Usage:  <br>
- *   fcs ecdsa_get_public_key &lt;key_id&gt; &lt;ecc_algo&gt; &lt;file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id       – ID of the key to be used for public key retrieval <br>
- * - ecc_algo     – ECC algorithm used by the key: 1 = NISTP256, 2 = NISTP384, 3 = Brainpool256, 4 = Brainpool384.  <br>
- * - file         – File name to store the public key <br>
- *
- * @subsection fcs_ecdh_request fcs ecdh_request
- * Generates shared secret. <br>
- *
- * Usage:  <br>
- *   fcs ecdh_request &lt;key_id&gt; &lt;ecc_algo&gt; &lt;pub_key_file&gt; &lt;shared_sec_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - key_id           – ID of the key to be used for ECDH  <br>
- * - ecc_algo         – ECC algorithm: 1 = NISTP256, 2 = NISTP384, 3 = Brainpool256, 4 = Brainpool384.  <br>
- * - pubkey_file      – File name containing the public key <br>
- * - shared_sec_file  – File name to store the shared secret  <br>
- *
- * @subsection fcs_hkdf_request fcs hkdf_request
- * Request HKDF operation. <br>
- *
- * Usage:  <br>
- *   fcs hkdf_request &lt;key_id&gt; &lt;step_type&gt; &lt;mac_mode&gt; &lt;input_file&gt; &lt;input_file_2&gt; &lt;key_object_file&gt;  <br>
- *
- * It requires the following arguments:
- * - key_id           - ID of the key to be used for HKDF request, provide as 0.  <br>
- * - step_type        - 0 - Extract then expand, 1 - Expand only(non-GCM), 2 - Expand only(GCM).  <br>
- * - mac_mode         - 0 - SHA256, 1 - SHA384, 2 - SHA512.  <br>
- * - input_file       - File name containing shared secret or fixed info according to step_type. <br>
- *                      48 bytes shared secret for step 0. <br>
- *                      80 bytes maximum fixed info for others.  <br>
- * - input_file_2     - File name containing 80 bytes maximum fixed info for step 0 and step 2. <br>
- *                      Not applicable to step_type 1.  <br>
- * - key_object_file  - File name containing output key object. <br>
- *                      HMAC384 exchange key object for step 0. <br>
- *                      HMAC384 sign/verify/exchange key object for step 1. <br>
- *                      AES256 encryption/decryption for step 2.  <br>
- *
- * @subsection fcs_validate_image fcs validate_image
- * Validates the image using the specified certificate file. <br>
- *
- * Usage:  <br>
- *   fcs validate_image &lt;cert_file&gt;  <br>
- *
- * It requires the following arguments:  <br>
- * - cert_file  - File name containing the certificate to validate the image <br>
- *
- */
+/*
+    File: FCS CLI Commands
+
+    Performs cryptographic services
+
+    It supports the following subcommands:
+    - fcs open_session
+    - fcs close_session
+    - fcs random_number &lt;rand_size&gt; &lt;file&gt;
+    - fcs import_key &lt;file&gt;
+    - fcs export_key &lt;file&gt;
+    - fcs remove_key &lt;key_id&gt;
+    - fcs get_key_info &lt;key_id&gt; &lt;file&gt;
+    - fcs create_key &lt;file&gt;
+    - fcs provision_data &lt;file&gt;
+    - fcs counter_set &lt;file&gt;
+    - fcs counter_set_preauth &lt;type&gt; &lt;value&gt;
+    - fcs sdos_encrypt &lt;owner_id&gt; &lt;identifier&gt; &lt;input_file&gt; &lt;output_file&gt;
+    - fcs sdos_decrypt &lt;input_file&gt; &lt;output_file&gt;
+    - fcs get_digest &lt;key_id&gt; &lt;op_mode&gt; &lt;dig_size&gt; &lt;src_file&gt; &lt;digest_file&gt;
+    - fcs mac_verify &lt;key_id&gt; &lt;dig_size&gt; &lt;src_file&gt; &lt;mac_file&gt;
+    - fcs chip_id
+    - fcs attestation_get_cert &lt;cert_req&gt; &lt;file&gt;
+    - fcs attestation_cert_reload &lt;cert_req&gt;
+    - fcs mctp_cmd_send &lt;input_file&gt; &lt;output_file&gt;
+    - fcs jtag_idcode
+    - fcs device_identity &lt;file&gt;
+    - fcs aes_cryption &lt;key_id&gt; &lt;crypt_mode&gt; &lt;block_mode&gt; &lt;tag_len&gt; &lt;iv_src&gt; &lt;iv_file&gt; &lt;aad_file&gt; &lt;input_file&gt; &lt;output_file&gt;
+    - fcs ecdsa_hash_sign &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;output_file&gt;
+    - fcs ecdsa_hash_verify &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]
+    - fcs ecdsa_sha2_sign &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;output_file&gt;
+    - fcs ecdsa_sha2_verify &lt;key_id&gt; &lt;ecc_algo&gt; &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]
+    - fcs ecdsa_get_public_key &lt;key_id&gt; &lt;ecc_algo&gt; &lt;file&gt;
+    - fcs ecdh_request &lt;key_id&gt; &lt;ecc_algo&gt; &lt;pub_key_file&gt; &lt;shared_sec_file&gt;
+    - fcs hkdf_request &lt;key_id&gt; &lt;step_type&gt; &lt;mac_mode&gt; &lt;input_file&gt; &lt;input_file_2&gt; &lt;key_object_file&gt;
+    - fcs validate_image &lt;cert_file&gt;
+
+    Typical usage:
+    - Use 'fcs open_session' to initiate a session for cryptographic functions.
+    - Ensure correct keys are present for performing cryptographic operations.
+    - Import a corresponding cryptographic key before executing a function.
+    - Provide File names as `/source/file_name`. Source should be `/sd/` for SD/MMC and `/usb/` for USB.
+
+    For help on a specific command, use: fcs &lt;command&gt; help
+    Group: Commands
+
+    fcs open_session:
+
+    Opens a service session.
+
+    Usage: fcs open_session
+
+    fcs close_session:
+
+    Closes a service session.
+
+    Usage: fcs close_session
+
+    fcs random_number:
+
+    Generates a random number.
+
+    Usage: fcs random_number &lt;rand_size&gt; &lt;file&gt;
+
+    It requires the following arguments:
+    - rand_size    – Size of random number in bytes (maximum 4084).
+    - file         – File name to store the random number
+
+    fcs import_key:
+
+    Imports a service key identified by the given session.
+
+    Usage: fcs import_key &lt;file&gt;
+
+    It requires the following arguments:
+    - file         – ile name containing the key to be imported
+
+    fcs export_key:
+
+    Exports a service key identified by the given session.
+
+    It requires the following arguments:
+    - key_id       – ID of the key to be exported.
+    - file         – File name to store the exported key
+
+    Usage: fcs export_key &lt;file&gt;
+
+    fcs remove_key:
+
+    Removes a service key identified by the given session.
+
+    Usage: fcs remove_key &lt;key_id&gt;
+
+    It requires the following arguments:
+    - key_id       – ID of the key to be removed
+
+    fcs get_key_info:
+
+    Get the service key information.
+
+    Usage: fcs get_key_info &lt;key_id&gt; &lt;file&gt;
+
+    It requires the following arguments:
+    - key_id       – ID of the key to get information
+    - file         – File name to store the key information.
+
+    fcs create_key:
+
+    Create a service key.
+
+    Usage: fcs create_key &lt;file&gt;
+
+    It requires the following arguments:
+    - file         – File name to store the created key
+
+    fcs provision_data:
+
+    Retrieves the provision data.
+
+    Usage: fcs provision_data &lt;file&gt;
+
+    It requires the following arguments:
+    - file         –  File name to store provision data
+
+    fcs counter_set:
+
+    Sets the service counter with the provided certificate.
+
+    Usage: fcs counter_set &lt;file&gt;
+
+    It requires the following arguments:
+    - file         – File name containing counter set certificate
+
+    fcs counter_set_preauth:
+
+    Sets counter value w/o signed certificate.
+
+    Usage: fcs counter_set_preauth &lt;type&gt; &lt;value&gt;
+
+    It requires the following arguments:
+    - type         – (1-5) - type of counter
+    - value        – Value to set.
+    - Ensure certificate is already sent to device with this capabililty
+
+    fcs sdos_encrypt:
+
+    Perform encryption on file data
+
+    Usage: fcs sdos_encrypt &lt;owner_id&gt; &lt;identifier&gt;
+    &lt;iv_file&gt; &lt;input_file&gt; &lt;output_file&gt;
+
+    It requires the following arguments:
+    - owner_id     – 8-byte owner identifier.
+    - identifier   – 2-byte application-specific object identifier.
+    - iv_file      – File containing 16 bytes of IV. Must follow 'gc/source/filename` format.
+    - input_file   – File containing plaintext. Must follow 'gc/source/filename` format.
+    - output_file  – File to store ciphertext. Must follow 'gc/source/filename` format.
+
+    fcs sdos_decrypt:
+
+    Perform decryption on file data
+
+    Usage: fcs sdos_decrypt &lt;input_file&gt; &lt;output_file&gt;
+
+    It requires the following arguments:
+    - input_file   – File containing ciphertext. Must follow 'gc/source/filename` format.
+    - output_file  – File to store decrypted plaintext. Must follow 'gc/source/filename` format.
+
+    fcs get_digest:
+
+    Computes the digest data for specified key ID, SHA operation mode and SHA
+    digest size
+
+    Usage: fcs get_digest &lt;key_id&gt; &lt;op_mode&gt; &lt;dig_size&gt;
+    &lt;src_file&gt; &lt;digest_file&gt;
+
+    It requires the following arguments:
+    - key_id       – ID of the key to be used for digest
+    - op_mode      – Operation mode: 1 - SHA2, 2 - HMAC
+    - dig_size     – Digest size: 0 - 256, 1 - 384, 2 - 512
+    - src_file     – File name containing the data to get digest
+    - digest_file  – File name to store the digest
+
+    fcs mac_verify:
+
+    Verfies the MAC.
+
+    Usage: fcs mac_verify &lt;key_id&gt; &lt;dig_size&gt; &lt;src_file&gt;
+    &lt;mac_file&gt;
+
+    It requires the following arguments:
+    - key_id       – ID of the key to be used for MAC verification
+    - dig_size     – Digest size: 0 - 256, 1 - 384, 2 - 512
+    - src_file     – File name containing the data to verify MAC
+    - mac_file     – File name containing the MAC to verify. Should be generated using fcs get_digest in HMAC mode
+
+    fcs chip_id:
+
+    Get the chip ID.
+
+    Usage: fcs chip_id
+
+    fcs attestation_get_cert:
+
+    Request to get the certificate.
+
+    Usage: fcs attestation_get_cert &lt;cert_req&gt; &lt;file&gt;
+
+    It requires the following arguments:
+    - cert_req     – Bitmask for certificate type
+    - file         – File name to store the certificate
+
+    fcs attestation_cert_reload:
+
+    Reloads the attestation certificate.
+
+    Usage: fcs attestation_cert_reload &lt;cert_req&gt;
+
+    It requires the following arguments:
+    - cert_req     – Bitmask for certificate type
+
+    fcs mctp_cmd_send:
+
+    Sends a MCTP request.
+
+    Usage: fcs mctp_cmd_send &lt;input_file&gt; &lt;output_file&gt;
+
+    It requires the following arguments:
+    - input_file   – File name containing the MCTP header and payload
+    - output_file  – File name to store the MCTP response
+
+    fcs jtag_idcode:
+
+    Get the JTAG IDCODE.
+
+    Usage: fcs jtag_idcode
+
+    fcs device_identity:
+
+    Get the device identity.
+
+    Usage: fcs device_identity &lt;file&gt;
+
+    It requires the following arguments:
+    - file         – File name to store device identity
+
+    fcs aes_cryption:
+
+    Request AES encryption/decryption operation
+
+    Usage: fcs aes_cryption &lt;key_id&gt; &lt;crypt_mode&gt;
+    &lt;block_mode&gt; &lt;tag_len&gt; &lt;iv_src&gt; &lt;iv_file&gt;
+    &lt;aad_file&gt; &lt;input_file&gt; &lt;output_file&gt;
+
+    It requires the following arguments:
+    - key_id       – Key ID to be used for AES cryption
+    - crypt_mode   – 0 = Encrypt, 1 = Decrypt (0 for GCM-GHASH).
+    - block_mode   – Block mode: 0 = ECB, 1 = CBC, 2 = CTR, 3 = GCM, 4 = GCM-GHASH.
+    - tag_len      – (For GCM, GCM-GHASH) Tag length: 0 = 32-bit, 1 = 64-bit, 2 = 96-bit, 3 = 128-bit.
+    - iv_src       – (For GCM, GCM-GHASH) IV source: 0 = external, 1 = internal (DRNG), 2 = internal (IV base + key).
+    - iv_file      – (For non-ECB modes) File name containing 16 bytes of IV
+    - aad_file     – (For GCM, GCM-GHASH) File name containing AAD data
+    - input_file   – File name to read input data
+    - output_file  – File name to store output data
+
+    fcs ecdsa_hash_sign:
+
+    Signs the hash using the specified key ID, ECC curve and source data.
+
+    Usage: fcs ecdsa_hash_sign &lt;key_id&gt; &lt;ecc_algo&gt;
+    &lt;input_file&gt; &lt;signature_file&gt;
+
+    It requires the following arguments:
+    - key_id         – ID of the key to be used for hash verification
+    - ecc_algo       – ECC algorithm: 1 - NISTP256, 2 - NISTP384, 3 - Brainpool256, 4 - Brainpool384
+    - input_file     – File name to read input data
+    - signature_file – File name which to store signature
+
+    fcs ecdsa_hash_verify:
+
+    Verfies the hash using the specified key ID, ECC curve, source data,
+    signature data and public key data if key ID is not known.
+
+    Usage: fcs ecdsa_hash_verify &lt;key_id&gt; &lt;ecc_algo&gt;
+    &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]
+
+    It requires the following arguments:
+    - key_id         – ID of the key to be used for hash verification, 0 for using public key
+    - ecc_algo       – ECC algorithm: 1 - NISTP256, 2 - NISTP384, 3 - Brainpool256, 4 - Brainpool384.
+    - input_file     – File name to read input data
+    - signature_file – File name which contains signature of input
+    - pubkey_file    – Public file if key id is not known(provide key id as 0).
+    This file is optional and only provided when key id is 0
+
+    fcs ecdsa_sha2_sign:
+
+    Signs the data using SHA2 with the specified key_id, ECC curve and source
+    data.
+
+    Usage: fcs ecdsa_sha2_sign &lt;key_id&gt; &lt;ecc_algo&gt;
+    &lt;input_file&gt; &lt;signature_file&gt;
+
+    It requires the following arguments:
+    - key_id         – ID of the key to be used for SHA2 data sign.
+    - ecc_algo       – ECC algorithm: 1 - NISTP256, 2 - NISTP384, 3 - Brainpool256, 4 - Brainpool384.
+    - input_file     – File name to read input data
+    - signature_file – File name which to store signature
+
+    fcs ecdsa_sha2_verify:
+
+    Verfies the hash using the specified key ID, ECC curve, source data,
+    signature data and public key data if key ID is not known.
+
+    Usage: fcs ecdsa_sha2_verify &lt;key_id&gt; &lt;ecc_algo&gt;
+    &lt;input_file&gt; &lt;signature_file&gt; [pubkey_file]
+
+    It requires the following arguments:
+    - key_id         – ID of the key to be used for SHA2 data verification, 0 for using public key
+    - ecc_algo       – ECC algorithm: 1 = NISTP256, 2 = NISTP384, 3 = Brainpool256, 4 = Brainpool384.
+    - input_file     – File name to read input data
+    - signature_file – File name which contains signature of input
+    - pubkey_file    – Public file if key id is not known(provide key id as 0).
+    This file is optional and only provided when key id is 0
+
+    fcs ecdsa_get_public_key:
+
+    Generates a public key for the specified key ID and ECC curve.
+
+    Usage: fcs ecdsa_get_public_key &lt;key_id&gt; &lt;ecc_algo&gt;
+    &lt;file&gt;
+
+    It requires the following arguments:
+    - key_id       – ID of the key to be used for public key retrieval
+    - ecc_algo     – ECC algorithm used by the key: 1 = NISTP256, 2 = NISTP384, 3 = Brainpool256, 4 = Brainpool384.
+    - file         – File name to store the public key
+
+    fcs ecdh_request:
+
+    Generates shared secret.
+
+    Usage: fcs ecdh_request &lt;key_id&gt; &lt;ecc_algo&gt;
+    &lt;pub_key_file&gt; &lt;shared_sec_file&gt;
+
+    It requires the following arguments:
+    - key_id           – ID of the key to be used for ECDH
+    - ecc_algo         – ECC algorithm: 1 = NISTP256, 2 = NISTP384, 3 = Brainpool256, 4 = Brainpool384.
+    - pubkey_file      – File name containing the public key
+    - shared_sec_file  – File name to store the shared secret
+
+    fcs hkdf_request:
+
+    Request HKDF operation.
+
+    Usage: fcs hkdf_request &lt;key_id&gt; &lt;step_type&gt; &lt;mac_mode&gt;
+    &lt;input_file&gt; &lt;input_file_2&gt; &lt;key_object_file&gt;
+
+    It requires the following arguments:
+    - key_id           - ID of the key to be used for HKDF request, provide as 0.
+    - step_type        - 0 - Extract then expand, 1 - Expand only(non-GCM), 2 - Expand only(GCM).
+    - mac_mode         - 0 - SHA256, 1 - SHA384, 2 - SHA512.
+    - input_file       - File name containing shared secret or fixed info according to step_type.
+    48 bytes shared secret for step 0. 80 bytes maximum fixed info for others.
+    - input_file_2     - File name containing 80 bytes maximum fixed info for step 0 and step 2.
+    Not applicable to step_type 1.
+    - key_object_file  - File name containing output key object.
+    HMAC384 exchange key object for step 0. HMAC384 sign/verify/exchange key
+    object for step 1. AES256 encryption/decryption for step 2.
+
+    fcs validate_image:
+
+    Validates the image using the specified certificate file.
+
+    Usage: fcs validate_image &lt;cert_file&gt;
+
+    It requires the following arguments:
+    - cert_file  - File name containing the certificate to validate the image
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -394,6 +404,11 @@
 static const char *sdmmc_mount = "/sd/";
 static const char *usb_mount = "/usb/";
 
+/*
+    Struct: cli_descriptor
+
+    Descriptor for the FCS cli commands, holding session_opened and uuid. Declared as cli in cli_fcs.c.
+*/
 struct cli_descriptor
 {
     int session_opened;
@@ -405,6 +420,11 @@ struct cli_descriptor cli;
 static FF_Disk_t *disk_obj = NULL;
 static uint8_t mount_status = UNMOUNTED;
 
+/*
+    Function: fat_get_disk_type
+
+    Calls strncmp.
+*/
 static int fat_get_disk_type(const char *mptr)
 {
     if( strncmp(mptr, sdmmc_mount, 3) == 0 )
@@ -423,6 +443,11 @@ static int fat_get_disk_type(const char *mptr)
     return -1;
 }
 
+/*
+    Function: fat_mount
+
+    Calls <fat_get_disk_type>, FF_SDDiskInit and ERROR.
+*/
 static int fat_mount( const char *mount_name )
 {
     int mount_type = fat_get_disk_type(mount_name);
@@ -451,6 +476,11 @@ static int fat_mount( const char *mount_name )
     }
 }
 
+/*
+    Function: fat_unmount
+
+    Calls FF_Unmount and FF_SDDiskDelete.
+*/
 static void fat_unmount( void )
 {
     if(disk_obj == NULL )
@@ -531,6 +561,9 @@ static uint32_t fat_read( const char *file, void *buffer )
     return bytes_read;
 }
 
+/*
+    Function: fat_write
+*/
 static void fat_write( const char *file, const char *buffer, uint32_t data_size)
 {
     FF_Error_t err;
@@ -579,6 +612,12 @@ static void fat_write( const char *file, const char *buffer, uint32_t data_size)
     fat_unmount();
 }
 /******************************************************************************/
+/*
+    Function: cmd_fcs
+
+    Implements the fcs command of the CLI sample: perform crptographic
+    commands.
+*/
 BaseType_t cmd_fcs( char *write_buffer, size_t write_buffer_len,
         const char *command_string)
 {

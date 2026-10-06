@@ -6,6 +6,13 @@
  * Implementation of the command line application
  */
 
+/*
+    File: CLI Application Implementation
+
+    Implements the CLI Application: 8 functions, 6 of them local to this
+    file.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -52,8 +59,11 @@ char history[ MAX_HISTORY_ITEMS ][ MAX_INPUT_LENGTH ];
 static void load_bitstream();
 
 /*
- * @brief Load core.rbf to configure the FPGA
- */
+    Function: load_bitstream
+
+    Load core.rbf to configure the FPGA
+*/
+
 static void load_bitstream()
 {
     uint32_t file_size;
@@ -74,6 +84,15 @@ static void load_bitstream()
     vPortFree(rbf_ptr);
 }
 
+/*
+    Function: vApplicationTickHook
+
+    Tick hook, called by the kernel from the RTOS tick interrupt.
+
+    It runs in an interrupt context on every tick, so it must return quickly
+    and may only use the interrupt-safe API. FreeRTOS calls it only when
+    configUSE_TICK_HOOK is 1.
+*/
 void vApplicationTickHook( void )
 {
     /*
@@ -82,10 +101,11 @@ void vApplicationTickHook( void )
      * simple
      * */
 }
+/*
+    Variable: xCommandList
 
-/**
- *  Structure to include the list of commands to be registered
- */
+    Structure to include the list of commands to be registered
+*/
 const CLI_Command_Definition_t xCommandList[] =
 {
     {
@@ -195,10 +215,13 @@ const CLI_Command_Definition_t xCommandList[] =
 };
 
 
-/**
- * @func : cmd_add
- * @brief : callback function to add two numbers when user inputs data in the format add a b
- */
+/*
+    Function: cmd_add
+
+    : callback function to add two numbers when user inputs data in the format
+    add a b
+*/
+
 
 static BaseType_t cmd_add( char *pcWriteBuffer, size_t xWriteBufferLen,
         const char *pcCommandString )
@@ -250,6 +273,14 @@ static BaseType_t cmd_add( char *pcWriteBuffer, size_t xWriteBufferLen,
     return pdFALSE;
 }
 
+/*
+    Function: cmd_echo
+
+    Calls FreeRTOS_CLIGetParameter and strncat.
+
+    Parameters:
+        xWriteBufferLen - Not used.
+*/
 static BaseType_t cmd_echo( char *pcWriteBuffer, size_t xWriteBufferLen,
         const char *pcCommandString )
 {
@@ -273,6 +304,9 @@ static BaseType_t cmd_echo( char *pcWriteBuffer, size_t xWriteBufferLen,
     return pdFALSE;
 }
 
+/*
+    Function: ignore_key
+*/
 static int ignore_key(char key)
 {
     switch (key)
@@ -284,6 +318,11 @@ static int ignore_key(char key)
     }
 }
 
+/*
+    Function: get_escape
+
+    Calls getchar.
+*/
 static char get_escape(char *input)
 {
     char key = *input;
@@ -319,10 +358,11 @@ static char get_escape(char *input)
     return key;
 }
 
-/**
- * @func: cli_task
- * @brief : demo function to implement FreeRTOS_CLI
- */
+/*
+    Function: cli_task
+
+    : demo function to implement FreeRTOS_CLI
+*/
 void cli_task( void *params )
 {
     /*
@@ -509,6 +549,11 @@ void cli_task( void *params )
     }
 
 }
+/*
+    Function: cli_demo
+
+    Calls xTaskCreate and vTaskStartScheduler.
+*/
 void cli_demo()
 {
     /* Usb task priority should be less than the other tasks */

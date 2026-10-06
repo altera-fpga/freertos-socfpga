@@ -32,55 +32,57 @@
 
 #include "main_freertosplus_basic.h"
 
-/**
- * @file basic_freertosplus_tcp_echoserver.c
- * @brief Sample Application for TCP echo server.
- */
+/*
+    File: Basic FreeRTOS Plus TCP Echoserver
 
-/**
- * @defgroup echo_sample Ethernet - TCP Echo Server
- * @ingroup samples
- *
- * Sample Application for FreeRTOS+TCP echo server
- *
- * @details
- * @section echo_desc Description
- * This is a simple program that demonstrates how to create a TCP server using FreeRTOS+TCP.
- * The server waits for incoming TCP client connections on a specified port. Once a client
- * connects, it sends back a periodic message in the format:
- * `Message no.%d: Hello, This is FreeRTOS TCP server!`
- *
- * Each message is sent with an incrementing count. This demonstrates socket handling,
- * connection acceptance, message formatting, and transmission over TCP using the FreeRTOS+TCP stack.
- *
- * @section echo_pre Prerequisites
- * - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
- * - Network PHY and MAC drivers must be initialized and functioning.
- * - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
- *
- * @section echo_howto How to Run
- * 1. Follow the platform-specific README to build and flash the application.
- * 2. Connect the device to a LAN where the host PC resides.
- * 3. Run a TCP client tool (e.g., `netcat` or `telnet`) from a host PC to connect to the server:
- *    - Example: `nc <board-ip> <port>`
- * 4. Once connected, observe the periodic server messages on the client terminal.
- *
- * @section echo_res Expected Results
- * - The TCP server starts listening on the configured port.
- * - Upon connection from a client, the server starts echo backs messages:
- * - Disconnecting and reconnecting clients should still allow proper operation.
- *
- * @section echo_custom Customization
- * - Modify the `ulPort` variable to change the server port.
- * - Adjust the message interval or contents as needed.
- * - Can be extended to support multiple concurrent client connections with minor enhancements.
- * @{
- */
-/** @} */
+    Sample Application for TCP echo server.
+
+    Sample Application for FreeRTOS+TCP echo server
+    Group: Description
+
+    This is a simple program that demonstrates how to create a TCP server
+    using FreeRTOS+TCP. The server waits for incoming TCP client connections
+    on a specified port. Once a client connects, it sends back a periodic
+    message in the format: `Message no.%d: Hello, This is FreeRTOS TCP
+    server!`
+
+    Each message is sent with an incrementing count. This demonstrates socket
+    handling, connection acceptance, message formatting, and transmission over
+    TCP using the FreeRTOS+TCP stack.
+
+    Group: Prerequisites
+
+    - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
+    - Network PHY and MAC drivers must be initialized and functioning.
+    - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
+
+    Group: How to Run
+
+    - Follow the platform-specific README to build and flash the application.
+    - Connect the device to a LAN where the host PC resides.
+    - Run a TCP client tool (e.g., `netcat` or `telnet`) from a host PC to connect to the server:
+       - Example: `nc <board-ip> <port>`
+    - Once connected, observe the periodic server messages on the client terminal.
+
+    Group: Expected Results
+
+    - The TCP server starts listening on the configured port.
+    - Upon connection from a client, the server starts echo backs messages:
+    - Disconnecting and reconnecting clients should still allow proper operation.
+
+    Group: Customization
+
+    - Modify the `ulPort` variable to change the server port.
+    - Adjust the message interval or contents as needed.
+    - Can be extended to support multiple concurrent client connections with minor enhancements.
+*/
 
 
 /* TCP server */
 static uint8_t ucRxBuffer[BUFFER_SIZE];
+/*
+    Function: vSimpleTCPServerTask
+*/
 void vSimpleTCPServerTask(void *pvParameters)
 {
 	(void)pvParameters;

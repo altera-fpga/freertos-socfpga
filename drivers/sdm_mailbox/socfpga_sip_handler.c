@@ -6,6 +6,11 @@
  * HAL Implementation for SMC calls
  */
 
+/*
+    File: SDM Mailbox SIP Handler Driver Implementation
+
+    HAL Implementation for SMC calls.
+*/
 
 #include "socfpga_sip_handler.h"
 #include "socfpga_console.h"

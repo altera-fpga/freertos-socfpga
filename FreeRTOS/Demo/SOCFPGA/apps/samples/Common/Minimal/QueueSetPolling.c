@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Queue Set Polling Implementation
+
+    Tests the use of queue sets.
+*/
+
+/*
  * Tests the use of queue sets.
  *
  * A receive task creates a number of queues and adds them to a queue set before
@@ -100,6 +106,14 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvQueueSetReceivingTask
+
+        The task that reads from the queue set.
+
+        Parameters:
+            pvParameters - Not used.
+    */
     static void prvQueueSetReceivingTask( void * pvParameters )
     {
         uint32_t ulReceived, ulExpected = 0;

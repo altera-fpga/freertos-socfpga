@@ -6,6 +6,26 @@
  * Low level driver implementation for fpga bridges
  */
 
+/*
+    File: Bridge Driver Implementation
+
+    Low level driver implementation for fpga bridges.
+*/
+
+/*
+    Constants: Bridge constants
+
+    BRIDGE_ENABLE           - Value: (3U).
+    BRIDGE_DISABLE          - Value: (2U).
+    SOC2FPGA_MASK           - Expands to (1 << 0).
+    LWHPS2FPGA_MASK         - Expands to (1 << 1).
+    FPGA2SOC_MASK           - Expands to (1 << 2).
+    F2SDRAM_MASK            - Expands to (1 << 3).
+    SIP_SMC_HPS_SET_BRIDGES - Generic command code for Sip set bridges command.
+    SIP_SMC_STATUS_ERROR    - Value: (0x4).
+    SIP_SMC_STATUS_OK       - Value: (0x0).
+*/
+
 #include "socfpga_bridge.h"
 #include "osal_log.h"
 #include "socfpga_sip_handler.h"

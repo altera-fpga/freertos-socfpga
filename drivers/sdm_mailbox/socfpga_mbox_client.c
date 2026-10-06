@@ -7,6 +7,12 @@
  */
 
 /*
+    File: SDM Mailbox Client Driver Implementation
+
+    HAL Implementation for SDM mailbox.
+*/
+
+/*
  * This driver implements the APIs required to access the SDM mailbox.
  * The sip_svc subsystem provides a set of APIs to interact with the
  * Secure Monitor Call (SMC) interface in the Arm Trusted Firmware (ATF).
@@ -94,11 +100,21 @@
 #define MBOX_TASK_OPEN      1U
 #define MBOX_TASK_BUSY      2U
 
+/*
+    Struct: job_id_resp_map_t
+
+    Response for the SDM Mailbox Client driver, holding resp_data and resp_len. Declared as job_resp[] in socfpga_mbox_client.c.
+*/
 typedef struct
 {
     uint64_t *resp_data;
     uint64_t resp_len;
 } job_id_resp_map_t;
+/*
+    Struct: sdm_client_descriptor
+
+    Descriptor for the SDM Mailbox Client driver, holding job_pool, job_head, client_status and 4 more. Callers reach it through <sdm_client_handle_t>.
+*/
 struct sdm_client_descriptor
 {
     uint16_t job_pool;
@@ -109,6 +125,11 @@ struct sdm_client_descriptor
     osal_semaphore_t client_free;
     job_id_resp_map_t job_resp[MAX_JOB_ID];
 };
+/*
+    Struct: sdm_mbox_descriptor
+
+    Descriptor for the SDM Mailbox Client driver, holding client_list_mutex, call_complete_sem and task_state.
+*/
 static struct sdm_mbox_descriptor
 {
     osal_mutex_t client_list_mutex;
@@ -121,6 +142,11 @@ void mbox_poll_resp_task(void *param);
 
 void mbox_irq_handler(void *param);
 
+/*
+    Function: assign_job_id
+
+    Calls osal_mutex_lock.
+*/
 static uint8_t assign_job_id(sdm_client_handle_t mbox_handle)
 {
     uint8_t i = 0;
@@ -150,6 +176,11 @@ static uint8_t assign_job_id(sdm_client_handle_t mbox_handle)
     return i;
 }
 
+/*
+    Function: free_job_id
+
+    Calls osal_mutex_lock.
+*/
 static int8_t free_job_id(uint8_t client_id, uint8_t job_id)
 {
     sdm_client_handle_t mbox_handle = &client_descriptors[client_id];
@@ -170,6 +201,9 @@ static int8_t free_job_id(uint8_t client_id, uint8_t job_id)
     return 0;
 }
 
+/*
+    Function: mbox_poll_resp_task
+*/
 void mbox_poll_resp_task(void *param)
 {
     (void)param;
@@ -607,6 +641,14 @@ int mbox_deinit(void)
     return 0;
 }
 
+/*
+    Function: mbox_irq_handler
+
+    Calls <interrupt_spi_disable> and osal_semaphore_post.
+
+    Parameters:
+        param - Not used.
+*/
 void mbox_irq_handler(void *param)
 {
     (void)param;

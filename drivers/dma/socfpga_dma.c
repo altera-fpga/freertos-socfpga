@@ -5,6 +5,13 @@
  *
  * HAL driver implementation for DMA
  */
+
+/*
+    File: DMA Driver Implementation
+
+    Implements the DMA driver: 8 functions, 1 of them local to this file.
+*/
+
 #include <errno.h>
 #include <stdbool.h>
 #include "socfpga_defines.h"
@@ -23,7 +30,11 @@
 /* Max block size available is 32767 */
 #define MAX_BLOCK_SIZE    0x7FFFU
 
-/* DMA channel registers */
+/*
+    Struct: dma_channel_reg_list
+
+    DMA channel registers. Declared as linked_list_base in socfpga_dma.c.
+*/
 struct dma_channel_reg_list
 {
     uint64_t sar;
@@ -57,6 +68,11 @@ static socfpga_hpu_interrupt_t int_id_map[DMA_NUM_INSTANCE][DMA_NUM_CHANNELS] =
     }
 };
 
+/*
+    Struct: dma_ch_cntxt
+
+    Context for the DMA driver, holding is_open, base_address, ch_offset and 9 more. Callers reach it through <dma_handle_t>.
+*/
 struct dma_ch_cntxt
 {
     bool is_open;
@@ -455,9 +471,11 @@ int32_t dma_close(dma_handle_t const hdma)
     return 0;
 }
 
-/**
- * @brief Interrupt handler for DMA
- */
+/*
+    Function: pdma_irq_handler
+
+    Interrupt handler for DMA
+*/
 void pdma_irq_handler(void *data)
 {
     uint64_t val;

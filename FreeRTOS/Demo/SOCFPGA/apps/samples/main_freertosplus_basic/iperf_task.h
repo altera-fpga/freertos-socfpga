@@ -1,4 +1,26 @@
 /* iperf configurations */
+
+/*
+    File: Iperf Task
+
+    Iperf configurations.
+*/
+
+/*
+    Constants: Iperf Task constants
+
+    ipconfigIPERF_PRIORITY_IPERF_TASK   - Expands to ( configMAX_PRIORITIES - 3 ).
+    USE_IPERF                           - Value: 1.
+    ipconfigIPERF_VERSION               - Value: 3.
+    ipconfigIPERF_STACK_SIZE_IPERF_TASK - Expands to (configMINIMAL_STACK_SIZE + 680).
+    ipconfigIPERF_TX_BUFSIZE            - Expands to ( 256 * ipconfigTCP_MSS ).
+    ipconfigIPERF_TX_WINSIZE            - Value: ( 128 ).
+    ipconfigIPERF_RX_BUFSIZE            - Expands to ( 256 * ipconfigTCP_MSS ).
+    ipconfigIPERF_RX_WINSIZE            - Value: ( 128 ).
+    ipconfigIPERF_RECV_BUFFER_SIZE      - The iperf module declares a character buffer to store its send data.
+    ipconfigIPERF_USE_ZERO_COPY         - Value: 0.
+*/
+
 #ifndef __IPERF_TASK_H__
 #define __IPERF_TASK_H__
 

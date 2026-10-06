@@ -6,6 +6,12 @@
  * Implementation of simple SMMU configuration
  */
 
+/*
+    File: SMMU Driver Implementation
+
+    Implementation of simple SMMU configuration.
+*/
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -107,6 +113,9 @@ static int32_t enable_event_queue(void);
 
 static smmu_descriptors_t smmu_descriptors;
 
+/*
+    Function: smmu_prepare_context_1tb
+*/
 static void smmu_prepare_context_1tb(void)
 {
     smmu_descriptors.context_desc_1tb.T0SZ = T0SZ_1TB;
@@ -129,6 +138,9 @@ static void smmu_prepare_context_1tb(void)
             sizeof(context_desc_t));
 }
 
+/*
+    Function: smmu_prepare_context_512mb
+*/
 static void smmu_prepare_context_512mb(void)
 {
     /*setting T0SZ as 35U : bits used = 64 - T0SZ*/
@@ -152,6 +164,9 @@ static void smmu_prepare_context_512mb(void)
             sizeof(context_desc_t));
 }
 
+/*
+    Function: smmu_prepare_stream_table
+*/
 static void smmu_prepare_stream_table(uint8_t index)
 {
     uint32_t reg_val = 0;
@@ -200,6 +215,11 @@ static void smmu_prepare_stream_table(uint8_t index)
     WR_REG32(SMMU_BASE_ADDR + SMMU_STRTAB_BASE_CFG, 4);
 }
 
+/*
+    Function: smmu_prepare_page_tables_512mb
+
+    Calls <cache_force_write_back>.
+*/
 static void smmu_prepare_page_tables_512mb(void)
 {
     uint64_t address_offset = ADDR_SPACE_SDM;
@@ -232,6 +252,9 @@ static void smmu_prepare_page_tables_512mb(void)
             sizeof(smmu_descriptors.lvl1_page_table_512mb));
 }
 
+/*
+    Function: smmu_prepare_page_tables_1tb
+*/
 static void smmu_prepare_page_tables_1tb(void)
 {
     uint64_t address_offset = ADDR_SPACE_PER;
@@ -272,6 +295,9 @@ static void smmu_prepare_page_tables_1tb(void)
 
 }
 
+/*
+    Function: enable_command_queue
+*/
 static int32_t enable_command_queue(void)
 {
     uint32_t reg_val = 0;
@@ -301,6 +327,9 @@ static int32_t enable_command_queue(void)
     return SMMU_OP_SUCCESS;
 }
 
+/*
+    Function: enable_event_queue
+*/
 static int32_t enable_event_queue(void)
 {
     uint32_t reg_val = 0;
@@ -402,11 +431,15 @@ int32_t smmu_enable(void)
  * PROD index is updated by SMMU after inserting an item to the queue
  * The CONS index is updated by the software after consuming the command
  */
-/*PROD index indicates the next index the items to be added if the queue is not
- * full
- * CONS index indicates the next index the items to be read if the queue is not
- * empty
- */
+/*
+    Function: smmu_manage_command_queue
+
+    PROD index indicates the next index the items to be added if the queue is not
+    full
+    CONS index indicates the next index the items to be read if the queue is not
+    empty
+*/
+
 
 static int32_t smmu_manage_command_queue(void)
 {

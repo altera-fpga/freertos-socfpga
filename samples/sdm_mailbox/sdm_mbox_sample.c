@@ -6,27 +6,28 @@
  * Sample application for SDM mailbox
  */
 
-/**
- * @defgroup sdm_mbox_sample SDM Mailbox
- * @ingroup samples
- *
- * Sample Application for SDM Mailbox.
- *
- * @details
- * @section mbx_desc Description
- * This is a sample application to demonstrate reading the temperature and voltage using SDM mailbox through the SIP SVC calls in ATF.
- *
- * @section mbx_pre Prerequisites
- * ATF version 12 or above
- * @section mbx_howto How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Run the sample.
- *
- * @section mbx_res Expected Results
- * - The success/failure logs are displayed in the console along with the temperature and voltage.
- * @{
- */
-/** @} */
+/*
+    File: SDM Mailbox Sample
+
+    Sample Application for SDM Mailbox.
+    Group: Description
+
+    This is a sample application to demonstrate reading the temperature and
+    voltage using SDM mailbox through the SIP SVC calls in ATF.
+
+    Group: Prerequisites
+
+    ATF version 12 or above
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Run the sample.
+
+    Group: Expected Results
+
+    - The success/failure logs are displayed in the console along with the temperature and voltage.
+*/
 
 #include <stdint.h>
 #include <string.h>
@@ -45,11 +46,22 @@
 osal_semaphore_def_t mbox_sem_mem;
 osal_semaphore_t mbox_sem;
 
+/*
+    Function: mbox_callback
+
+    Calls osal_semaphore_post.
+
+    Parameters:
+        resp_values - Not used.
+*/
 void mbox_callback(uint64_t *resp_values)
 {
     (void)resp_values;
     osal_semaphore_post(mbox_sem);
 }
+/*
+    Function: mbox_sample_task
+*/
 void mbox_sample_task(void)
 {
     int ret;

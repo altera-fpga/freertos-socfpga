@@ -7,6 +7,12 @@
  */
 
 /*
+    File: FPGA Manager Driver Implementation
+
+    HAL implementation for fpga manager.
+*/
+
+/*
  * This is the driver implementation for the FPGA manager. The FPGA manger uses
  * SIP-SVC calls to invoke services from Secure Device Manager to load the
  * bit streams.
@@ -55,9 +61,12 @@
 #define SMC_STATUS_REJECTED    (0x2)
 #define SMC_STATUS_ERROR       (0x4)
 
-/**
- * @brief Send the bitstream data to the fpga via SDM
- */
+/*
+    Function: send_fpga_bitstream
+
+    Send the bitstream data to the fpga via SDM
+*/
+
 static int send_fpga_bitstream(void *rbf_ptr, size_t file_size)
 {
     uint64_t sdm_args[8];

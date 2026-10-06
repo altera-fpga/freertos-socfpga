@@ -6,6 +6,12 @@
  * Adapter layer implementation for QSPI
  */
 
+/*
+    File: QSPI Flash Adapter Driver Implementation
+
+    Adapter layer implementation for QSPI.
+*/
+
 #include "socfpga_flash.h"
 #include "socfpga_qspi.h"
 #include "socfpga_flash_adapter.h"

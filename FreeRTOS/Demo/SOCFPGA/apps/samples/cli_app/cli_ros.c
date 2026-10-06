@@ -6,52 +6,55 @@
  * Implementation of CLI commands for I3C bus
  */
 
-/**
- * @defgroup cli_ros ROS
- * @ingroup cli
- *
- * Perform operations on ROS
- *
- * @details
- * It supports the following commands:
- * -ros erase   &lt;slot&gt;
- * -ros program &lt;slot&gt; &lt;file&gt;
- * -ros verify  &lt;slot&gt; &lt;file&gt;
- * -ros help
- *
- * Typical usage:
- * - Use  'ros erase' command to erase a slot.
- * - Use  'ros program' command to program a slot with sdcard file..
- * - Use  'ros verify' command to verify a slot with a sdcard file.
- * @section ros_commands Commands
- * @subsection ros_erase ros erase
- * Erase the content of the slot  <br>
- *
- * Usage:  <br>
- *   ros erase &lt;slot_num&gt;  <br>
- *
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- *
- * @subsection ros_program ros program
- * Write image to a given slot  <br>
- *
- * Usage:  <br>
- *   ros program &lt;slot_num&gt; &lt;file&gt; <br>
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- * - file    -      The name of the sdcard image(use absolute path).  <br>
- *
- * @subsection ros_verify ros verify
- * Verify image in the slot to the file  <br>
- *
- * Usage:  <br>
- *   ros verify &lt;slot_num&gt; &lt;file&gt; <br>
- * It requires the following arguments:
- * - slot_num -      The slot number  <br>
- * - file    -      The name of the sdcard image(use absolute path).  <br>
- *
- */
+/*
+    File: ROS CLI Commands
+
+    Perform operations on ROS
+
+    It supports the following commands: -ros erase &lt;slot&gt; -ros program
+    &lt;slot&gt; &lt;file&gt; -ros verify &lt;slot&gt; &lt;file&gt; -ros help
+
+    Typical usage:
+    - Use  'ros erase' command to erase a slot.
+    - Use  'ros program' command to program a slot with sdcard file..
+    - Use  'ros verify' command to verify a slot with a sdcard file.
+    Group: Commands
+
+    ros erase:
+
+    Erase the content of the slot
+
+    Usage: ros erase &lt;slot_num&gt;
+
+    It requires the following arguments:
+    - slot_num -      The slot number
+
+    ros program:
+
+    Write image to a given slot
+
+    Usage: ros program &lt;slot_num&gt; &lt;file&gt; It requires the following
+    arguments:
+    - slot_num -      The slot number
+    - file    -      The name of the sdcard image(use absolute path).
+
+    ros verify:
+
+    Verify image in the slot to the file
+
+    Usage: ros verify &lt;slot_num&gt; &lt;file&gt; It requires the following
+    arguments:
+    - slot_num -      The slot number
+    - file    -      The name of the sdcard image(use absolute path).
+*/
+
+/*
+    Constants: ROS constants
+
+    SLOT_ERASE_CMD - Expands to ("erase").
+    SLOT_PRGM_CMD  - Expands to ("program").
+    SLOT_VRFY_CMD  - Expands to ("verify").
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,6 +72,12 @@
 #define SLOT_VRFY_CMD     ("verify")
 
 
+/*
+    Function: cmd_ros
+
+    Implements the ros command of the CLI sample: perform ros operations(NOTE:
+    needs RSU sopported image for this).
+*/
 BaseType_t cmd_ros( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

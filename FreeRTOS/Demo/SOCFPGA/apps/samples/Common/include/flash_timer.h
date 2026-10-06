@@ -24,6 +24,12 @@
  *
  */
 
+/*
+    File: Flash Timer
+
+    Declares the Flash Timer interface: 1 function.
+*/
+
 #ifndef FLASH_TIMER_H
 #define FLASH_TIMER_H
 

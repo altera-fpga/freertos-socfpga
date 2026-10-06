@@ -6,6 +6,30 @@
  * Header file for core configuration
  */
 
+/*
+    File: FreeRTOS Config Smp
+
+    Header file for core configuration.
+*/
+
+/*
+    Constants: FreeRTOS Config Smp constants
+
+    configMAX_NUM_CORES          - Value: 4.
+    configSMP_BUILD              - Value: 0.
+    configBOOT_CORE              - Value: 0.
+    configSMP_CORE0_ENABLE       - Defined per compiler or configuration.
+    configSMP_CORE1_ENABLE       - Defined per compiler or configuration.
+    configSMP_CORE2_ENABLE       - Defined per compiler or configuration.
+    configSMP_CORE3_ENABLE       - Defined per compiler or configuration.
+    configSMP_CORE0_MPIDR        - Value: 0x0.
+    configSMP_CORE1_MPIDR        - Value: 0x100.
+    configSMP_CORE2_MPIDR        - Value: 0x200.
+    configSMP_CORE3_MPIDR        - Value: 0x300.
+    configSMP_ENABLED_CORE_COUNT - Expands to a multi-line definition.
+    configSMP_EARLY_CORE_BRINGUP - Value: 0.
+*/
+
 #ifndef FREERTOS_CONFIG_SMP_H
 #define FREERTOS_CONFIG_SMP_H
 

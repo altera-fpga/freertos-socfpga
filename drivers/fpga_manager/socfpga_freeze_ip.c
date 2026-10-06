@@ -7,6 +7,14 @@
  */
 
 /*
+    File: FPGA Manager Freeze IP Driver Implementation
+
+    HAL Implementation for freeze IP.
+
+    They are do_freeze_pr_region and do_unfreeze_pr_region.
+*/
+
+/*
  * This is the driver implementation for freeze ip. It is used to freeze/unfreeze  a
  * particular PR region during partial reconfiguration.
  *

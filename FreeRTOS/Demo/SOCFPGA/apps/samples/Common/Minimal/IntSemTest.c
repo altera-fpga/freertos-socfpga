@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Int Sem Test Implementation
+
+    Demonstrates and tests mutexes being used from an interrupt.
+*/
 
 /*
  * Demonstrates and tests mutexes being used from an interrupt.
@@ -150,6 +155,15 @@ void vStartInterruptSemaphoreTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vInterruptMutexMasterTask
+
+    Calls <prvTakeAndGiveInTheSameOrder>, vTaskDelay and
+    <prvTakeAndGiveInTheOppositeOrder>.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void vInterruptMutexMasterTask( void * pvParameters )
 {
     /* Just to avoid compiler warnings. */
@@ -172,6 +186,13 @@ static void vInterruptMutexMasterTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTakeAndGiveInTheSameOrder
+
+    A test whereby the master takes the shared and interrupt mutexes in that
+    order, then gives them back in the same order, ensuring the priority
+    inheritance is behaving as expected at each step.
+*/
 static void prvTakeAndGiveInTheSameOrder( void )
 {
     /* Ensure the slave is suspended, and that this task is running at the
@@ -274,6 +295,14 @@ static void prvTakeAndGiveInTheSameOrder( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTakeAndGiveInTheOppositeOrder
+
+    A test whereby the master takes the shared and interrupt mutexes in that
+    order, then gives them back in the opposite order to which they were
+    taken, ensuring the priority inheritance is behaving as expected at each
+    step.
+*/
 static void prvTakeAndGiveInTheOppositeOrder( void )
 {
     /* Ensure the slave is suspended, and that this task is running at the
@@ -371,6 +400,19 @@ static void prvTakeAndGiveInTheOppositeOrder( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vInterruptMutexSlaveTask
+
+    The master is a task that receives a mutex that is given from an interrupt
+    - although generally mutexes should not be used given in interrupts (and
+    definitely never taken in an interrupt) there are some circumstances when
+    it may be desirable. The slave task is just used by the master task to
+    force priority inheritance on a mutex that is shared between the master
+    and the slave - which is a separate mutex to that given by the interrupt.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void vInterruptMutexSlaveTask( void * pvParameters )
 {
     /* Just to avoid compiler warnings. */
@@ -398,6 +440,15 @@ static void vInterruptMutexSlaveTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vInterruptCountingSemaphoreTask
+
+    A simple task that interacts with an interrupt using a counting semaphore,
+    primarily for code coverage purposes.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void vInterruptCountingSemaphoreTask( void * pvParameters )
 {
     BaseType_t xCount;

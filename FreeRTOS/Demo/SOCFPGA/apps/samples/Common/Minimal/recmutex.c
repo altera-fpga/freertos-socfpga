@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Recmutex Implementation
+
+    The tasks defined on this page demonstrate the use of recursive mutexes.
+*/
+
+/*
  *  The tasks defined on this page demonstrate the use of recursive mutexes.
  *
  *  For recursive mutex functionality the created mutex should be created using
@@ -129,6 +135,14 @@ void vStartRecursiveMutexTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRecursiveMutexControllingTask
+
+    The three tasks as described at the top of this file.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvRecursiveMutexControllingTask( void * pvParameters )
 {
     UBaseType_t ux;
@@ -212,6 +226,14 @@ static void prvRecursiveMutexControllingTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRecursiveMutexBlockingTask
+
+    Calls xSemaphoreTakeRecursive, xSemaphoreGiveRecursive and vTaskSuspend.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvRecursiveMutexBlockingTask( void * pvParameters )
 {
     /* Just to remove compiler warning. */
@@ -268,6 +290,9 @@ static void prvRecursiveMutexBlockingTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvRecursiveMutexPollingTask
+*/
 static void prvRecursiveMutexPollingTask( void * pvParameters )
 {
     /* Just to remove compiler warning. */

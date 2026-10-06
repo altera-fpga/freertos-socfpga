@@ -7,6 +7,15 @@
  * Rings sub-module.
  */
 
+/*
+    File: xHCI Rings Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+
+    They are xhci_crcr_init, init_xhc_event_ring, allocate_ring_segment,
+    alloc_command_ring, is_link_trb and get_next_trb_segment.
+*/
+
 #include <stdlib.h>
 #include "socfpga_cache.h"
 #include "socfpga_defines.h"

@@ -6,6 +6,42 @@
  * Header file for GIC driver
  */
 
+/*
+    File: GIC Driver
+
+    Header file for GIC driver.
+*/
+
+/*
+    Constants: REGISTER definitions
+
+    REGISTER_SOCFPGA_DIST_BASE_ADDR - Value: 0x1D000000U.
+    REGISTER_SOCFPGA_RD_BASE_ADDR   - Value: 0x1D060000U.
+*/
+
+/*
+    Constants: GICV3 definitions
+
+    GICV3_GROUP0                - Value: 0U.
+    GICV3_GROUP1_SECURE         - Value: 1U.
+    GICV3_GROUP1_NON_SECURE     - Value: 2U.
+    GICV3_CONFIG_LEVEL          - Value: 0U.
+    GICV3_CONFIG_EDGE           - Value: 2U.
+    GICV3_ROUTE_MODE_ANY        - Value: 0x80000000U.
+    GICV3_ROUTE_MODE_COORDINATE - Value: 0U.
+*/
+
+/*
+    Constants: INTERRUPT definitions
+
+    INTERRUPT_RETURN_SUCCESS          - Value: 0.
+    INTERRUPT_RETURN_ERROR            - Value: -1.
+    INTERRUPT_RETURN_INVALID_PRIORITY - Value: -2.
+    INTERRUPT_RETURN_INVALID_RDIST    - Value: -3.
+    INTERRUPT_RETURN_INVALID_ID       - Value: -4.
+    INTERRUPT_RETURN_INVALID_GROUP    - Value: -5.
+    INTERRUPT_RETURN_INVALID_SPI      - Value: -6.
+*/
 
 #ifndef __ARM_GIC_H__
 #define __ARM_GIC_H__

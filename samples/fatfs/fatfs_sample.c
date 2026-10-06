@@ -6,47 +6,51 @@
  * Sample application for FAT FS operation with SD card storage
  */
 
-/**
- * @file fatfs_sample.c
- * @brief Sample Application for fatfs operations.
- */
+/*
+    File: FatFs Sample Implementation
 
-/**
- * @defgroup fatfs_sample FAT-FS
- * @ingroup samples
- *
- * Sample Application for fatfs opertaions.
- *
- * @details
- * @section fat_desc Description
- * This is a sample application to demonstrate the fatfs operations on SD card.
- * The sample performs the following operations sequentially on the first available fat partition.
- * The partition number can be configred using FAT_PARTITION macro.
- * It does the following operations.
- * - Identify all the fatfs partition in the sdcard.
- * - Mount the first fat partition.
- * - Write data to a text file.
- * - Create a directory in the partition.
- * - Delete the directry.
- * - Read and display data from the text file.
- * - Delete the file.
- * - Unmount the fat partition.
- *
- * @section fat_pre Prerequisites
- * The SD card should be partitioned as FAT partition. In Linux based systems, you may use the below commands:
- *  - Use fdisk to partition the SD card.
- *        - Use mkfs tool to format the sd card partition into FAT.
- *            - sudo mkfs.fat /dev/&lt;partition&gt;
- *
- * @section fat_howto How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Insert the partitioned SD card into the device, and run the sample.
- *
- * @section fat_res Expected Results
- * - The result of fat operations are displayed in the console.
- * @{
- */
-/** @} */
+    Sample Application for fatfs operations.
+
+    Sample Application for fatfs opertaions.
+    Group: Description
+
+    This is a sample application to demonstrate the fatfs operations on SD
+    card. The sample performs the following operations sequentially on the
+    first available fat partition. The partition number can be configred using
+    FAT_PARTITION macro. It does the following operations.
+    - Identify all the fatfs partition in the sdcard.
+    - Mount the first fat partition.
+    - Write data to a text file.
+    - Create a directory in the partition.
+    - Delete the directry.
+    - Read and display data from the text file.
+    - Delete the file.
+    - Unmount the fat partition.
+
+    Group: Prerequisites
+
+    The SD card should be partitioned as FAT partition. In Linux based
+    systems, you may use the below commands:
+     - Use fdisk to partition the SD card.
+           - Use mkfs tool to format the sd card partition into FAT.
+               - sudo mkfs.fat /dev/&lt;partition&gt;
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Insert the partitioned SD card into the device, and run the sample.
+
+    Group: Expected Results
+
+    - The result of fat operations are displayed in the console.
+*/
+
+/*
+    Constants: FatFs constants
+
+    MOUNT_POINT   - Value: "/sdcard".
+    FAT_PARTITION - Value: (0).
+*/
 
 #include "ff_sddisk.h"
 #include "FreeRTOS.h"
@@ -59,6 +63,9 @@
 #define MOUNT_POINT      "/sdcard"
 #define FAT_PARTITION    (0)
 
+/*
+    Function: fatfs_task
+*/
 void fatfs_task(void)
 {
     FF_Disk_t *pdisk;

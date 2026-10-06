@@ -7,6 +7,12 @@
  */
 
 /*
+    File: SEU Driver Implementation
+
+    Driver implementation for SEU driver.
+*/
+
+/*
  * This driver implements the APIs to exercise the SEU features.
  * Single event upsets (SEUs) are rare and unintended changes in the internal memory
  * elements of an FPGA caused by cosmic radiation. The memory state change is a soft
@@ -78,6 +84,11 @@
 #define SEU_BUFFER_SIZE    16
 
 /*NOTE:enabling seu interrupt only for seu injections*/
+/*
+    Struct: seu_context
+
+    Context for the SEU driver, holding seu_semphr_def, seu_semphr, pseu_handle and seu_call_back. Declared as seu_descriptor in socfpga_seu.c.
+*/
 struct seu_context
 {
     osal_semaphore_def_t seu_semphr_def;
@@ -403,6 +414,14 @@ int32_t seu_deinit(void)
     return 0;
 }
 
+/*
+    Function: seu_irq_handler
+
+    Calls <interrupt_spi_disable>.
+
+    Parameters:
+        param - Not used.
+*/
 void seu_irq_handler(void *param)
 {
     (void)param;
@@ -414,6 +433,14 @@ void seu_irq_handler(void *param)
     (void)interrupt_spi_disable(SDM_HPS_SPARE_INTR0);
 }
 
+/*
+    Function: seu_mailbox_complete
+
+    Calls osal_semaphore_post.
+
+    Parameters:
+        resp_data - Not used.
+*/
 void seu_mailbox_complete(uint64_t *resp_data)
 {
     (void)resp_data;

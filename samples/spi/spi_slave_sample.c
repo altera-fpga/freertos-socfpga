@@ -6,10 +6,11 @@
  * Sample application for SPI slave
  */
 
-/**
- * @file spi_slave_sample.c
- * @brief SPI master to slave loopback sample
- */
+/*
+    File: SPI Slave Sample
+
+    SPI master to slave loopback sample
+*/
 
 #include <string.h>
 #include <stdio.h>
@@ -25,41 +26,43 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup spi_slave_sample SPI Slave Loopback (PIO/Interrupt)
- * @ingroup samples
- *
- * SPI master to slave loopback sample
- *
- * @details
- * @section spi_slave_desc Description
- * This sample runs SPIM1 (master) and SPIS0 (slave) in the same application and
- * performs full-duplex loopback transfers. Each iteration:
- * - The slave arms @c spi_xfer_async() with its TX/RX buffers.
- * - The master clocks a transfer with its TX/RX buffers.
- * - The buffers are compared:
- *   - master TX vs slave RX
- *   - slave TX vs master RX
- *
- * A simple semaphore handshake is used so the master only clocks the transfer
- * after the slave has armed the async transfer.
- *
- * @section spi_slave_pre Prerequisites
- * - The FPGA bitstream (@c /core.rbf) must be present on the SD card.
- * - The bitstream must connect SPIM1 <-> SPIS0 appropriately for loopback.
- *
- * @section spi_slave_param Configurable Parameters
- * - Instances and slave select: @c SPI_MASTER_INSTANCE, @c SPI_SLAVE_INSTANCE,
- *   @c SLAVE_SELECT_NUM
- * - SPI frequency: @c SPI_FREQ
- * - Transfer size/iterations: @c XFER_SIZE, @c SPI_SLAVE_SAMPLE_NUM_XFERS
- *
- * @section spi_slave_how_to How to Run
- * 1. Enable this sample in @c samples/spi/main.c
- *    (see @c SPI_SAMPLE_ENABLE_SLAVE).
- * 2. Build and flash the application.
- * 3. Observe the UART terminal for pass/fail output.
- */
+/*
+    Group: SPI Slave Loopback (PIO/Interrupt)
+
+    SPI master to slave loopback sample
+
+    Description:
+
+    This sample runs SPIM1 (master) and SPIS0 (slave) in the same application
+    and performs full-duplex loopback transfers. Each iteration:
+    - The slave arms spi_xfer_async() with its TX/RX buffers.
+    - The master clocks a transfer with its TX/RX buffers.
+    - The buffers are compared:
+      - master TX vs slave RX
+      - slave TX vs master RX
+
+    A simple semaphore handshake is used so the master only clocks the
+    transfer after the slave has armed the async transfer.
+
+    Prerequisites:
+
+    - The FPGA bitstream (/core.rbf) must be present on the SD card.
+    - The bitstream must connect SPIM1 <-> SPIS0 appropriately for loopback.
+
+    Configurable Parameters:
+
+    - Instances and slave select: SPI_MASTER_INSTANCE, SPI_SLAVE_INSTANCE,
+    SLAVE_SELECT_NUM
+    - SPI frequency: SPI_FREQ
+    - Transfer size/iterations: XFER_SIZE, SPI_SLAVE_SAMPLE_NUM_XFERS
+
+    How to Run:
+
+    1. Enable this sample in samples/spi/main.c
+    (see SPI_SAMPLE_ENABLE_SLAVE).
+    2. Build and flash the application.
+    3. Observe the UART terminal for pass/fail output.
+*/
 
 #define SPI_MASTER_INSTANCE  1U
 #define SPI_SLAVE_INSTANCE   0U
@@ -110,6 +113,9 @@ static spi_cb_ctx_t slave_cb_ctx;
 static void spi_slave_xfer_task(void *arg);
 static void spi_master_xfer_task(void *arg);
 
+/*
+    Function: spi_done_callback
+*/
 static void spi_done_callback(spi_xfer_status_t status, void *pparam)
 {
     spi_cb_ctx_t *ctx = (spi_cb_ctx_t *)pparam;
@@ -128,6 +134,11 @@ static void spi_done_callback(spi_xfer_status_t status, void *pparam)
     }
 }
 
+/*
+    Function: load_bitstream
+
+    Calls <mmc_read_file> and <load_fpga_bitstream>.
+*/
 static void load_bitstream(void)
 {
     uint32_t file_size;
@@ -154,6 +165,9 @@ static void load_bitstream(void)
     PRINT("Loaded bitstream file successfully");
 }
 
+/*
+    Function: spi_slave_xfer_task
+*/
 static void spi_slave_xfer_task(void *arg)
 {
     (void)arg;
@@ -249,6 +263,9 @@ static void spi_slave_xfer_task(void *arg)
     osal_task_delete();
 }
 
+/*
+    Function: spi_master_xfer_task
+*/
 static void spi_master_xfer_task(void *arg)
 {
     (void)arg;
@@ -392,6 +409,9 @@ static void spi_master_xfer_task(void *arg)
     osal_task_delete();
 }
 
+/*
+    Function: spi_slave_task
+*/
 void spi_slave_task(void)
 {
     uint32_t i;

@@ -6,49 +6,47 @@
  * Implementation of CLI commands for HPS bridge
  */
 
-/**
- * @defgroup cli_bridge Bridge
- * @ingroup cli
- *
- * Perform bridge operations
- *
- * @details
- * It supports the following subcommands:
- * - bridge disable &lt;instance&gt;
- * - bridge enable  &lt;instance&gt;
- * - bridge help
- *
- * Typical usage:
- * - Use 'bridge enable'  to enable a particular bridge.
- * - Use 'bridge disable' to disable a particular bridge.
- *
- * @section bridge_commands Commands
- * @subsection bridge_enable bridge enable
- * Enable the bridge  <br>
- *
- * Usage:  <br>
- *   bridge enable &lt;instance&gt;  <br>
- *
- * It requires the following arguments:
- * - instance - The instance of the bridge. The instances are mapped as below:  <br>
- *   - 0 - HPS2FPGA bridge  <br>
- *   - 1 - LWHPS2FPGA bridge  <br>
- *   - 2 - FPGA2HPS bridge  <br>
- *   - 3 - FPGA2SDRAM bridge  <br>
- *
- * @subsection bridge_disable bridge disable
- * Disable the bridge  <br>
- *
- * Usage:  <br>
- *   bridge disable &lt;instance&gt;  <br>
- *
- * It requires the following arguments:
- * - instance - The instance of the bridge. The instances are mapped as below:  <br>
- *   - 0 - HPS2FPGA bridge  <br>
- *   - 1 - LWHPS2FPGA bridge  <br>
- *   - 2 - FPGA2HPS bridge  <br>
- *   - 3 - FPGA2SDRAM bridge  <br>
- */
+/*
+    File: Bridge CLI Commands
+
+    Perform bridge operations
+
+    It supports the following subcommands:
+    - bridge disable &lt;instance&gt;
+    - bridge enable  &lt;instance&gt;
+    - bridge help
+
+    Typical usage:
+    - Use 'bridge enable'  to enable a particular bridge.
+    - Use 'bridge disable' to disable a particular bridge.
+    Group: Commands
+
+    bridge enable:
+
+    Enable the bridge
+
+    Usage: bridge enable &lt;instance&gt;
+
+    It requires the following arguments:
+    - instance - The instance of the bridge. The instances are mapped as below:
+      - 0 - HPS2FPGA bridge
+      - 1 - LWHPS2FPGA bridge
+      - 2 - FPGA2HPS bridge
+      - 3 - FPGA2SDRAM bridge
+
+    bridge disable:
+
+    Disable the bridge
+
+    Usage: bridge disable &lt;instance&gt;
+
+    It requires the following arguments:
+    - instance - The instance of the bridge. The instances are mapped as below:
+      - 0 - HPS2FPGA bridge
+      - 1 - LWHPS2FPGA bridge
+      - 2 - FPGA2HPS bridge
+      - 3 - FPGA2SDRAM bridge
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +59,12 @@
 #include "osal_log.h"
 #include "socfpga_bridge.h"
 
+/*
+    Function: cmd_bridge
+
+    Implements the bridge command of the CLI sample: perform bridge
+    operations.
+*/
 BaseType_t cmd_bridge( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

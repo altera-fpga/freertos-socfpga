@@ -5,6 +5,13 @@
  *
  * HAL layer for RSU file operations
  */
+
+/*
+    File: RSU File Ops Library Implementation
+
+    HAL layer for RSU file operations.
+*/
+
 #include <stdlib.h>
 #include <errno.h>
 #include <unistd.h>
@@ -24,6 +31,11 @@
 FF_Disk_t *rsu_disk;
 FF_FILE *rsu_file;
 
+/*
+    Function: plat_filesys_open
+
+    Calls <RSU_LOG_ERR> and FF_Open.
+*/
 static RSU_OSAL_FILE *plat_filesys_open(RSU_OSAL_CHAR *filename,
         RSU_filesys_flags_t flag)
 {
@@ -67,6 +79,11 @@ static RSU_OSAL_FILE *plat_filesys_open(RSU_OSAL_CHAR *filename,
     return rsu_file;
 }
 
+/*
+    Function: plat_filesys_close
+
+    Calls FF_Close.
+*/
 static RSU_OSAL_INT plat_filesys_close(RSU_OSAL_FILE *file)
 {
     FF_Error_t err;
@@ -84,6 +101,11 @@ static RSU_OSAL_INT plat_filesys_close(RSU_OSAL_FILE *file)
     return 0;
 }
 
+/*
+    Function: plat_filesys_write
+
+    Calls FF_Write.
+*/
 static RSU_OSAL_INT plat_filesys_write(RSU_OSAL_VOID *buf, RSU_OSAL_SIZE len,
         RSU_OSAL_FILE *file)
 {
@@ -101,6 +123,11 @@ static RSU_OSAL_INT plat_filesys_write(RSU_OSAL_VOID *buf, RSU_OSAL_SIZE len,
     return bytesWritten;
 }
 
+/*
+    Function: plat_filesys_read
+
+    Calls FF_Read.
+*/
 static RSU_OSAL_INT plat_filesys_read(RSU_OSAL_VOID *buf, RSU_OSAL_SIZE len,
         RSU_OSAL_FILE *file)
 {
@@ -119,6 +146,11 @@ static RSU_OSAL_INT plat_filesys_read(RSU_OSAL_VOID *buf, RSU_OSAL_SIZE len,
     return bytes_read;
 }
 
+/*
+    Function: plat_filesys_fgets
+
+    Calls FF_GetLine.
+*/
 static RSU_OSAL_INT plat_filesys_fgets(RSU_OSAL_CHAR *str, RSU_OSAL_SIZE len,
         RSU_OSAL_FILE *file)
 {
@@ -144,6 +176,11 @@ static RSU_OSAL_INT plat_filesys_fgets(RSU_OSAL_CHAR *str, RSU_OSAL_SIZE len,
     }
 }
 
+/*
+    Function: plat_filesys_fseek
+
+    Calls FF_Seek and <RSU_LOG_ERR>.
+*/
 static RSU_OSAL_INT plat_filesys_fseek(RSU_OSAL_OFFSET offset,
         RSU_filesys_whence_t whence,
         RSU_OSAL_FILE *file)
@@ -180,6 +217,11 @@ static RSU_OSAL_INT plat_filesys_fseek(RSU_OSAL_OFFSET offset,
     return 0;
 }
 
+/*
+    Function: plat_filesys_ftruncate
+
+    Calls FF_Seek and FF_SetEof.
+*/
 static RSU_OSAL_INT plat_filesys_ftruncate(RSU_OSAL_OFFSET length,
         RSU_OSAL_FILE *file)
 {
@@ -202,6 +244,11 @@ static RSU_OSAL_INT plat_filesys_ftruncate(RSU_OSAL_OFFSET length,
     return 0;
 }
 
+/*
+    Function: plat_filesys_terminate
+
+    Calls FF_Unmount and FF_SDDiskDelete.
+*/
 static RSU_OSAL_INT plat_filesys_terminate(RSU_OSAL_VOID)
 {
     FF_Error_t err = FF_Unmount(rsu_disk);

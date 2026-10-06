@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Countsem
+
+    Declares the Countsem interface: 2 functions.
+
+    They are vStartCountingSemaphoreTasks and
+    xAreCountingSemaphoreTasksStillRunning.
+*/
+
 #ifndef COUNT_SEMAPHORE_TEST_H
 #define COUNT_SEMAPHORE_TEST_H
 

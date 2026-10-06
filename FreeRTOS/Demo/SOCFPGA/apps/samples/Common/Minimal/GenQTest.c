@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Gen Q Test Implementation
+
+    Tests the extra queue functionality introduced in FreeRTOS.org V4.5.0 - including xQueueSendToFront(), xQueueSendToBack(), xQueuePeek() and mutex behaviour.
+*/
 
 /*
  * Tests the extra queue functionality introduced in FreeRTOS.org V4.5.0 -
@@ -200,6 +205,13 @@ void vStartGenericQueueTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSendFrontAndBackTest
+
+    Tests the behaviour of the xQueueSendToFront() and xQueueSendToBack()
+    macros by using both to fill a queue, then reading from the queue to check
+    the resultant queue order is as expected. Queue data is also peeked.
+*/
 static void prvSendFrontAndBackTest( void * pvParameters )
 {
     uint32_t ulData, ulData2, ulLoopCounterSnapshot;
@@ -436,6 +448,13 @@ static void prvSendFrontAndBackTest( void * pvParameters )
 
 #if ( INCLUDE_xTaskAbortDelay == 1 )
 
+    /*
+        Function: prvHighPriorityTimeout
+
+        Tests the behaviour when a low priority task inherits the priority of
+        a high priority task only for the high priority task to timeout before
+        obtaining the mutex.
+    */
     static void prvHighPriorityTimeout( SemaphoreHandle_t xMutex )
     {
         static UBaseType_t uxLoopCount = 0;
@@ -649,6 +668,9 @@ static void prvSendFrontAndBackTest( void * pvParameters )
 #endif /* INCLUDE_xTaskAbortDelay == 1 */
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTakeTwoMutexesReturnInDifferentOrder
+*/
 static void prvTakeTwoMutexesReturnInDifferentOrder( SemaphoreHandle_t xMutex,
                                                      SemaphoreHandle_t xLocalMutex )
 {
@@ -782,6 +804,14 @@ static void prvTakeTwoMutexesReturnInDifferentOrder( SemaphoreHandle_t xMutex,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTakeTwoMutexesReturnInSameOrder
+
+    Tests the behaviour when a low priority task inherits the priority of a
+    higher priority task when taking two mutexes, and returns the mutexes in
+    first the same order as the two mutexes were obtained, and second the
+    opposite order as the two mutexes were obtained.
+*/
 static void prvTakeTwoMutexesReturnInSameOrder( SemaphoreHandle_t xMutex,
                                                 SemaphoreHandle_t xLocalMutex )
 {
@@ -900,6 +930,21 @@ static void prvTakeTwoMutexesReturnInSameOrder( SemaphoreHandle_t xMutex,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvLowPriorityMutexTask
+
+    The following three tasks are used to demonstrate the mutex behaviour.
+    Each task is given a different priority to demonstrate the priority
+    inheritance mechanism. The low priority task obtains a mutex. After this a
+    high priority task attempts to obtain the same mutex, causing its priority
+    to be inherited by the low priority task. The task with the inherited high
+    priority then resumes a medium priority task to ensure it is not blocked
+    by the medium priority task while it holds the inherited high priority.
+    Once the mutex is returned the task with the inherited priority returns to
+    its original low priority, and is therefore immediately preempted by first
+    the high priority task and then the medium priority task before it can
+    continue.
+*/
 static void prvLowPriorityMutexTask( void * pvParameters )
 {
     SemaphoreHandle_t xMutex = ( SemaphoreHandle_t ) pvParameters, xLocalMutex;
@@ -954,6 +999,9 @@ static void prvLowPriorityMutexTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvMediumPriorityMutexTask
+*/
 static void prvMediumPriorityMutexTask( void * pvParameters )
 {
     ( void ) pvParameters;
@@ -972,6 +1020,11 @@ static void prvMediumPriorityMutexTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvHighPriorityMutexTask
+
+    Calls vTaskSuspend, xSemaphoreTake and xSemaphoreGive.
+*/
 static void prvHighPriorityMutexTask( void * pvParameters )
 {
     SemaphoreHandle_t xMutex = ( SemaphoreHandle_t ) pvParameters;

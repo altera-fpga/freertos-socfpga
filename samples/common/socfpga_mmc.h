@@ -21,9 +21,16 @@
 #define MOUNT_POINT    "/drive"
 
 /*
- * @enum  media_source
- * @brief enum to specify the various storage mediums to load bitstream
- */
+    File: MMC Sample
+
+    Declares the MMC sample interface: 1 function, 1 type and 5 constants.
+*/
+
+/*
+    Enum: media_source_t
+
+    enum to specify the various storage mediums to load bitstream
+*/
 typedef enum media_source
 {
     SOURCE_SDMMC = 0,
@@ -33,12 +40,21 @@ typedef enum media_source
 }media_source_t;
 
 /*
- * @brief Function to get the bitstream reference and file size
- * @param[in] media_src bitstream file source
- * @param[in] file_name name of the bitstream file
- * @param[in,out] file_size pointer to length of the bitstream file (input: reference, output: returns the length)
- * @return reference to bitstream pointer
- */
+    Function: mmc_read_file
+
+    Function to get the bitstream reference and file size
+
+    Parameters:
+
+        media_src - bitstream file source
+        file_name - name of the bitstream file
+        file_size - pointer to length of the bitstream file (input:
+            reference, output: returns the length)
+
+    Returns:
+
+        reference to bitstream pointer
+*/
 uint8_t *mmc_read_file(media_source_t media_src, const char *file_name,
         uint32_t *file_size);
 

@@ -22,30 +22,48 @@
 
 static iossm_req_payload_t req_format;
 
-/**
- * @brief  read iossm register
- *
- * @param[in]  base_addr - instance base address
- * @param[in]  reg - register offset
- *
- * @return
- * - response - register value
- */
+/*
+    File: IOSSM Low-Level Driver Implementation
+
+    Implements the IOSSM low-level driver: 5 functions, 1 of them local to
+    this file.
+*/
+
+/*
+    Function: iossm_read_register
+
+    read iossm register
+
+    Parameters:
+
+        base_addr - - instance base address
+        reg - - register offset
+
+    Returns:
+
+        - response - register value
+*/
 uint32_t iossm_read_register(uint32_t base_addr, uint32_t reg)
 {
     return RD_REG32(base_addr + reg);
 }
 
-/**
- * @brief  send iossm commands
- *
- * @param[in]  iossm_data - command handle holding required data to send the command.
- * @param[in]  request - the type of requests to be send.
- * @param[in]  param - the parameters to support the required functionality.
- *
- * @return
- * - response - response Data from the iossm
- */
+/*
+    Function: iossm_send_command
+
+    send iossm commands
+
+    Parameters:
+
+        iossm_data - - command handle holding required data to send the
+            command.
+        request - - the type of requests to be send.
+        param - - the parameters to support the required functionality.
+
+    Returns:
+
+        - response - response Data from the iossm
+*/
 iossm_response_data_t iossm_send_command(iossm_type_t const *iossm_data, uint32_t request,
         uint32_t param)
 {
@@ -95,12 +113,16 @@ iossm_response_data_t iossm_send_command(iossm_type_t const *iossm_data, uint32_
     return response;
 }
 
-/* Logic to create a delay of 40us without using DDR
- * This means using no stack/heap/data sections and only CPU registers
- * This logic is not portable as this might cause register clobering
- * If some one wants to reuse this logic, please inspect the assembly
- * and make sure no clobering is happening
- * */
+/*
+    Function: wait_40us
+
+    Logic to create a delay of 40us without using DDR
+    This means using no stack/heap/data sections and only CPU registers
+    This logic is not portable as this might cause register clobering
+    If some one wants to reuse this logic, please inspect the assembly
+    and make sure no clobering is happening
+*/
+
 __attribute__((always_inline)) static inline void wait_40us(void) {
     __asm__ volatile (
         "mrs    x1, CNTFRQ_EL0                 \n"
@@ -125,16 +147,22 @@ __attribute__((always_inline)) static inline void wait_40us(void) {
         );
 }
 
-/**
- * @brief  inject iossm error
- *
- * @param[in]  iossm_data - command handle holding required data to send the command.
- * @param[in]  addresst - the address to inject the error into.
- * @param[in]  param - injection type single/double bit error.
- *
- * @return
- * - response - response Data from the iossm
- */
+/*
+    Function: iossm_err_inject_command
+
+    inject iossm error
+
+    Parameters:
+
+        iossm_data - - command handle holding required data to send the
+            command.
+        addresst - - the address to inject the error into.
+        param - - injection type single/double bit error.
+
+    Returns:
+
+        - response - response Data from the iossm
+*/
 iossm_response_data_t iossm_err_inject_command(iossm_type_t const *iossm_data, void *address,
         uint32_t param)
 {
@@ -202,12 +230,15 @@ iossm_response_data_t iossm_err_inject_command(iossm_type_t const *iossm_data, v
 }
 
 
-/**
- * @brief  format iossm command request parameters
- *
- * @param[in]  formatter - handle containing the data to be formatted.
- *
- */
+/*
+    Function: iossm_format_command
+
+    format iossm command request parameters
+
+    Parameters:
+
+        formatter - - handle containing the data to be formatted.
+*/
 void iossm_format_command(void)
 {
     iossm_req_payload_t *formatter;

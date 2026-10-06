@@ -4,6 +4,14 @@
  * SPDX-License-Identifier: MIT-0
  */
 
+/*
+    File: RSU Logging FreeRTOS Library
+
+    Library routines for the RSU Logging FreeRTOS: 3 functions.
+
+    They are RSU_set_logging, RSU_logging_init and RSU_logging_exit.
+*/
+
 #include <string.h>
 #include <stdarg.h>
 

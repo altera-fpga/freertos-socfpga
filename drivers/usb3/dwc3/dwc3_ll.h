@@ -28,36 +28,64 @@
 #define DWC3_GHWPARAMS0_MODE_DRD       (2U) /* !< DWC3 Core is in DRD mode*/
 
 
-/**
- * @brief Configure the usb2 phy.
- *
- * @param[in] ghwparams3 ghwparams3 register value
- */
+/*
+    File: DWC3 Low-Level Driver
+
+    Declares the DWC3 low-level driver interface: 4 functions and 11
+    constants.
+*/
+
+/*
+    Function: usb2_phy_setup
+
+    Configure the usb2 phy.
+
+    Parameters:
+
+        ghwparams3 - ghwparams3 register value
+*/
 void usb2_phy_setup(uint32_t ghwparams3);
 
-/**
- * @brief Get info regarding USB3.1 phy.
- *
- * @param[in] ghwparams3 ghwparams3 register value
- * @return usb3 SS phy info
- */
+/*
+    Function: get_usb3_phy_info
+
+    Get info regarding USB3.1 phy.
+
+    Parameters:
+
+        ghwparams3 - ghwparams3 register value
+
+    Returns:
+
+        usb3 SS phy info
+*/
 uint32_t get_usb3_phy_info(uint32_t ghwparams3);
 
-/**
- * @brief Configure the GCTL register.
- *
- * @param[in] ghwparams1 ghwparams1 register value
- */
+/*
+    Function: setup_dwc3_gctl
+
+    Configure the GCTL register.
+
+    Parameters:
+
+        ghwparams1 - ghwparams1 register value
+*/
 void setup_dwc3_gctl(uint32_t ghwparams1);
 
-/**
- * @brief Configure the controller in host mode.
- *
- * @param[in] ghwparams0 ghwparams0 register value
- * @return
- *  RET_SUCCESS: if host mode setup is successful
- *  RET_FAIL:    if host mode setup fails
- */
+/*
+    Function: dwc3_set_usb_host_mode
+
+    Configure the controller in host mode.
+
+    Parameters:
+
+        ghwparams0 - ghwparams0 register value
+
+    Returns:
+
+        RET_SUCCESS: if host mode setup is successful
+        RET_FAIL: if host mode setup fails
+*/
 int dwc3_set_usb_host_mode(uint32_t ghwparams0);
 
 #endif /* _SOCFPGA_DWC3_LL_H_ */

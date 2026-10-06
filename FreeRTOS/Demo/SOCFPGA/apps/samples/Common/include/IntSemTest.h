@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Int Sem Test
+
+    Declares the Int Sem Test interface: 3 functions.
+
+    They are vInterruptSemaphorePeriodicTest, vStartInterruptSemaphoreTasks
+    and xAreInterruptSemaphoreTasksStillRunning.
+*/
+
 #ifndef INT_SEM_TEST_H
 #define INT_SEM_TEST_H
 

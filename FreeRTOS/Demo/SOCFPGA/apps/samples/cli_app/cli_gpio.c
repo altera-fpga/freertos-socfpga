@@ -7,43 +7,40 @@
  */
 
 
-/**
- * @defgroup cli_gpio GPIO
- * @ingroup cli
- *
- * Perform operations on gpio pins.
- *
- * @details
- * It supports the following commands:
- * - gpio set &lt;pin_num&gt; &lt;pin_state&gt;
- * - gpio get &lt;pin_num&gt;
- * - gpio help
- *
- * Typical usage:
- * - Use 'gpio set' command to change the output state.
- * - Use 'gpio get' command to read the input state.
- *
- * @section gpio_commands Commands
- * @subsection gpio_set gpio set
- * Configure a gpio pin and change its state <br>
- *
- * Usage: <br>
- * gpio set &lt;pin_num&gt; &lt;pin_state&gt; <br>
- *
- * It requires the following arguments:
- * - pin_num - GPIO pin number. Valid values are 0 to 47
- * - pin_state - Pin state as 0 or 1.
- *
- * @subsection gpio_get gpio get
- * Read the state of a gpio pin <br>
- *
- * Usage: <br>
- * gpio get &lt;pin_num&gt; <br>
- *
- * It requires the following argument:
- * - pin_num - GPIO pin number. Valid values are 0 to 47
- *
- */
+/*
+    File: GPIO CLI Commands
+
+    Perform operations on gpio pins.
+
+    It supports the following commands:
+    - gpio set &lt;pin_num&gt; &lt;pin_state&gt;
+    - gpio get &lt;pin_num&gt;
+    - gpio help
+
+    Typical usage:
+    - Use 'gpio set' command to change the output state.
+    - Use 'gpio get' command to read the input state.
+    Group: Commands
+
+    gpio set:
+
+    Configure a gpio pin and change its state
+
+    Usage: gpio set &lt;pin_num&gt; &lt;pin_state&gt;
+
+    It requires the following arguments:
+    - pin_num - GPIO pin number. Valid values are 0 to 47
+    - pin_state - Pin state as 0 or 1.
+
+    gpio get:
+
+    Read the state of a gpio pin
+
+    Usage: gpio get &lt;pin_num&gt;
+
+    It requires the following argument:
+    - pin_num - GPIO pin number. Valid values are 0 to 47
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +58,11 @@
 SemaphoreHandle_t sem_cli_gpio;
 BaseType_t higher_priority_task_woken = pdFALSE;
 
+/*
+    Struct: gpio_int_event
+
+    Event for the GPIO cli commands, holding pin and int_type. Declared as gpio_irq_event in cli_gpio.c.
+*/
 typedef struct
 {
     uint8_t pin;
@@ -72,6 +74,9 @@ BaseType_t cmd_gpio( char *write_buffer, size_t write_buffer_len,
         const char *command_string );
 TaskHandle_t gpio_event_task_hdl = NULL;
 
+/*
+    Function: gpio_callback
+*/
 void gpio_callback( uint8_t pin_state, void *user_context )
 {
     (void) pin_state;
@@ -81,6 +86,9 @@ void gpio_callback( uint8_t pin_state, void *user_context )
     }
 }
 
+/*
+    Function: intrpt_type_char_to_val
+*/
 static gpio_int_t intrpt_type_char_to_val( char *ctype )
 {
     gpio_int_t res = GPIO_INT_NONE;
@@ -105,8 +113,11 @@ static gpio_int_t intrpt_type_char_to_val( char *ctype )
 }
 
 /*
- * @brief Check if the pin is configured as gpio in pinmux
- */
+    Function: is_pin_gpio
+
+    Check if the pin is configured as gpio in pinmux
+*/
+
 static bool is_pin_gpio( uint8_t pin )
 {
     uint32_t val;
@@ -116,8 +127,11 @@ static bool is_pin_gpio( uint8_t pin )
 }
 
 /*
- * @brief Configure the pin as gpio in pinmux
- */
+    Function: config_pinmux
+
+    Configure the pin as gpio in pinmux
+*/
+
 static void config_pinmux(uint8_t pin)
 {
     uint32_t reg_val;
@@ -131,10 +145,11 @@ static void config_pinmux(uint8_t pin)
     }
 }
 
-/**
- * @func : gpio_event
- * @brief : prints the gpio event occurred.
- */
+/*
+    Function: gpio_event
+
+    : prints the gpio event occurred.
+*/
 
 void gpio_event( void *params )
 {
@@ -167,10 +182,11 @@ void gpio_event( void *params )
     }
 }
 
-/**
- * @func : cmd_gpio
- * @brief : callback function to set or get gpio pinstate
- */
+/*
+    Function: cmd_gpio
+
+    : callback function to set or get gpio pinstate
+*/
 
 BaseType_t cmd_gpio( char *write_buffer, size_t write_buffer_len,
         const char *command_string )

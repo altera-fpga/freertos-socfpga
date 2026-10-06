@@ -6,6 +6,12 @@
  * HAL driver implementation for SPI
  */
 
+/*
+    File: SPI Driver Implementation
+
+    Implements the SPI driver: 21 functions, 12 of them local to this file.
+*/
+
 #include <string.h>
 #include <stdbool.h>
 #include "socfpga_defines.h"
@@ -43,7 +49,11 @@
 #define SPI_DMA_GET_BURST_ITEMS(nbytes) \
     (((nbytes) > 8U) ? 8U : (((nbytes) > 4U) ? 4U : 1U))
 
-/* Context used to share a single DMA callback for TX and RX. */
+/*
+    Struct: spi_dma_cb_ctx_t
+
+    Context used to share a single DMA callback for TX and RX. Declared as dma_cb_tx_ctx in socfpga_spi.c.
+*/
 typedef struct
 {
     spi_handle_t hspi;
@@ -124,9 +134,12 @@ static dma_xfer_cfg_t spi_slave_tx_dma_xfer_list[SPI_SLAVE_NUM_INSTANCES]
 static dma_xfer_cfg_t spi_slave_rx_dma_xfer_list[SPI_SLAVE_NUM_INSTANCES]
         [SPI_DMA_MAX_LLI_PER_CHANNEL];
 
-/**
- * @brief Check if the SPI handle is valid.
- */
+/*
+    Function: spi_is_handle_valid
+
+    Check if the SPI handle is valid.
+*/
+
 static bool spi_is_handle_valid(spi_handle_t handle)
 {
     bool in_master;
@@ -144,6 +157,9 @@ static bool spi_is_handle_valid(spi_handle_t handle)
     return in_master || in_slave;
 }
 
+/*
+    Function: spi_get_dma_tx_peri_id
+*/
 static dma_peri_id_t spi_get_dma_tx_peri_id(uint32_t instance, spi_role_t role)
 {
     if (role == SPI_ROLE_SLAVE)
@@ -153,6 +169,9 @@ static dma_peri_id_t spi_get_dma_tx_peri_id(uint32_t instance, spi_role_t role)
     return (instance == 1U) ? DMA_ID_SPI1_MASTER_TX : DMA_ID_SPI0_MASTER_TX;
 }
 
+/*
+    Function: spi_get_dma_rx_peri_id
+*/
 static dma_peri_id_t spi_get_dma_rx_peri_id(uint32_t instance, spi_role_t role)
 {
     if (role == SPI_ROLE_SLAVE)
@@ -162,6 +181,9 @@ static dma_peri_id_t spi_get_dma_rx_peri_id(uint32_t instance, spi_role_t role)
     return (instance == 1U) ? DMA_ID_SPI1_MASTER_RX : DMA_ID_SPI0_MASTER_RX;
 }
 
+/*
+    Function: spi_setup_dma_xfer
+*/
 static void spi_setup_dma_xfer(spi_handle_t hspi, uint32_t *tx_src,
         uint8_t *rx_dst, uint32_t nbytes, uint32_t *pblk_cnt)
 {
@@ -241,6 +263,9 @@ static void spi_setup_dma_xfer(spi_handle_t hspi, uint32_t *tx_src,
     *pblk_cnt = blk_cnt;
 }
 
+/*
+    Function: spi_dma_callback
+*/
 static void spi_dma_callback(void *p_usr_cntxt)
 {
     spi_dma_cb_ctx_t *ctx = (spi_dma_cb_ctx_t *)p_usr_cntxt;
@@ -294,6 +319,9 @@ static void spi_dma_callback(void *p_usr_cntxt)
     }
 }
 
+/*
+    Function: spi_dma_close_channels
+*/
 static void spi_dma_close_channels(spi_handle_t hspi)
 {
     if (hspi->h_dma_tx != NULL)
@@ -586,6 +614,9 @@ int32_t spi_ioctl(spi_handle_t const hspi, spi_ioctl_t cmd, void *const buf)
     return result;
 }
 
+/*
+    Function: spi_dma_init
+*/
 static int32_t spi_dma_init(spi_handle_t hspi, spi_dma_config_t *cfg)
 {
     dma_config_t tx_cfg = { 0 };
@@ -640,6 +671,12 @@ static int32_t spi_dma_init(spi_handle_t hspi, spi_dma_config_t *cfg)
     return 0;
 }
 
+/*
+    Function: spi_dma_deinit
+
+    Calls spi_ll_disable_dma, spi_ll_set_dma_thresholds and
+    <spi_dma_close_channels>.
+*/
 static int32_t spi_dma_deinit(spi_handle_t hspi)
 {
     spi_ll_disable_dma(hspi->base_addr);
@@ -652,9 +689,12 @@ static int32_t spi_dma_deinit(spi_handle_t hspi)
     return 0;
 }
 
-/**
- * @brief Start SPI transfer
- */
+/*
+    Function: spi_xfer
+
+    Start SPI transfer
+*/
+
 static void spi_xfer(spi_handle_t hspi, uint32_t nbytes)
 {
     uint32_t mode;
@@ -715,9 +755,12 @@ static void spi_xfer(spi_handle_t hspi, uint32_t nbytes)
     }
 }
 
-/**
- * @brief Start SPI transfer through DMA
- */
+/*
+    Function: spi_dma_transfer
+
+    Start SPI transfer through DMA
+*/
+
 static int32_t spi_dma_transfer(spi_handle_t const hspi, void *const txbuf,
         void *const rxbuf, uint32_t nbytes)
 {
@@ -1280,6 +1323,9 @@ int32_t spi_cancel(spi_handle_t const hspi)
     return 0;
 }
 
+/*
+    Function: spi_drain_fifo
+*/
 static void spi_drain_fifo(spi_handle_t hspi)
 {
     bool use_dma_drain = false;
@@ -1392,10 +1438,11 @@ int32_t spi_close(spi_handle_t const hspi)
 
     return 0;
 }
+/*
+    Function: spi_isr
 
-/**
- * @brief Interrupt handler for SPI
- */
+    Interrupt handler for SPI
+*/
 void spi_isr(void *param)
 {
     spi_handle_t hspi;

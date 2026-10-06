@@ -6,6 +6,12 @@
  * HAL layer for RSU mail box operations
  */
 
+/*
+    File: RSU Mailbox Ops Library Implementation
+
+    HAL layer for RSU mail box operations.
+*/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -27,12 +33,23 @@
 sdm_client_handle_t rsu_client = NULL;
 osal_semaphore_t rsu_sem;
 
+/*
+    Function: rsu_callback
+
+    Calls osal_semaphore_post.
+
+    Parameters:
+        resp_data - Not used.
+*/
 void rsu_callback(uint64_t *resp_data)
 {
     (void)resp_data;
     osal_semaphore_post(rsu_sem);
 }
 
+/*
+    Function: plat_mbox_get_rsu_status
+*/
 static RSU_OSAL_INT plat_mbox_get_rsu_status(struct mbox_status_info *data)
 {
     uint32_t *rsu_status_resp;
@@ -78,6 +95,9 @@ static RSU_OSAL_INT plat_mbox_get_rsu_status(struct mbox_status_info *data)
     return 0;
 }
 
+/*
+    Function: plat_mbox_send_rsu_update
+*/
 static RSU_OSAL_INT plat_mbox_send_rsu_update(RSU_OSAL_U64 addr)
 {
     int ret;
@@ -115,6 +135,9 @@ static RSU_OSAL_INT plat_mbox_send_rsu_update(RSU_OSAL_U64 addr)
     return ret;
 }
 
+/*
+    Function: plat_mbox_get_spt_addresses
+*/
 static RSU_OSAL_INT plat_mbox_get_spt_addresses(
         struct mbox_data_rsu_spt_address *data)
 {
@@ -157,6 +180,9 @@ static RSU_OSAL_INT plat_mbox_get_spt_addresses(
     return 0;
 }
 
+/*
+    Function: plat_mbox_rsu_notify
+*/
 static RSU_OSAL_INT plat_mbox_rsu_notify(RSU_OSAL_U32 notify)
 {
     int32_t ret;
@@ -193,6 +219,11 @@ static RSU_OSAL_INT plat_mbox_rsu_notify(RSU_OSAL_U32 notify)
     return -1;
 }
 
+/*
+    Function: plat_mbox_terminate
+
+    Calls <mbox_close_client> and <mbox_deinit>.
+*/
 static RSU_OSAL_INT plat_mbox_terminate(RSU_OSAL_VOID)
 {
     int32_t ret;

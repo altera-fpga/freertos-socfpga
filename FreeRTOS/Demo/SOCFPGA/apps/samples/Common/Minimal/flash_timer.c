@@ -24,10 +24,16 @@
  *
  */
 
-/**
- * Repeatedly toggles one or more LEDs using software timers - one timer per
- * LED.
- */
+/*
+    File: Flash Timer Implementation
+
+    Repeatedly toggles one or more LEDs using software timers - one timer per LED.
+*/
+
+/*
+    Repeatedly toggles one or more LEDs using software timers - one timer per
+    LED.
+*/
 
 /* Scheduler include files. */
 #include "FreeRTOS.h"
@@ -83,6 +89,13 @@ void vStartLEDFlashTimers( UBaseType_t uxNumberOfLEDs )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvLEDTimerCallback
+
+    The callback function used by each LED flashing timer. All the timers use
+    this function, and the timer ID is used within the function to determine
+    which timer has actually expired.
+*/
 static void prvLEDTimerCallback( TimerHandle_t xTimer )
 {
     BaseType_t xTimerID;

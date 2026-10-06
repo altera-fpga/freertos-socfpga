@@ -6,6 +6,12 @@
  * This contains the register defintions for Agilex5 USB3.1 controller
  */
 
+/*
+    File: USB 3.0 Registers
+
+    This contains the register defintions for Agilex5 USB3.1 controller.
+*/
+
 #ifndef __SOCFPGA_USB3_REG_H__
 #define __SOCFPGA_USB3_REG_H__
 

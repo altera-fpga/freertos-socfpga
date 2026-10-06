@@ -6,6 +6,30 @@
  * Header file for ethernet sample app
  */
 
+/*
+    File: Main FreeRTOS Plus Basic
+
+    Header file for ethernet sample app.
+*/
+
+/*
+    Constants: Main FreeRTOS Plus Basic constants
+
+    DEMO_PING           - Value: 0.
+    DEMO_TCP            - Value: 0.
+    DEMO_UDP            - Value: 0.
+    DEMO_ECHOTCP        - Value: 1.
+    DEMO_IPERF          - Value: 0.
+    TCP_SERVER_PORT     - Value: 9640.
+    UDP_SERVER_PORT     - Value: 8897.
+    PING_SERVER_IP      - Value: "192.168.1.100".
+    FREERTOS_IP         - Value: "192.168.1.6".
+    QUEUE_LENGTH        - Value: 10.
+    NETWORK_BUFFER_SIZE - Value: 30.
+    BUFFER_SIZE         - Value: 1400.
+    DEMO_DHCP           - Enable the macro to avail DHCP.
+*/
+
 #ifndef __MAIN_BASIC_APP_H__
 #define __MAIN_BASIC_APP_H__
 

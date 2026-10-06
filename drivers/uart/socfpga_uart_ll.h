@@ -6,6 +6,29 @@
  * Header file for UART low level driver
  */
 
+/*
+    File: UART Low-Level Driver
+
+    Header file for UART low level driver.
+*/
+
+/*
+    Constants: UART constants
+
+    UART_MAX_INSTANCE    - Value: 2U.
+    MODEM_STATUS         - Value: 0x0U.
+    NO_INTERRUPT         - Value: 0x1U.
+    THR_EMPTY            - Value: 0x2U.
+    RX_DATA_RDY          - Value: 0x4U.
+    RX_LINE_STATUS       - Value: 0x6U.
+    BUSY_DETECT          - Value: 0x7U.
+    CHAR_TIMEOUT         - Value: 0xCU.
+    UART_NO_INT          - Value: 0U.
+    UART_TXBUF_EMPTY_INT - Value: 0x1U.
+    UART_RXBUF_RDY_INT   - Value: 0x2U.
+    UART_HW_ERR_INT      - Value: 0x3U.
+*/
+
 #ifndef __SOCFPGA_UART_LL_H__
 #define __SOCFPGA_UART_LL_H__
 
@@ -28,6 +51,11 @@
 #define UART_RXBUF_RDY_INT      0x2U
 #define UART_HW_ERR_INT         0x3U
 
+/*
+    Enum: uart_interrupt_id_t
+
+    Values used by the UART low-level driver: INTERRUPT_RX and INTERRUPT_TX. Passed to uart_enable_interrupt and uart_disable_interrupt.
+*/
 typedef enum
 {
     INTERRUPT_RX, INTERRUPT_TX, INTERRUPT_HW

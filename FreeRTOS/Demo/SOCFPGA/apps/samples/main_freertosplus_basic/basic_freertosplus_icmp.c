@@ -35,45 +35,52 @@
 #include "main_freertosplus_basic.h"
 #include "osal.h"
 
-/**
- * @file basic_freertosplus_icmp.c
- * @brief Sample Application for ICMP ping server.
- */
+/*
+    File: Basic FreeRTOS Plus ICMP
 
-/**
- * @defgroup ping_sample Ethernet - ICMP Ping Server
- * @ingroup samples
- *
- * Sample Application for FreeRTOS+Ping Server
- *
- * @details
- * @section ping_desc Description
- * This is a simple program that demonstrates how to create a Ping server using FreeRTOS+ICMP.
- * The server waits for incoming ping client connections on a specified port. Once a client
- *
- * Each message is sent with an incrementing count. This demonstrates socket handling,
- * connection acceptance, message formatting, and transmission over TCP using the FreeRTOS+TCP stack.
- *
- * @section ping_pre Prerequisites
- * - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
- * - Network PHY and MAC drivers must be initialized and functioning.
- * - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
- *
- * @section ping_howto How to Run
- * 1. Follow the platform-specific README to build and flash the application.
- * 2. Connect the device to a LAN where the host PC resides.
- * 3. Run ping server.
- * 4. Once connected, observe the periodic server messages on the client terminal.
- *
- * @section ping_res Expected Results
- * - The ICMP server starts listening on the configured port.
- * - prints the recieved checksum.
- *
- * @{
- */
-/** @} */
+    Sample Application for ICMP ping server.
+
+    Sample Application for FreeRTOS+Ping Server
+
+    They are vPingTask and vApplicationPingReplyHook.
+    Group: Description
+
+    This is a simple program that demonstrates how to create a Ping server
+    using FreeRTOS+ICMP. The server waits for incoming ping client connections
+    on a specified port. Once a client
+
+    Each message is sent with an incrementing count. This demonstrates socket
+    handling, connection acceptance, message formatting, and transmission over
+    TCP using the FreeRTOS+TCP stack.
+
+    Group: Prerequisites
+
+    - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
+    - Network PHY and MAC drivers must be initialized and functioning.
+    - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
+
+    Group: How to Run
+
+    - Follow the platform-specific README to build and flash the application.
+    - Connect the device to a LAN where the host PC resides.
+    - Run ping server.
+    - Once connected, observe the periodic server messages on the client terminal.
+
+    Group: Expected Results
+
+    - The ICMP server starts listening on the configured port.
+    - prints the recieved checksum.
+*/
 
 
+/*
+    Function: vPingTask
+
+    Calls FreeRTOS_inet_addr and ulTaskNotifyTake.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 void vPingTask(void *pvParameters)
 {
 	(void)pvParameters;

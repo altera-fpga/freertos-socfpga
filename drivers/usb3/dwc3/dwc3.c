@@ -6,6 +6,12 @@
  * HAL driver implementation for DWC3 driver
  */
 
+/*
+    File: DWC3 Driver Implementation
+
+    HAL driver implementation for DWC3 driver.
+*/
+
 #include "dwc3.h"
 #include "dwc3_ll.h"
 #include "osal_log.h"

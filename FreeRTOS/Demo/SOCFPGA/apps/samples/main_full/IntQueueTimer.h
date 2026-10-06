@@ -27,14 +27,24 @@
 #ifndef INT_QUEUE_TIMER_H
 #define INT_QUEUE_TIMER_H
 
-/**
- * The function called from queue interrupt tests to initialise timer.
- */
+/*
+    File: Int Queue Timer
+
+    Declares the Int Queue Timer interface: 2 functions.
+*/
+
+/*
+    Function: vInitialiseTimerForIntQueueTest
+
+    The function called from queue interrupt tests to initialise timer.
+*/
 void vInitialiseTimerForIntQueueTest( void );
 
-/**
- * The function to be called from a timer handler.
- */
+/*
+    Function: IntQueueTestTimerHandler
+
+    The function to be called from a timer handler.
+*/
 void IntQueueTestTimerHandler( void );
 
 #endif /* INT_QUEUE_TIMER_H */

@@ -6,6 +6,12 @@
  * Console driver implementation using UART driver
  */
 
+/*
+    File: Console Driver Implementation
+
+    Console driver implementation using UART driver.
+*/
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -45,6 +51,11 @@ static osal_semaphore_t console_write_sem;
 uart_handle_t hconsole_uart = NULL;
 uart_config_t console_config;
 
+/*
+    Function: console_flush_task
+
+    Calls osal_task_delete.
+*/
 static void console_flush_task(void *flags)
 {
     while ((((uintptr_t)flags) & CONSOLE_FLAG_TASK_LOOP) != 0U)
@@ -61,9 +72,12 @@ static void console_flush_task(void *flags)
 }
 
 /*
- * Defining console_write_complete and console_read_complete just to prevent
- * context switch here
- */
+    Function: console_write_complete
+
+    Defining console_write_complete and console_read_complete just to prevent
+    context switch here
+*/
+
 static void console_write_complete(osal_pipe_t pipe, long is_isr,
         long *need_ctx_switch)
 {
@@ -72,6 +86,9 @@ static void console_write_complete(osal_pipe_t pipe, long is_isr,
     (void)need_ctx_switch;
 }
 
+/*
+    Function: console_read_complete
+*/
 static void console_read_complete(osal_pipe_t pipe, BaseType_t is_isr,
         BaseType_t *need_ctx_switch)
 {

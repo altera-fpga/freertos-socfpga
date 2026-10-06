@@ -36,21 +36,15 @@ VENV_PIP_INSTALL := $(VENV_PIP) install $(PIP_PROXY) --no-cache-dir --timeout 12
 
 CMAKE_COMMAND = cmake
 
-#Doxygen output path
-DOXYGEN_PATH := docs
+# -------------------------
+# Natural Docs Documentation
+# -------------------------
+# Conventions and setup instructions: docs/NATURALDOCS_GUIDE.md
+# Natural Docs 1.4 is supplied by the ARC resource 'naturaldocs'. Override ARC
+# with an empty value if NaturalDocs is already in PATH:  make docs ARC=
 
-# Natural Docs (read-only site install; we only ever read from it)
-NATURALDOCS_HOME    := /p/psg/ctools/naturaldocs/1.4/platform
-NATURALDOCS_BIN     := $(NATURALDOCS_HOME)/NaturalDocs
-# Our own writable dirs (project dir holds Menu.txt + build cache)
-NATURALDOCS_OUT     := docs_naturaldocs
-NATURALDOCS_PROJECT := .naturaldocs
-# Source tree(s) to document (each becomes its own -i flag)
-NATURALDOCS_SRC     := drivers samples FreeRTOS/Demo/SOCFPGA/apps
-# NOTE: ND uses "basic language support" for C, so only files that contain
-# Natural Docs comments (e.g. drivers/uart, drivers/i2c) appear in the output.
-# Sub-dirs to skip while scanning (each becomes its own -xi flag; e.g. build)
-NATURALDOCS_EXCLUDE :=
+ND_DIR		:= docs/naturaldocs
+ARC			?= arc shell naturaldocs --
 
 #Specify build type
 BUILD_TYPE ?= Release
@@ -411,32 +405,25 @@ help:
 	@echo "... fcs_sample"
 	@echo "... usb3_sample"
 	@echo "... wdt_sample"
-	@echo "... sdk_doc (build doxygen docs)"
-	@echo "... naturaldocs (build Natural Docs HTML)"
+	@echo "... docs (build Natural Docs HTML)"
+	@echo "... docs-clean (remove generated Natural Docs output)"
 	@echo "... usb_otg_sample"
 	@echo "Note : Dont run make with multiple job at once."
 .PHONY : help
 
 clean:
 	rm -rf build
-	rm -rf $(DOXYGEN_PATH)
-	rm -rf $(NATURALDOCS_OUT) $(NATURALDOCS_PROJECT)
 	rm -rf RTOSApp.elf
 
-sdk_doc:
-	doxygen Doxyfile
-	@echo "Doxygen build completed. Docs generated at : $(DOXYGEN_PATH)"
+.PHONY: docs
+docs:
+	$(ARC) tools/nd_build.sh
 
-.PHONY: naturaldocs
-naturaldocs:
-	@test -f $(NATURALDOCS_BIN) || { echo "Natural Docs not found at $(NATURALDOCS_BIN)"; exit 1; }
-	mkdir -p $(NATURALDOCS_PROJECT) $(NATURALDOCS_OUT)
-	perl $(NATURALDOCS_BIN) \
-	    $(foreach d,$(NATURALDOCS_SRC),-i $(d)) \
-	    $(foreach x,$(NATURALDOCS_EXCLUDE),-xi $(x)) \
-	    -o HTML $(NATURALDOCS_OUT) \
-	    -p $(NATURALDOCS_PROJECT)
-	@echo "Natural Docs build completed. Docs generated at: $(NATURALDOCS_OUT)"
+# Removes generated output only. Topics.txt and Languages.txt carry project
+# configuration and are tracked, so they are deliberately left in place.
+# Menu.txt is kept: it holds the project title and the hand-ordered sidebar.
+docs-clean:
+	rm -rf $(ND_DIR)/html/ $(ND_DIR)/project/Data
 
 
 -include not_shipped/Makefile.mk

@@ -7,11 +7,11 @@
 #ifndef RSU_OSAL_TYPES_H
 #define RSU_OSAL_TYPES_H
 
-/**
- *
- * @file RSU_OSAL_types.h
- * @brief contains OS abstraction layer data types for host platform.
- */
+/*
+    File: FreeRTOS RSU OSAL Types Library
+
+    contains OS abstraction layer data types for host platform.
+*/
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,36 +29,92 @@ extern "C" {
 #include "ff_file.h"
 
 #define PLATFORM_FREERTOS 1
-/** unsigned 64 bit*/
+/*
+    Type: RSU_OSAL_U64
+
+    unsigned 64 bit
+*/
 typedef uint64_t RSU_OSAL_U64;
-/** unsigned 32 bit*/
+/*
+    Type: RSU_OSAL_U32
+
+    unsigned 32 bit
+*/
 typedef uint32_t RSU_OSAL_U32;
-/** unsigned 16 bit*/
+/*
+    Type: RSU_OSAL_U16
+
+    unsigned 16 bit
+*/
 typedef uint16_t RSU_OSAL_U16;
-/** unsigned 8 bit*/
+/*
+    Type: RSU_OSAL_U8
+
+    unsigned 8 bit
+*/
 typedef uint8_t RSU_OSAL_U8;
 
-/** signed 64 bit*/
+/*
+    Type: RSU_OSAL_S64
+
+    signed 64 bit
+*/
 typedef int64_t RSU_OSAL_S64;
-/** signed 32 bit*/
+/*
+    Type: RSU_OSAL_S32
+
+    signed 32 bit
+*/
 typedef int32_t RSU_OSAL_S32;
-/** unsigned 16 bit*/
+/*
+    Type: RSU_OSAL_S16
+
+    unsigned 16 bit
+*/
 typedef int16_t RSU_OSAL_S16;
-/** unsigned 8 bit*/
+/*
+    Type: RSU_OSAL_S8
+
+    unsigned 8 bit
+*/
 typedef int8_t RSU_OSAL_S8;
 
-/** void type*/
+/*
+    Type: RSU_OSAL_VOID
+
+    void type
+*/
 typedef void RSU_OSAL_VOID;
-/** character data type*/
+/*
+    Type: RSU_OSAL_CHAR
+
+    character data type
+*/
 typedef char RSU_OSAL_CHAR;
-/** boolean data type*/
+/*
+    Type: RSU_OSAL_BOOL
+
+    boolean data type
+*/
 typedef bool RSU_OSAL_BOOL;
 
-/** integer data type*/
+/*
+    Type: RSU_OSAL_INT
+
+    integer data type
+*/
 typedef int RSU_OSAL_INT;
-/** data type to denote offset */
+/*
+    Type: RSU_OSAL_OFFSET
+
+    data type to denote offset
+*/
 typedef off_t RSU_OSAL_OFFSET;
-/** data type to denote size*/
+/*
+    Type: RSU_OSAL_SIZE
+
+    data type to denote size
+*/
 typedef size_t RSU_OSAL_SIZE;
 
 /*freeRTOS mutex*/

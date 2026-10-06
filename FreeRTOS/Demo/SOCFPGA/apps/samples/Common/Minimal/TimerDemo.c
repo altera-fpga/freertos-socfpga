@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Timer Demo Implementation
+
+    Tests the behaviour of timers.
+*/
 
 /*
  * Tests the behaviour of timers.  Some timers are created before the scheduler
@@ -160,6 +165,9 @@ void vTimerDemoIncludeBacklogTests( BaseType_t includeBacklogTests )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTimerTestTask
+*/
 static void prvTimerTestTask( void * pvParameters )
 {
     ( void ) pvParameters;
@@ -276,6 +284,13 @@ BaseType_t xAreTimerDemoTasksStillRunning( TickType_t xCycleFrequency )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTest1_CreateTimersWithoutSchedulerRunning
+
+    The test functions used by the timer test task. These manipulate the auto
+    reload and one-shot timers in various ways, then delay, then inspect the
+    timers to ensure they have behaved as expected.
+*/
 static void prvTest1_CreateTimersWithoutSchedulerRunning( void )
 {
     TickType_t xTimer;
@@ -360,6 +375,11 @@ static void prvTest1_CreateTimersWithoutSchedulerRunning( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTest2_CheckTaskAndTimersInitialState
+
+    Calls xTimerIsTimerActive.
+*/
 static void prvTest2_CheckTaskAndTimersInitialState( void )
 {
     uint8_t ucTimer;
@@ -388,6 +408,9 @@ static void prvTest2_CheckTaskAndTimersInitialState( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTest3_CheckAutoReloadExpireRates
+*/
 static void prvTest3_CheckAutoReloadExpireRates( void )
 {
     uint8_t ucMaxAllowableValue, ucMinAllowableValue, ucTimer;
@@ -438,6 +461,9 @@ static void prvTest3_CheckAutoReloadExpireRates( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTest4_CheckAutoReloadTimersCanBeStopped
+*/
 static void prvTest4_CheckAutoReloadTimersCanBeStopped( void )
 {
     uint8_t ucTimer;
@@ -507,6 +533,9 @@ static void prvTest4_CheckAutoReloadTimersCanBeStopped( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTest5_CheckBasicOneShotTimerBehaviour
+*/
 static void prvTest5_CheckBasicOneShotTimerBehaviour( void )
 {
     /* Check the one-shot timer only calls its callback once after it has been
@@ -565,6 +594,9 @@ static void prvTest5_CheckBasicOneShotTimerBehaviour( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTest6_CheckAutoReloadResetBehaviour
+*/
 static void prvTest6_CheckAutoReloadResetBehaviour( void )
 {
     uint8_t ucTimer;
@@ -689,6 +721,9 @@ static void prvTest6_CheckAutoReloadResetBehaviour( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTest7_CheckBacklogBehaviour
+*/
 static void prvTest7_CheckBacklogBehaviour( void )
 {
     UBaseType_t uxOriginalPriority;
@@ -799,6 +834,11 @@ static void prvTest7_CheckBacklogBehaviour( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvResetStartConditionsForNextIteration
+
+    Calls xTimerIsTimerActive and xTimerStart.
+*/
 static void prvResetStartConditionsForNextIteration( void )
 {
     uint8_t ucTimer;
@@ -1160,7 +1200,12 @@ void vTimerPeriodicISRTests( void )
 }
 /*-----------------------------------------------------------*/
 
-/*** Timer callback functions are defined below here. ***/
+/*
+    Function: prvAutoReloadTimerCallback
+
+    Timer callback functions are defined below here. **
+*/
+
 
 static void prvAutoReloadTimerCallback( TimerHandle_t pxExpiredTimer )
 {
@@ -1188,6 +1233,11 @@ static void prvAutoReloadTimerCallback( TimerHandle_t pxExpiredTimer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvOneShotTimerCallback
+
+    Calls pvTimerGetTimerID and vTimerSetTimerID.
+*/
 static void prvOneShotTimerCallback( TimerHandle_t pxExpiredTimer )
 {
 /* A count is kept of the number of times this callback function is executed.
@@ -1211,6 +1261,9 @@ static void prvOneShotTimerCallback( TimerHandle_t pxExpiredTimer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvISRAutoReloadTimerCallback
+*/
 static void prvISRAutoReloadTimerCallback( TimerHandle_t pxExpiredTimer )
 {
     /* The parameter is not used in this case as only one timer uses this
@@ -1221,6 +1274,9 @@ static void prvISRAutoReloadTimerCallback( TimerHandle_t pxExpiredTimer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvISROneShotTimerCallback
+*/
 static void prvISROneShotTimerCallback( TimerHandle_t pxExpiredTimer )
 {
     /* The parameter is not used in this case as only one timer uses this

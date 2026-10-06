@@ -24,6 +24,13 @@
  *
  */
 
+/*
+    File: Stream Buffer Demo Implementation
+
+    Implements the Stream Buffer demo: 12 functions, 9 of them local to this
+    file.
+*/
+
 /* Standard includes. */
 #include "stdio.h"
 #include "string.h"
@@ -136,7 +143,11 @@ static uint8_t ucBufferStorage[ sbNUMBER_OF_SENDER_TASKS ][ sbSTREAM_BUFFER_LENG
 
 /*-----------------------------------------------------------*/
 
-/* The buffers used by the echo client and server tasks. */
+/*
+    Struct: EchoStreamBuffers_t
+
+    The buffers used by the echo client and server tasks. Declared as pxStreamBuffers in StreamBufferDemo.c.
+*/
 typedef struct ECHO_STREAM_BUFFERS
 {
     /* Handles to the data structures that describe the stream buffers. */
@@ -215,6 +226,12 @@ void vStartStreamBufferTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvCheckExpectedState
+
+    Performs an assert() like check in a way that won't get removed when
+    performing a code coverage analysis.
+*/
 static void prvCheckExpectedState( BaseType_t xState )
 {
     configASSERT( xState );
@@ -226,6 +243,13 @@ static void prvCheckExpectedState( BaseType_t xState )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSingleTaskTests
+
+    Performs various tests that do not require multiple tasks to interact.
+
+    It calls <prvCheckExpectedState>.
+*/
 static void prvSingleTaskTests( StreamBufferHandle_t xStreamBuffer )
 {
     size_t xReturned, xItem, xExpected, xExpectedSpaces, xExpectedBytes;
@@ -573,6 +597,11 @@ static void prvSingleTaskTests( StreamBufferHandle_t xStreamBuffer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNonBlockingSenderTask
+
+    Calls xStreamBufferSend and <prvCheckExpectedState>.
+*/
 static void prvNonBlockingSenderTask( void * pvParameters )
 {
     StreamBufferHandle_t xStreamBuffer;
@@ -610,6 +639,13 @@ static void prvNonBlockingSenderTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvNonBlockingReceiverTask
+
+    Tasks that send and receive to a stream buffer at a low priority and
+    without blocking, so the send and receive functions interleave in time as
+    the tasks are switched in and out.
+*/
 static void prvNonBlockingReceiverTask( void * pvParameters )
 {
     StreamBufferHandle_t xStreamBuffer;
@@ -689,6 +725,9 @@ static void prvNonBlockingReceiverTask( void * pvParameters )
 
 #if ( configSUPPORT_STATIC_ALLOCATION == 1 )
 
+    /*
+        Function: prvSenderTask
+    */
     static void prvSenderTask( void * pvParameters )
     {
         StreamBufferHandle_t xStreamBuffer, xTempStreamBuffer;
@@ -779,6 +818,13 @@ static void prvNonBlockingReceiverTask( void * pvParameters )
 
 #if ( configSUPPORT_STATIC_ALLOCATION == 1 )
 
+    /*
+        Function: prvReceiverTask
+
+        This file tests both statically and dynamically allocated stream
+        buffers. Allocate the structures and buffers to be used by the
+        statically allocated objects, which get used in the echo tests.
+    */
     static void prvReceiverTask( void * pvParameters )
     {
         StreamBufferHandle_t const pxStreamBuffer = ( StreamBufferHandle_t ) pvParameters;
@@ -817,6 +863,14 @@ static void prvNonBlockingReceiverTask( void * pvParameters )
 #endif /* configSUPPORT_STATIC_ALLOCATION */
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvEchoClient
+
+    Tests sending and receiving various lengths of data via a stream buffer.
+    The echo client sends the data to the echo server, which then sends the
+    data back to the echo client, which checks it receives exactly what it
+    sent.
+*/
 static void prvEchoClient( void * pvParameters )
 {
     size_t xSendLength = 0, ux;
@@ -944,6 +998,9 @@ static void prvEchoClient( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvEchoServer
+*/
 static void prvEchoServer( void * pvParameters )
 {
     size_t xReceivedLength;
@@ -1033,6 +1090,16 @@ void vPeriodicStreamBufferProcessing( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvInterruptTriggerLevelTest
+
+    A task that creates a stream buffer with a specific trigger level, then
+    receives a string from an interrupt (the RTOS tick hook) byte by byte to
+    check it is only unblocked when the specified trigger level is reached.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvInterruptTriggerLevelTest( void * pvParameters )
 {
     StreamBufferHandle_t xStreamBuffer;

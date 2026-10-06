@@ -24,18 +24,25 @@
  *
  */
 
-/******************************************************************************
- * This project provides a more comprehensive test application. The more comprehensive test and demo application is
- * implemented and described in main_full.c.
- *
- * This file implements the code that is not demo specific, including the
- * hardware setup and standard FreeRTOS hook functions.
- *
- * ENSURE TO READ THE DOCUMENTATION PAGE FOR THIS PORT AND DEMO APPLICATION ON
- * THE http://www.FreeRTOS.org WEB SITE FOR FULL INFORMATION ON USING THIS DEMO
- * APPLICATION, AND ITS ASSOCIATE FreeRTOS ARCHITECTURE PORT!
- *
- */
+/*
+    File: Full Demo Main
+
+    This project provides a more comprehensive test application.
+*/
+
+/*
+    ***************************************************************************
+    This project provides a more comprehensive test application. The more
+    comprehensive test and demo application is implemented and described in
+    main_full.c.
+
+    This file implements the code that is not demo specific, including the
+    hardware setup and standard FreeRTOS hook functions.
+
+    ENSURE TO READ THE DOCUMENTATION PAGE FOR THIS PORT AND DEMO APPLICATION
+    ON THE http://www.FreeRTOS.org WEB SITE FOR FULL INFORMATION ON USING THIS
+    DEMO APPLICATION, AND ITS ASSOCIATE FreeRTOS ARCHITECTURE PORT!
+*/
 #include "socfpga_defines.h"
 /* FreeRTOS kernel includes. */
 #include <task.h>
@@ -65,6 +72,19 @@ static void prvSetupHardware( void );
 
 /*-----------------------------------------------------------*/
 
+/*
+    Function: main
+
+    Entry point for the Main sample.
+
+    Everything the sample does starts here: it calls <prvSetupHardware> and
+    <main_full>. The loop at the end never falls through, so this is the last
+    frame on the stack for the life of the system.
+
+    Returns:
+        Never returns. The scheduler owns the processor from here on, and the
+        sample runs until the device is reset.
+*/
 int main( void )
 {
     prvSetupHardware();
@@ -78,6 +98,13 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSetupHardware
+
+    Brings the platform up before any task runs.
+
+    Calls <interrupt_init_gic> and <console_init>, in that order.
+*/
 static void prvSetupHardware( void )
 {
     /* Initialize the GIC. */
@@ -90,6 +117,16 @@ static void prvSetupHardware( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vApplicationMallocFailedHook
+
+    Called when the kernel cannot allocate memory.
+
+    pvPortMalloc() calls this when it has no block large enough, which happens
+    while creating a task, queue, timer or semaphore once the heap set by
+    configTOTAL_HEAP_SIZE is exhausted. FreeRTOS calls it only when
+    configUSE_MALLOC_FAILED_HOOK is 1.
+*/
 void vApplicationMallocFailedHook( void )
 {
     /* vApplicationMallocFailedHook() will only be called if
@@ -110,6 +147,18 @@ void vApplicationMallocFailedHook( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vApplicationStackOverflowHook
+
+    Called when the kernel detects that a task has overrun its stack.
+
+    Stack checking, and therefore this hook, is only active when
+    configCHECK_FOR_STACK_OVERFLOW is set.
+
+    Parameters:
+        xTask - Handle of the task whose stack overflowed.
+        pcTaskName - Name of that task.
+*/
 void vApplicationStackOverflowHook( TaskHandle_t pxTask,
                                     char * pcTaskName )
 {
@@ -127,6 +176,14 @@ void vApplicationStackOverflowHook( TaskHandle_t pxTask,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vApplicationIdleHook
+
+    Idle hook, called repeatedly from the idle task.
+
+    It must never attempt to block or suspend, because the idle task has to
+    stay ready to run. FreeRTOS calls it only when configUSE_IDLE_HOOK is 1.
+*/
 void vApplicationIdleHook( void )
 {
     /* vApplicationIdleHook() will only be called if configUSE_IDLE_HOOK is set

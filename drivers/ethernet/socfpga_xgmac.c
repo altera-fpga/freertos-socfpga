@@ -29,6 +29,12 @@
  */
 
 /*
+    File: Ethernet XGMAC Driver Implementation
+
+    This is the driver implementation for the XGMAC Ethernet controller.
+*/
+
+/*
  * This is the driver implementation for the XGMAC Ethernet controller. The
  * application normally does not use the driver directly. It is normally used
  * along with a TCP/IP stack. The below block diagram shows how this driver is
@@ -87,38 +93,38 @@
 
 struct xgmac_desc_t
 {
-    xgmac_base_addr_t xgmac_inst_base_addr;       /*!< XGMAC instance base address */
-    xgmac_base_addr_t xgmac_inst_dma_base_addr;    /*!< XGMAC DMA base address */
-    int32_t instance;                           /*!< Instance number */
-    uint8_t csum_mode;                      /*!< Checksum mode */
-    uint8_t phy_type;                           /*!< PHY type */
+    xgmac_base_addr_t xgmac_inst_base_addr;       /* XGMAC instance base address */
+    xgmac_base_addr_t xgmac_inst_dma_base_addr;    /* XGMAC DMA base address */
+    int32_t instance;                           /* Instance number */
+    uint8_t csum_mode;                      /* Checksum mode */
+    uint8_t phy_type;                           /* PHY type */
 
-    xgmac_buf_desc_t *tx_bd_ring;        /*!< Transmit buffer descriptor ring */
-    xgmac_buf_desc_t *rx_bd_ring;        /*!< Receive buffer descriptor ring */
+    xgmac_buf_desc_t *tx_bd_ring;        /* Transmit buffer descriptor ring */
+    xgmac_buf_desc_t *rx_bd_ring;        /* Receive buffer descriptor ring */
 
-    uint8_t *ptx_dma_buf1_ap[XGMAC_NUM_TX_DESC]; /*!< Transmit DMA buffer pointers */
-    uint8_t *prx_dma_buf1_ap[XGMAC_NUM_RX_DESC]; /*!< Receive DMA buffer pointers */
+    uint8_t *ptx_dma_buf1_ap[XGMAC_NUM_TX_DESC]; /* Transmit DMA buffer pointers */
+    uint8_t *prx_dma_buf1_ap[XGMAC_NUM_RX_DESC]; /* Receive DMA buffer pointers */
 
-    /*!< Aligned transmit buffer descriptors */
+    /* Aligned transmit buffer descriptors */
     xgmac_buf_desc_t axBufferDescTx[XGMAC_NUM_TX_DESC] __attribute__((aligned(XGMAC_DMA_ALIGN_BYTES)));
-    /*!< Aligned receive buffer descriptors */
+    /* Aligned receive buffer descriptors */
     xgmac_buf_desc_t axBufferDescRx[XGMAC_NUM_RX_DESC] __attribute__((aligned(XGMAC_DMA_ALIGN_BYTES)));
 
-    volatile int32_t tx_desc_head;                /*!< Transmit descriptor head index */
-    volatile int32_t tx_desc_tail;                /*!< Transmit descriptor tail index */
-    volatile int32_t rx_desc_head;                /*!< Receive descriptor head index */
-    volatile int32_t rx_desc_tail;                /*!< Receive descriptor tail index */
+    volatile int32_t tx_desc_head;                /* Transmit descriptor head index */
+    volatile int32_t tx_desc_tail;                /* Transmit descriptor tail index */
+    volatile int32_t rx_desc_head;                /* Receive descriptor head index */
+    volatile int32_t rx_desc_tail;                /* Receive descriptor tail index */
 
-    xgmac_callback_t callback;           /*!< Callback function */
-    void *pcntxt;                          /*!< User context pointer */
-    xgmac_err_info_t err_info;          /*!< Interrupt error data */
+    xgmac_callback_t callback;           /* Callback function */
+    void *pcntxt;                          /* User context pointer */
+    xgmac_err_info_t err_info;          /* Interrupt error data */
 
-    int8_t is_initialized;                        /*!< Indicates if device handle is initialized */
-    int8_t is_started;                            /*!< Indicates if device is started */
-    int8_t is_ready;                              /*!< Indicates if device is ready */
+    int8_t is_initialized;                        /* Indicates if device handle is initialized */
+    int8_t is_started;                            /* Indicates if device is started */
+    int8_t is_ready;                              /* Indicates if device is ready */
 
-    osal_semaphore_t tx_sem;           /*!< Transmit synchronization semaphore */
-    osal_semaphore_t tx_mutex;           /*!< Transmit synchronization mutex */
+    osal_semaphore_t tx_sem;           /* Transmit synchronization semaphore */
+    osal_semaphore_t tx_mutex;           /* Transmit synchronization mutex */
 
 };
 
@@ -136,6 +142,9 @@ static Basetype_t dma_enable_interrupts(xgmac_handle_t hxgmac, const
 static Basetype_t dma_register_isr(xgmac_handle_t hxgmac);
 void socfpga_xgmac_dma_isr(void *param);
 
+/*
+    Function: get_emac_intr_id
+*/
 static socfpga_hpu_interrupt_t get_emac_intr_id(int32_t instance)
 {
     socfpga_hpu_interrupt_t intr_id;
@@ -645,6 +654,11 @@ int32_t xgmac_dma_tx_done(xgmac_handle_t hxgmac, uint8_t **release_buffer)
     return ret_status;
 }
 
+/*
+    Function: dma_soft_reset
+
+    Calls <xgmac_dma_software_reset> and <xgmac_is_dma_reset_done>.
+*/
 static Basetype_t dma_soft_reset(xgmac_base_addr_t emac_base_addr)
 {
     uint8_t elapsed_time = 0;
@@ -667,6 +681,9 @@ static Basetype_t dma_soft_reset(xgmac_base_addr_t emac_base_addr)
     }
     return true;
 }
+/*
+    Function: dma_set_descriptors
+*/
 static Basetype_t dma_set_descriptors(xgmac_handle_t hxgmac)
 
 {
@@ -717,6 +734,9 @@ static Basetype_t dma_set_descriptors(xgmac_handle_t hxgmac)
     return true;
 }
 
+/*
+    Function: dma_setup_tx_descriptor_list
+*/
 void dma_setup_tx_descriptor_list(xgmac_handle_t hxgmac)
 {
     xgmac_buf_desc_t *pdma_descriptor;
@@ -739,6 +759,9 @@ void dma_setup_tx_descriptor_list(xgmac_handle_t hxgmac)
     }
 }
 
+/*
+    Function: dma_setup_rx_descriptor_list
+*/
 void dma_setup_rx_descriptor_list(xgmac_handle_t hxgmac)
 {
     xgmac_buf_desc_t *pdma_descriptor;
@@ -760,6 +783,9 @@ void dma_setup_rx_descriptor_list(xgmac_handle_t hxgmac)
         pdma_descriptor[index].des3 = 0;
     }
 }
+/*
+    Function: dma_channel_init
+*/
 static void dma_channel_init(xgmac_handle_t hxgmac, const
         xgmac_dev_config_str_t *xgmac_dev_config)
 {
@@ -805,6 +831,9 @@ static void dma_channel_init(xgmac_handle_t hxgmac, const
             dma_channel_config);
 }
 
+/*
+    Function: dma_enable_interrupts
+*/
 static Basetype_t dma_enable_interrupts(xgmac_handle_t hxgmac, const
         xgmac_dev_config_str_t *xgmac_dev_config)
 {
@@ -850,6 +879,12 @@ static Basetype_t dma_enable_interrupts(xgmac_handle_t hxgmac, const
     return true;
 }
 
+/*
+    Function: dma_register_isr
+
+    Calls <get_emac_intr_id>, <xgmac_disable_interrupt>,
+    <interrupt_register_isr> and <interrupt_enable>.
+*/
 static Basetype_t dma_register_isr(xgmac_handle_t hxgmac)
 {
     int32_t instance;
@@ -879,6 +914,9 @@ static Basetype_t dma_register_isr(xgmac_handle_t hxgmac)
     return true;
 }
 
+/*
+    Function: socfpga_xgmac_dma_isr
+*/
 void socfpga_xgmac_dma_isr(void *param)
 {
     xgmac_handle_t hxgmac = (xgmac_handle_t)param;

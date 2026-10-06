@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Stream Buffer Demo
+
+    Declares the Stream Buffer demo interface: 3 functions.
+
+    They are vPeriodicStreamBufferProcessing, vStartStreamBufferTasks and
+    xAreStreamBufferTasksStillRunning.
+*/
+
 #ifndef STREAM_BUFFER_TEST_H
 #define STREAM_BUFFER_TEST_H
 

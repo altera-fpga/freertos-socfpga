@@ -14,45 +14,48 @@
 #include "socfpga_i2c.h"
 #include "socfpga_dma.h"
 
-/**
- * @defgroup i2c_sample I2C
- * @ingroup samples
- *
- * Sample application for I2C driver
- *
- * @details
- * @section i2c_desc Description
- * This sample application demonstrates the use of the I2C driver to
- * communicate with an EEPROM device over the I2C bus using DMA transfer.
- * It writes a block of N bytes to a specific memory address in the
- * EEPROM and then reads back the same.
- *
- * @section i2c_pre Prerequisites
- * - The NAND daughter card shall be used.
- * - An EEPROM device must be connected to the I2C bus.
- *
- * @section i2c_param Configurable Parameters
- * - The I2C bus instance can be configured in @c I2CBUS macro.
- * - The I2C slave address can be configured in @c DEV_ADDR macro.
- * - The memory address in EEPROM can be configured in @c MEM_ADDR macro.
- * - The number of bytes to write and read back can be configured in @c NUM_TEST_BYTES macro.
- *
- * @section i2c_dma_config Configurable Parameters
- * - The transmit DMA controller can be configured in @c TX_DMA_INST macro
- * - The transmit DMA channel can be configured in @c TX_DMA_CHAN macro
- * - The transmit DMA channel priority can be configured in @c TX_DMA_PRIO macro
- * - The receive DMA controller can be configured in @c RX_DMA_INST macro
- * - The receive DMA channel can be configured in @c RX_DMA_CHAN macro
- * - The receive DMA channel priority can be configured in @c RX_DMA_PRIO macro
- *
- * @section i2c_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board.
- * 3. Observe the results in the console
- *
- * @section i2c_result Expected Results
- * - The write and read data are verified and a success message is displayed.
- */
+/*
+    File: I2C DMA Sample
+
+    Sample application for I2C driver
+    Group: Description
+
+    This sample application demonstrates the use of the I2C driver to
+    communicate with an EEPROM device over the I2C bus using DMA transfer. It
+    writes a block of N bytes to a specific memory address in the EEPROM and
+    then reads back the same.
+
+    Group: Prerequisites
+
+    - The NAND daughter card shall be used.
+    - An EEPROM device must be connected to the I2C bus.
+
+    Group: Configurable Parameters
+
+    - The I2C bus instance can be configured in I2CBUS macro.
+    - The I2C slave address can be configured in DEV_ADDR macro.
+    - The memory address in EEPROM can be configured in MEM_ADDR macro.
+    - The number of bytes to write and read back can be configured in NUM_TEST_BYTES macro.
+
+    Group: Configurable Parameters
+
+    - The transmit DMA controller can be configured in TX_DMA_INST macro
+    - The transmit DMA channel can be configured in TX_DMA_CHAN macro
+    - The transmit DMA channel priority can be configured in TX_DMA_PRIO macro
+    - The receive DMA controller can be configured in RX_DMA_INST macro
+    - The receive DMA channel can be configured in RX_DMA_CHAN macro
+    - The receive DMA channel priority can be configured in RX_DMA_PRIO macro
+
+    Group: How to Run
+
+    - Follow the common README instructions to build and flash the application.
+    - Run the application on the board.
+    - Observe the results in the console
+
+    Group: Expected Results
+
+    - The write and read data are verified and a success message is displayed.
+*/
 
 /*
  * A) Peripheral DMA limitation:
@@ -146,18 +149,22 @@
 static uint32_t wbuf[MEM_ADDR_SZ + NUM_TEST_BYTES];
 static uint8_t rbuf[NUM_TEST_BYTES];
 
-/**
- * @brief fill the buffer with an incremental pattern
- *
- * Fills buf with nbytes of incremental pattern starting with start_num
- */
+/*
+    fill the buffer with an incremental pattern
 
-/**
- * We need to build a 32 bit wide intermediate buffer and copy the data byte
- * by byte to each word. We will be setting control flags later.
- *
- * The macro I2C_DMA_CMD_DATA can be used to typecast data from uint8_t to uint32_t
- */
+    Fills buf with nbytes of incremental pattern starting with start_num
+*/
+
+/*
+    Function: fill_dma_buf
+
+    We need to build a 32 bit wide intermediate buffer and copy the data byte
+    by byte to each word. We will be setting control flags later.
+
+    The macro I2C_DMA_CMD_DATA can be used to typecast data from uint8_t to
+    uint32_t
+*/
+
 static void fill_dma_buf(uint32_t *buf, uint32_t nbytes, uint8_t start_num)
 {
     uint32_t i;
@@ -167,6 +174,9 @@ static void fill_dma_buf(uint32_t *buf, uint32_t nbytes, uint8_t start_num)
     }
 }
 
+/*
+    Function: apply_dma_stop
+*/
 static void apply_dma_stop(uint32_t *buf, uint32_t nwords)
 {
     if (nwords > 0U)
@@ -179,13 +189,18 @@ static void apply_dma_stop(uint32_t *buf, uint32_t nwords)
     }
 }
 
-/**
- * @brief verify the buffer contains and incremental pattern
- *
- * Verifies that buf contains an incremental pattern starting with start_num
- *
- * @return 0 on success -1 otherwise
- */
+/*
+    Function: verify_buf
+
+    verify the buffer contains and incremental pattern
+
+    Verifies that buf contains an incremental pattern starting with start_num
+
+    Returns:
+
+    0 on success -1 otherwise
+*/
+
 static int verify_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 {
     int ret = 0;
@@ -203,6 +218,9 @@ static int verify_buf(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
     return ret;
 }
 
+/*
+    Function: i2c_dma_task
+*/
 void i2c_dma_task(void)
 {
     int retval = 0;
@@ -249,10 +267,12 @@ void i2c_dma_task(void)
 
     PRINT("Performing EEPROM write, read and verify using DMA mode");
 
-    /**
-     * I2C_DMA_CMD_DATA packs a byte into the DATA_CMD word's data field.
-     * For DMA, we build one 32-bit word per byte we want to send.
-     */
+    /*
+        Variable: buf
+
+        I2C_DMA_CMD_DATA packs a byte into the DATA_CMD word's data field. For
+        DMA, we build one 32-bit word per byte we want to send.
+    */
     wbuf[0] = I2C_DMA_CMD_DATA((MEM_ADDR >> 8) & 0xFFU);
     wbuf[1] = I2C_DMA_CMD_DATA(MEM_ADDR & 0xFFU);
 

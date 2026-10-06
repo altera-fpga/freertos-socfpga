@@ -1,10 +1,10 @@
-/**
- * SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
- *
- * SPDX-License-Identifier: MIT-0
- *
- * Header file for I3C low level driver
- */
+/*
+    SPDX-FileCopyrightText: Copyright (C) 2025-2026 Altera Corporation
+
+    SPDX-License-Identifier: MIT-0
+
+    Header file for I3C low level driver
+*/
 #ifndef __SOCFPGA_I3C_LL_H__
 #define __SOCFPGA_I3C_LL_H__
 
@@ -12,9 +12,18 @@
 #include <stdbool.h>
 #include "socfpga_i3c.h"
 
-/**
- * @brief I3C core clock source frequency.
- */
+/*
+    File: I3C Low-Level Driver
+
+    Declares the I3C low-level driver interface: 29 functions, 2 types and
+    73 constants.
+*/
+
+/*
+    Macro: I3C_CORE_CLOCK
+
+    I3C core clock source frequency.
+*/
 #define I3C_CORE_CLOCK    (200U * MHZ)
 
 #define I3C_MAX_DEVICES    (8U)
@@ -122,12 +131,14 @@
 #define I3C_RESPONSE_RESERVED_14         14
 #define I3C_RESPONSE_RESERVED_15         15
 
-/**
- * @brief Command payload structure.
- *
- * The I3C driver uses this structure to pass CCC command information
- * to the underlying low-level driver API.
- */
+/*
+    Struct: i3c_cmd_payload
+
+    Command payload structure.
+
+    The I3C driver uses this structure to pass CCC command information to the
+    underlying low-level driver API.
+*/
 struct i3c_cmd_payload
 {
     /* CCC command code. */
@@ -152,6 +163,11 @@ struct i3c_cmd_payload
  * - LL owns register encoding/decoding details.
  * - HAL should not directly parse raw response words.
  */
+/*
+    Struct: i3c_ll_cmd_response_t
+
+    Command response for the I3C low-level driver, holding tid, data_len and status. Passed to i3c_ll_read_cmd_responses.
+*/
 typedef struct
 {
     uint8_t tid;
@@ -171,6 +187,11 @@ void i3c_ll_start_transfer_batch(uint8_t instance, uint32_t base_addr,
 
 uint16_t i3c_ll_get_transfer_rx_length(uint8_t instance, uint8_t tid);
 
+/*
+    Struct: i3c_ll_addr_assign_req_t
+
+    Request for the I3C low-level driver, holding cmd_id, start_dat_index, data and data_len. Passed to i3c_ll_submit_addr_assign.
+*/
 typedef struct
 {
     uint8_t cmd_id;
@@ -185,12 +206,14 @@ int32_t i3c_ll_submit_addr_assign(uint32_t base_addr,
 int32_t i3c_ll_complete_addr_assign(uint32_t base_addr,
         uint8_t instance, uint8_t num_cmds);
 
-/**
- * @brief I3C controller context data.
- *
- * Holds attached device information, configuration parameters,
- * controller role, and bookkeeping data.
- */
+/*
+    Struct: i3c_device_desc
+
+    I3C controller context data.
+
+    Holds attached device information, configuration parameters, controller
+    role, and bookkeeping data.
+*/
 struct i3c_device_desc
 {
 

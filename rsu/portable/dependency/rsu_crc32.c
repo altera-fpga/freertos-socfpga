@@ -6,6 +6,12 @@
  * HAL layer for RSU CRC functionalities
  */
 
+/*
+    File: Portable Layer RSU CRC32 Library
+
+    HAL layer for RSU CRC functionalities.
+*/
+
 #include "RSU_OSAL_types.h"
 #include "RSU_crc32_def.h"
 

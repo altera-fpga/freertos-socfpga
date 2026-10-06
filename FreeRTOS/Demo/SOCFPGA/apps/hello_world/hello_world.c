@@ -6,6 +6,12 @@
  * A sample hello world application
  */
 
+/*
+    File: Hello World
+
+    A sample hello world application.
+*/
+
 #include <stdio.h>
 #include "FreeRTOS.h"
 #include "task.h"
@@ -13,6 +19,11 @@
 #include "socfpga_interrupt.h"
 #include "portmacro.h"
 
+/*
+    Function: setup_hardware
+
+    Calls <interrupt_init_gic> and <console_init>.
+*/
 static void setup_hardware( void )
 {
     /* Initialize the GIC. */
@@ -25,7 +36,12 @@ static void setup_hardware( void )
 }
 /*-----------------------------------------------------------*/
 
-/* Same MPIDR slice as ulGetCoreId() / configSMP_COREn_MPIDR (Aff1 in bits 8:15). */
+/*
+    Function: ulGetPhysicalCoreMpidr
+
+    Same MPIDR slice as ulGetCoreId() / configSMP_COREn_MPIDR (Aff1 in bits 8:15).
+*/
+
 static uint32_t ulGetPhysicalCoreMpidr( void )
 {
     uint64_t ullMpidr;
@@ -34,6 +50,13 @@ static uint32_t ulGetPhysicalCoreMpidr( void )
     return ( uint32_t ) ( ullMpidr & 0xFF00U );
 }
 
+/*
+    Function: run_hello_world
+
+    Calls <ulGetPhysicalCoreMpidr> and vTaskDelay.
+
+    It does not return; the body loops for the life of the task.
+*/
 void run_hello_world( void *param )
 {
 uint32_t task_id = ( uint32_t ) ( uintptr_t ) param;
@@ -46,6 +69,16 @@ uint32_t task_id = ( uint32_t ) ( uintptr_t ) param;
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: main
+
+    Entry point for the Hello World.
+
+    Everything the sample does starts here: it calls <setup_hardware>.
+
+    Returns:
+        0, which the sample is not expected to reach.
+*/
 int main( void )
 {
 BaseType_t xReturn;
@@ -89,6 +122,14 @@ uint32_t ulIndex = 0;
 /*-----------------------------------------------------------*/
 
 
+/*
+    Function: vApplicationIdleHook
+
+    Idle hook, called repeatedly from the idle task.
+
+    It must never attempt to block or suspend, because the idle task has to
+    stay ready to run. FreeRTOS calls it only when configUSE_IDLE_HOOK is 1.
+*/
 void vApplicationIdleHook( void )
 {
     /* vApplicationIdleHook() will only be called if configUSE_IDLE_HOOK is set
@@ -103,6 +144,15 @@ void vApplicationIdleHook( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vApplicationTickHook
+
+    Tick hook, called by the kernel from the RTOS tick interrupt.
+
+    It runs in an interrupt context on every tick, so it must return quickly
+    and may only use the interrupt-safe API. FreeRTOS calls it only when
+    configUSE_TICK_HOOK is 1.
+*/
 void vApplicationTickHook( void )
 {
     /* This is called from RTOS tick handler
@@ -111,6 +161,16 @@ void vApplicationTickHook( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vApplicationMallocFailedHook
+
+    Called when the kernel cannot allocate memory.
+
+    pvPortMalloc() calls this when it has no block large enough, which happens
+    while creating a task, queue, timer or semaphore once the heap set by
+    configTOTAL_HEAP_SIZE is exhausted. FreeRTOS calls it only when
+    configUSE_MALLOC_FAILED_HOOK is 1.
+*/
 void vApplicationMallocFailedHook( void )
 {
     /* vApplicationMallocFailedHook() will only be called if

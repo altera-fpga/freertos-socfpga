@@ -24,24 +24,29 @@
  *
  */
 
-/**
- * Create a single persistent task which periodically dynamically creates another
- * two tasks.  The original task is called the creator task, the two tasks it
- * creates are called suicidal tasks.
- *
- * One of the created suicidal tasks kill one other suicidal task before killing
- * itself - leaving just the original task remaining.
- *
- * The creator task must be spawned after all of the other demo application tasks
- * as it keeps a check on the number of tasks under the scheduler control.  The
- * number of tasks it expects to see running should never be greater than the
- * number of tasks that were in existence when the creator task was spawned, plus
- * one set of four suicidal tasks.  If this number is exceeded an error is flagged.
- *
- * \page DeathC death.c
- * \ingroup DemoFiles
- * <HR>
- */
+/*
+    File: Death Implementation
+
+    Create a single persistent task which periodically dynamically creates another two tasks.
+*/
+
+/*
+    Create a single persistent task which periodically dynamically creates
+    another two tasks. The original task is called the creator task, the two
+    tasks it creates are called suicidal tasks.
+
+    One of the created suicidal tasks kill one other suicidal task before
+    killing itself - leaving just the original task remaining.
+
+    The creator task must be spawned after all of the other demo application
+    tasks as it keeps a check on the number of tasks under the scheduler
+    control. The number of tasks it expects to see running should never be
+    greater than the number of tasks that were in existence when the creator
+    task was spawned, plus one set of four suicidal tasks. If this number is
+    exceeded an error is flagged.
+
+    DeathC death.c <HR>
+*/
 
 
 #include <stdlib.h>
@@ -90,6 +95,9 @@ void vCreateSuicidalTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vSuicidalTask
+*/
 static portTASK_FUNCTION( vSuicidalTask, pvParameters )
 {
     volatile long l1, l2;
@@ -134,6 +142,9 @@ static portTASK_FUNCTION( vSuicidalTask, pvParameters )
 } /*lint !e818 !e550 Function prototype must be as per standard for task functions. */
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCreateTasks
+*/
 static portTASK_FUNCTION( vCreateTasks, pvParameters )
 {
     const TickType_t xDelay = pdMS_TO_TICKS( ( TickType_t ) 1000 );

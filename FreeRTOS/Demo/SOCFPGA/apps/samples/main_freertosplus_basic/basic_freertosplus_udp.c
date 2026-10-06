@@ -31,56 +31,60 @@
 
 #include "main_freertosplus_basic.h"
 
-/**
- * @file basic_freertosplus_udp.c
- * @brief Sample Application for UDP server.
- */
+/*
+    File: Basic FreeRTOS Plus UDP
 
-/**
- * @defgroup udp_sample Ethernet - UDP Server
- * @ingroup samples
- *
- * Sample Application for FreeRTOS+UDP Server
- *
- * @details
- * @section udp_desc Description
- * This is a simple program that demonstrates how to create a UDP server using FreeRTOS+TCP/IP stack.
- * The server waits for incoming UDP client connections on a specified port. Once a client
- * connects, it sends back a periodic message in the format:
- * `Message no.%d: Hello, This is FreeRTOS UDP server!`
- *
- * Each message is sent with an incrementing count. This demonstrates socket handling,
- * connection acceptance, message formatting, and transmission over TCP using the FreeRTOS+TCP stack.
- *
- * @section udp_pre Prerequisites
- * - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
- * - Network PHY and MAC drivers must be initialized and functioning.
- * - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
- *
- * @section udp_howto How to Run
- * 1. Follow the platform-specific README to build and flash the application.
- * 2. Connect the device to a LAN where the host PC resides.
- * 3. Run a TCP client tool (e.g., `netcat` or `telnet`) from a host PC to connect to the server:
- *    - Example: `nc -u <board-ip> <port>`
- * 4. Once connected, observe the periodic server messages on the client terminal.
- *
- * @section udp_res Expected Results
- * - The TCP server starts listening on the configured port.
- * - Upon connection from a client, the server starts sending messages like:
- *   - `Message no.1: Hello, This is FreeRTOS UDP server!`
- *   - `Message no.2: Hello, This is FreeRTOS UDP server!`
- *   - ...
- * - Disconnecting and reconnecting clients should still allow proper operation.
- *
- * @section udp_custom Customization
- * - Modify the `ulPort` variable to change the server port.
- * - Adjust the message interval or contents as needed.
- * - Can be extended to support multiple concurrent client connections with minor enhancements.
- * @{
- */
-/** @} */
+    Sample Application for UDP server.
 
-/* UDP server */
+    Sample Application for FreeRTOS+UDP Server
+    Group: Description
+
+    This is a simple program that demonstrates how to create a UDP server
+    using FreeRTOS+TCP/IP stack. The server waits for incoming UDP client
+    connections on a specified port. Once a client connects, it sends back a
+    periodic message in the format: `Message no.%d: Hello, This is FreeRTOS
+    UDP server!`
+
+    Each message is sent with an incrementing count. This demonstrates socket
+    handling, connection acceptance, message formatting, and transmission over
+    TCP using the FreeRTOS+TCP stack.
+
+    Group: Prerequisites
+
+    - Ensure FreeRTOS+TCP is correctly configured and integrated with the network driver.
+    - Network PHY and MAC drivers must be initialized and functioning.
+    - A static IP or DHCP setup must be in place for the FreeRTOS+TCP stack.
+
+    Group: How to Run
+
+    - Follow the platform-specific README to build and flash the application.
+    - Connect the device to a LAN where the host PC resides.
+    - Run a TCP client tool (e.g., `netcat` or `telnet`) from a host PC to connect to the server:
+       - Example: `nc -u <board-ip> <port>`
+    - Once connected, observe the periodic server messages on the client terminal.
+
+    Group: Expected Results
+
+    - The TCP server starts listening on the configured port.
+    - Upon connection from a client, the server starts sending messages like:
+      - `Message no.1: Hello, This is FreeRTOS UDP server!`
+      - `Message no.2: Hello, This is FreeRTOS UDP server!`
+      - ...
+    - Disconnecting and reconnecting clients should still allow proper operation.
+
+    Group: Customization
+
+    - Modify the `ulPort` variable to change the server port.
+    - Adjust the message interval or contents as needed.
+    - Can be extended to support multiple concurrent client connections with minor enhancements.
+*/
+
+/*
+    Function: vUDPServerTask
+
+    UDP server
+*/
+
 void vUDPServerTask(void *pvParameters)
 {
 	(void)pvParameters;

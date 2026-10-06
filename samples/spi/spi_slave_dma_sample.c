@@ -6,14 +6,15 @@
  * Sample application for SPI slave DMA transfers
  */
 
-/**
- * @file spi_slave_dma_sample.c
- * @brief SPI master to slave loopback sample (DMA)
- *
- * This sample mirrors the structure/handshake of samples/spi/spi_slave_sample.c
- * but uses DMA-backed asynchronous transfers on both SPIM1 (master) and SPIS0
- * (slave).
- */
+/*
+    File: SPI Slave DMA Sample
+
+    SPI master to slave loopback sample (DMA)
+
+    This sample mirrors the structure/handshake of
+    samples/spi/spi_slave_sample.c but uses DMA-backed asynchronous transfers
+    on both SPIM1 (master) and SPIS0 (slave).
+*/
 
 #include <string.h>
 #include <stdio.h>
@@ -34,42 +35,44 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup spi_slave_dma_sample SPI Slave Loopback (DMA)
- * @ingroup samples
- *
- * SPI master to slave loopback sample using DMA-backed async transfers
- *
- * @details
- * @section spi_slave_dma_desc Description
- * This sample runs SPIM1 (master) and SPIS0 (slave) in the same application and
- * performs full-duplex loopback using @c spi_xfer_async() with DMA enabled.
- *
- * Because the SPI DMA path enforces a maximum transfer size, the sample splits
- * each iteration into fixed-size segments and handshakes per segment so the
- * slave arms the next async transfer before the master clocks it.
- *
- * The sample also measures average time per iteration using @c TIMER_SYS0 and
- * prints throughput in KiB/s for master and slave.
- *
- * @section spi_slave_dma_pre Prerequisites
- * - The FPGA bitstream (@c /core.rbf) must be present on the SD card.
- * - DMA must be available and the selected DMA channels must be free.
- *
- * @section spi_slave_dma_param Configurable Parameters
- * - Instances and slave select: @c SPI_MASTER_INSTANCE, @c SPI_SLAVE_INSTANCE,
- *   @c SLAVE_SELECT_NUM
- * - SPI frequency: @c SPI_FREQ
- * - Transfer sizing: @c XFER_SIZE, @c XFER_SEG_SIZE
- * - Iterations: @c SPI_SLAVE_DMA_SAMPLE_NUM_XFERS
- * - DMA channels: @c MASTER_DMA_*, @c SLAVE_DMA_*
- *
- * @section spi_slave_dma_how_to How to Run
- * 1. Enable this sample in @c samples/spi/main.c
- *    (see @c SPI_SAMPLE_ENABLE_SLAVE_DMA).
- * 2. Build and flash the application.
- * 3. Observe UART for pass/fail and timing/throughput output.
- */
+/*
+    Group: SPI Slave Loopback (DMA)
+
+    SPI master to slave loopback sample using DMA-backed async transfers
+
+    Description:
+
+    This sample runs SPIM1 (master) and SPIS0 (slave) in the same application
+    and performs full-duplex loopback using spi_xfer_async() with DMA enabled.
+
+    Because the SPI DMA path enforces a maximum transfer size, the sample
+    splits each iteration into fixed-size segments and handshakes per segment
+    so the slave arms the next async transfer before the master clocks it.
+
+    The sample also measures average time per iteration using TIMER_SYS0 and
+    prints throughput in KiB/s for master and slave.
+
+    Prerequisites:
+
+    - The FPGA bitstream (/core.rbf) must be present on the SD card.
+    - DMA must be available and the selected DMA channels must be free.
+
+    Configurable Parameters:
+
+    - Instances and slave select: SPI_MASTER_INSTANCE, SPI_SLAVE_INSTANCE,
+    SLAVE_SELECT_NUM
+    - SPI frequency: SPI_FREQ
+    - Transfer sizing: XFER_SIZE, XFER_SEG_SIZE
+    - Iterations: SPI_SLAVE_DMA_SAMPLE_NUM_XFERS
+    - DMA channels: MASTER_DMA_*, SLAVE_DMA_*
+
+    How to Run:
+
+    1. Enable this sample in samples/spi/main.c
+    (see SPI_SAMPLE_ENABLE_SLAVE_DMA).
+    2. Build and flash the application.
+    3. Observe UART for pass/fail and timing/throughput output.
+*/
 
 /*
  * A) Peripheral DMA limitation:
@@ -220,6 +223,11 @@ static osal_semaphore_t master_exit_sem;
 static volatile bool slave_success;
 static volatile bool master_success;
 
+/*
+    Struct: spi_cb_ctx_t
+
+    Context for the SPI Slave DMA sample, holding sem and status. Declared as master_cb_ctx in spi_slave_dma_sample.c.
+*/
 typedef struct
 {
     osal_semaphore_t sem;
@@ -229,6 +237,9 @@ typedef struct
 static spi_cb_ctx_t master_cb_ctx;
 static spi_cb_ctx_t slave_cb_ctx;
 
+/*
+    Function: timer_elapsed_us
+*/
 static uint32_t timer_elapsed_us(uint32_t start_rem_us, uint32_t end_rem_us,
         uint32_t wrap_us)
 {
@@ -239,6 +250,11 @@ static uint32_t timer_elapsed_us(uint32_t start_rem_us, uint32_t end_rem_us,
     return start_rem_us + (wrap_us - end_rem_us);
 }
 
+/*
+    Function: load_bitstream
+
+    Calls <mmc_read_file> and <load_fpga_bitstream>.
+*/
 static void load_bitstream(void)
 {
     uint32_t file_size;
@@ -264,6 +280,9 @@ static void load_bitstream(void)
     PRINT("Bitstream loaded successfully");
 }
 
+/*
+    Function: spi_done_callback
+*/
 static void spi_done_callback(spi_xfer_status_t status, void *pparam)
 {
     spi_cb_ctx_t *ctx = (spi_cb_ctx_t *)pparam;
@@ -282,6 +301,9 @@ static void spi_done_callback(spi_xfer_status_t status, void *pparam)
     }
 }
 
+/*
+    Function: spi_slave_xfer_task
+*/
 static void spi_slave_xfer_task(void *arg)
 {
     uint32_t iter;
@@ -479,6 +501,9 @@ out:
     vTaskDelete(NULL);
 }
 
+/*
+    Function: spi_master_xfer_task
+*/
 static void spi_master_xfer_task(void *arg)
 {
     uint32_t iter;
@@ -717,6 +742,9 @@ master_out:
     vTaskDelete(NULL);
 }
 
+/*
+    Function: spi_slave_dma_task
+*/
 void spi_slave_dma_task(void)
 {
     TaskHandle_t slave_task_handle = NULL;

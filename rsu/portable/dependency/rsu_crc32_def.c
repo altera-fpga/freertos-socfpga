@@ -6,6 +6,12 @@
  * CRC32 implementation for RSU
  */
 
+/*
+    File: RSU CRC32 Definitions Library Implementation
+
+    CRC32 implementation for RSU.
+*/
+
 #include <arm_acle.h>
 #include "RSU_crc32_def.h"
 

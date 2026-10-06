@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Semtest
+
+    Declares the Semtest interface: 2 functions.
+
+    They are vStartSemaphoreTasks and xAreSemaphoreTasksStillRunning.
+*/
+
 #ifndef SEMAPHORE_TEST_H
 #define SEMAPHORE_TEST_H
 

@@ -6,11 +6,22 @@
 * GIC v3 register definitions
 */
 
+/*
+    File: GIC Registers Driver
+
+    GIC v3 register definitions.
+*/
+
 #ifndef __ARM_GIC_REGISTERS_H__
 #define __ARM_GIC_REGISTERS_H__
 
 #include <stdint.h>
 
+/*
+    Struct: gic_v3_dist_if
+
+    Memory-mapped register layout of the GIC: GICD_CTLR, GICD_TYPER, GICD_IIDR and 23 more. Declared as gic_dist in arm_gic.c.
+*/
 struct gic_v3_dist_if
 {
     volatile uint32_t GICD_CTLR;
@@ -62,6 +73,11 @@ struct gic_v3_dist_if
     volatile uint32_t GICD_CIDR[4];
 };
 
+/*
+    Struct: gic_v3_rdist_lpis_if
+
+    Memory-mapped register layout of the GIC: GICR_CTLR, GICR_IIDR, GICR_TYPER and 8 more.
+*/
 struct gic_v3_rdist_lpis_if
 {
     volatile uint32_t GICR_CTLR;
@@ -81,6 +97,11 @@ struct gic_v3_rdist_lpis_if
     volatile uint32_t GICR_CIDR[4];
 };
 
+/*
+    Struct: gic_v3_rdist_sgis_if
+
+    Memory-mapped register layout of the GIC: GICR_IGROUPR0, GICR_ISENABLER0, GICR_ICENABLER0 and 12 more.
+*/
 struct gic_v3_rdist_sgis_if
 {
     const volatile uint32_t padding1[32];
@@ -115,6 +136,11 @@ struct gic_v3_rdist_sgis_if
     volatile uint32_t GICR_CFGID[2];
 };
 
+/*
+    Struct: gic_v3_rdist_vlpis_if
+
+    Memory-mapped register layout of the GIC: GICR_VPROPBASER and GICR_VPENDBASER.
+*/
 struct gic_v3_rdist_vlpis_if
 {
     const volatile uint32_t padding1[28];        /* +0x0000 - RESERVED */
@@ -122,11 +148,21 @@ struct gic_v3_rdist_vlpis_if
     volatile uint64_t GICR_VPENDBASER;           /* +0x0078 - RW - Sets location of the LPI Pending table */
 };
 
+/*
+    Struct: gic_v3_rdist_res_if
+
+    Type used by the GIC Registers driver.
+*/
 struct gic_v3_rdist_res_if
 {
     const volatile uint32_t padding1[32];        /* +0x0000 - RESERVED */
 };
 
+/*
+    Struct: gic_v3_rdist_if
+
+    Type used by the GIC Registers driver, holding lpis, sgis, vlpis and res. Declared as gic_rdist in arm_gic.c.
+*/
 struct gic_v3_rdist_if
 {
     struct gic_v3_rdist_lpis_if lpis  __attribute__((aligned (0x10000)));

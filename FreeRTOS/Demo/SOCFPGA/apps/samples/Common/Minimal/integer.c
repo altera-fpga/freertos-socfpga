@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Integer Implementation
+
+    Creates one or more tasks that repeatedly perform a set of integer calculations.
+*/
+
+/*
  * Creates one or more tasks that repeatedly perform a set of integer
  * calculations.  The result of each run-time calculation is compared to the
  * known expected result - with a mismatch being indicative of an error in the
@@ -76,6 +82,9 @@ void vStartIntegerMathTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompeteingIntMathTask
+*/
 static portTASK_FUNCTION( vCompeteingIntMathTask, pvParameters )
 {
 /* These variables are all effectively set to constants so they are volatile to

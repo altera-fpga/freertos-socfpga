@@ -35,90 +35,120 @@
 
 #include <stdint.h>
 
-/**
- * @file  cli_utils.h
- * @brief This file contains definitions for cli
- *        argument validation functions
- */
+/*
+    File: CLI Utilities
 
-/**
- * @brief Validate the decimal function argument for CLI.
- *
- * @param[in] cli command.
- * @param[in] Input parameter name.
- * @param[in] Input parameter.
- * @param[in] Lower boundary for argument.
- * @param[in] Upper boundary for argument.
- * @param[out] Pointer to value to be returned.
- *
- * @return
- * -  0         if operation succeeded.
- * - -1         if operation failed.
- */
+    This file contains definitions for cli argument validation functions
+*/
+
+/*
+    Function: cli_get_decimal
+
+    Validate the decimal function argument for CLI.
+
+    Parameters:
+
+        cli - command.
+        Input - parameter name.
+        Input - parameter.
+        Lower - boundary for argument.
+        Upper - boundary for argument.
+        Pointer - to value to be returned.
+
+    Returns:
+
+        -  0         if operation succeeded.
+        - -1         if operation failed.
+*/
 int cli_get_decimal(const char *cmd, const char *param, const char *input,
         long lo_bound,long hi_bound, uint32_t *val);
 
-/**
- * @brief Validate the hexadecimal function argument for CLI.
- *
- * @param[in] cli command.
- * @param[in] Input parameter name.
- * @param[in] Input parameter.
- * @param[in] Lower boundary for argument.
- * @param[in] Upper boundary for argument.
- * @param[out] Pointer to value to be returned.
- *
- * @return
- * -  0         if operation succeeded.
- * - -1         if operation failed.
- */
+/*
+    Function: cli_get_hex
+
+    Validate the hexadecimal function argument for CLI.
+
+    Parameters:
+
+        cli - command.
+        Input - parameter name.
+        Input - parameter.
+        Lower - boundary for argument.
+        Upper - boundary for argument.
+        Pointer - to value to be returned.
+
+    Returns:
+
+        -  0         if operation succeeded.
+        - -1         if operation failed.
+*/
 int cli_get_hex(const char *cmd, const char *param, const char *input,
         long lo_bound,long hi_bound, uint32_t *val);
 
-/**
- * @brief Validate file name length for  CLI.
- *
- * @param[in] string to be validated.
- * @param[in] Command which uses the string.
- *
- * @return
- * -  0         if operation succeeded.
- * - -1         if operation failed.
- */
+/*
+    Function: cli_get_file_name
+
+    Validate file name length for CLI.
+
+    Parameters:
+
+        string - to be validated.
+        Command - which uses the string.
+
+    Returns:
+
+        -  0         if operation succeeded.
+        - -1         if operation failed.
+*/
 int cli_get_file_name(const char *name, const char *command);
 
-/**
- * @brief Validate directory  name length for  CLI.
- *
- * @param[in] string to be validated.
- * @param[in] Command which uses the string.
- *
- * @return
- * -  0         if operation succeeded.
- * - -1         if operation failed.
- */
+/*
+    Function: cli_get_dir_name
+
+    Validate directory name length for CLI.
+
+    Parameters:
+
+        string - to be validated.
+        Command - which uses the string.
+
+    Returns:
+
+        -  0         if operation succeeded.
+        - -1         if operation failed.
+*/
 int cli_get_dir_name(const char *name, const char *command);
 
-/**
- * @brief To check if I2C instance is supported.
- *
- * @param[in] I2C instance to be validated
- *
- * @return
- * -  0         if instance is supported.
- * - -1         if instance is not supported.
- */
+/*
+    Function: cli_is_pinmux_i2c
+
+    To check if I2C instance is supported.
+
+    Parameters:
+
+        I2C - instance to be validated
+
+    Returns:
+
+        -  0         if instance is supported.
+        - -1         if instance is not supported.
+*/
 int cli_is_pinmux_i2c(uint8_t instance);
 
-/**
- * @brief To check if IP is valid.
- *
- * @param[in] IP to be validated.
- *
- * @return
- * -  0         if IP is valid.
- * - -1         if IP is not valid.
- */
+/*
+    Function: cli_is_valid_ip
+
+    To check if IP is valid.
+
+    Parameters:
+
+        IP - to be validated.
+
+    Returns:
+
+        -  0         if IP is valid.
+        - -1         if IP is not valid.
+*/
 int cli_is_valid_ip(const char *ip);
 
 #endif

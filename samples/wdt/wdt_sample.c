@@ -14,39 +14,48 @@
 #include "socfpga_watchdog.h"
 #include "osal.h"
 
-/**
- * @defgroup wdt_sample Watchdog Timer
- * @ingroup samples
- *
- * Sample application for Watchdog Timer
- * @details
- * @section wdt_desc Description
- * This sample application demonstrates the use of watchdog timer APIs.
- * The sample application will use four parameters. init_timeout time, timeout,
- * service period and number of services. It will service (restart) the WDT
- * every service period from a thread context. But stops doing it after the
- * given number of services. The timeout behavior will be set to interrupt.
- * We will get an interrupt after a timeout expiry. Since we stop restarting
- * the timer, it will then reboot the system after the next timeout expiry.
- *
- * @note This program will reboot the system.
- *
- * @section wdt_param Configurable Parameters
- * - init_timeout and timeout value can be configured in milli second units.
- * - Service time can be configured in the sample structure @c opts .
- * - Instance can be configured by changing the value in @c WDT_INSTANCE macro.
- *
- * @section wdt_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board.
- * 3. Monitor UART terminal output for WDT service messages, callback notification,
- *    and system reboot.
- *
- * @section wdt_result Expected Results
- * - The watchdog timer is periodically serviced for the given number of times.
- * - A timeout interrupt is received after a timeout expiry.
- * - The system is rebooted on the next timeout expiry.
- */
+/*
+    File: Watchdog Timer Sample
+
+    Sample application for Watchdog Timer
+    Group: Description
+
+    This sample application demonstrates the use of watchdog timer APIs. The
+    sample application will use four parameters. init_timeout time, timeout,
+    service period and number of services. It will service (restart) the WDT
+    every service period from a thread context. But stops doing it after the
+    given number of services. The timeout behavior will be set to interrupt.
+    We will get an interrupt after a timeout expiry. Since we stop restarting
+    the timer, it will then reboot the system after the next timeout expiry.
+
+    Group: Configurable Parameters
+
+    - init_timeout and timeout value can be configured in milli second units.
+    - Service time can be configured in the sample structure opts .
+    - Instance can be configured by changing the value in WDT_INSTANCE macro.
+
+    Group: How to Run
+
+    - Follow the common README instructions to build and flash the application.
+    - Run the application on the board.
+    - Monitor UART terminal output for WDT service messages, callback notification,
+    and system reboot.
+
+    Group: Expected Results
+
+    - The watchdog timer is periodically serviced for the given number of times.
+    - A timeout interrupt is received after a timeout expiry.
+    - The system is rebooted on the next timeout expiry.
+
+    Notes:
+
+        This program will reboot the system.
+*/
+/*
+    Struct: wdt_sample_t
+
+    Type used by the Watchdog Timer sample, holding service, nservice, init_timeout and timeout. Declared as opts in wdt_sample.c.
+*/
 typedef struct
 {
     uint32_t service;
@@ -77,6 +86,11 @@ wdt_sample_t opts =
     .nservice = 2
 };
 
+/*
+    Function: wdt_callback
+
+    Calls <wdt_restart> and <osal_semaphore_post>.
+*/
 void wdt_callback(void *arg)
 {
     handle = (wdt_handle_t)arg;
@@ -101,6 +115,9 @@ void wdt_callback(void *arg)
     }
 }
 
+/*
+    Function: wdt_task
+*/
 void wdt_task(void)
 {
     int retval = 0;

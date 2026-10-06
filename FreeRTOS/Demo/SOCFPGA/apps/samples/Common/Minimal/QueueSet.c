@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Queue Set Implementation
+
+    Tests the use of queue sets.
+*/
+
+/*
  * Tests the use of queue sets.
  *
  * A receive task creates a number of queues and adds them to a queue set before
@@ -95,6 +101,11 @@
  * testing of limits easier (don't have to deal with wrapping values). */
     #define queuesetIGNORED_BOUNDARY          ( queuesetALLOWABLE_RX_DEVIATION * 2 )
 
+/*
+    Enum: eRelativePriorities
+
+    Values used by the Queue Set: eTxHigherPriority. Declared as ePriorities in QueueSet.c.
+*/
     typedef enum
     {
         eEqualPriority = 0, /* Tx and Rx tasks have the same priority. */
@@ -274,6 +285,16 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvQueueSetSendingTask
+
+        The task that periodically sends to the queue set.
+
+        It calls <prvSRand>.
+
+        Parameters:
+            pvParameters - Not used.
+    */
     static void prvQueueSetSendingTask( void * pvParameters )
     {
         uint32_t ulTaskTxValue = 0;
@@ -325,6 +346,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvChangeRelativePriorities
+
+        Increase test coverage by occasionally change the priorities of the
+        two tasks relative to each other.
+    */
     static void prvChangeRelativePriorities( void )
     {
         static UBaseType_t ulLoops = 0;
@@ -377,6 +404,16 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvQueueSetReceivingTask
+
+        The task that reads from the queue set.
+
+        It calls <prvSetupTest>.
+
+        Parameters:
+            pvParameters - Not used.
+    */
     static void prvQueueSetReceivingTask( void * pvParameters )
     {
         uint32_t ulReceived;
@@ -469,6 +506,14 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCheckReceivedValue
+
+        Check the value received from a queue is the expected value. Some
+        values originate from the send task, some values originate from the
+        ISR, with the range of the value being used to distinguish between the
+        two message sources.
+    */
     static void prvCheckReceivedValue( uint32_t ulReceived )
     {
         static uint32_t ulExpectedReceivedFromTask = 0, ulExpectedReceivedFromISR = queuesetINITIAL_ISR_TX_VALUE;
@@ -551,6 +596,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvCheckReceivedValueWithinExpectedRange
+
+        Checks a value received from a queue falls within the range of
+        expected values.
+    */
     static BaseType_t prvCheckReceivedValueWithinExpectedRange( uint32_t ulReceived,
                                                                 uint32_t ulExpectedReceived )
     {
@@ -579,6 +630,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvReceiveFromQueueInSetFromISR
+
+        For purposes of test coverage, functions that read from and write to a
+        queue set from an ISR respectively.
+    */
     static void prvReceiveFromQueueInSetFromISR( void )
     {
         QueueSetMemberHandle_t xActivatedQueue;
@@ -603,6 +660,11 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSendToQueueInSetFromISR
+
+        Calls xQueueSendFromISR.
+    */
     static void prvSendToQueueInSetFromISR( void )
     {
         static BaseType_t xQueueToWriteTo = 0;
@@ -629,6 +691,13 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestQueueOverwriteWithQueueSet
+
+        Queue overwrites can only be performed on queues of length of one,
+        requiring a special test function so a queue of length 1 can
+        temporarily be added to a set.
+    */
     static void prvTestQueueOverwriteWithQueueSet( void )
     {
         uint32_t ulValueToSend = 0, ulValueReceived = 0;
@@ -715,6 +784,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestQueueOverwriteOnTwoQueusInQueueSet
+
+        Test the case where two queues within a set are written to with
+        xQueueOverwrite().
+    */
     static void prvTestQueueOverwriteOnTwoQueusInQueueSet( void )
     {
         uint32_t ulValueToSend1 = 1, ulValueToSend2 = 2UL, ulValueReceived = 0;
@@ -879,6 +954,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvTestQueueOverwriteFromISROnTwoQueusInQueueSet
+    */
     static void prvTestQueueOverwriteFromISROnTwoQueusInQueueSet( void )
     {
         uint32_t ulValueToSend1 = 1, ulValueToSend2 = 2UL, ulValueReceived = 0;
@@ -1045,6 +1123,16 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSetupTest
+
+        Create the queues and add them to a queue set before resuming the Tx
+        task.
+
+        It calls <prvTestQueueOverwriteWithQueueSet>,
+        <prvTestQueueOverwriteOnTwoQueusInQueueSet> and
+        <prvTestQueueOverwriteFromISROnTwoQueusInQueueSet>.
+    */
     static void prvSetupTest( void )
     {
         BaseType_t x;
@@ -1145,6 +1233,12 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvRand
+
+        Local pseudo random number seed and return functions. Used to avoid
+        calls to the standard library.
+    */
     static size_t prvRand( void )
     {
         uxNextRand = ( uxNextRand * ( size_t ) 1103515245 ) + ( size_t ) 12345;
@@ -1152,6 +1246,9 @@
     }
 /*-----------------------------------------------------------*/
 
+    /*
+        Function: prvSRand
+    */
     static void prvSRand( size_t uxSeed )
     {
         uxNextRand = uxSeed;

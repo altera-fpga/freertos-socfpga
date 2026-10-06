@@ -6,40 +6,41 @@
  * Implementation of CLI commands for WDT
  */
 
-/**
- * @defgroup cli_wdt Watchdog Timer
- * @ingroup cli
- *
- * Perform watchdog timer operations
- *
- * @details
- * It supports the following commands:
- * - wdog test &lt;service_period&gt; &lt;number_of_services&gt; &lt;init_timeout&gt; &lt;timeout&gt;
- * - wdog help
- *
- * Typical usage:
- * - Use 'wdog test' command to perform a watchdog timer test.
- *
- * @section wdt_commands Commands
- * @subsection wdt_test wdog test
- * Perform Watchdog timer test <br>
- *
- * Usage: <br>
- *   wdog test &lt;service_period&gt; &lt;number_of_services&gt; &lt;init_timeout&gt; &lt;timeout&gt; <br>
- *
- * It requires the following arguments:
- * - service_period       The time in seconds to wait before servicing the WDT timer. The range is 0 to 20 seconds.
- * - number_of_services   The number of times to service the WDT timer. It should be a positive number less than 256.
- * - init_timeout         Timeout in milliseconds. In the hardware there are only 16 timeout values possible.
- *                        The init timeout will be selected such that the configured timeout is at least as long as the desired time
- *                        out.
- * - timeout              Timeout in milliseconds. In the hardware there are only 16 timeout values possible.
- *                        The timeout will be selected such that the configured timeout is at least as long as the desired time
- *                        out.
- *
- * The supported timeout in hardware corresponds to 2 ^ (n + 16) clock ticks where n can be from 0 to 15. For example, if the WDT clock
- * is 100 MHz and n = 14, it will give approximately 10000 milli seconds or 10 seconds timeout.
- */
+/*
+    File: Watchdog Timer CLI Commands
+
+    Perform watchdog timer operations
+
+    It supports the following commands:
+    - wdog test &lt;service_period&gt; &lt;number_of_services&gt; &lt;init_timeout&gt; &lt;timeout&gt;
+    - wdog help
+
+    Typical usage:
+    - Use 'wdog test' command to perform a watchdog timer test.
+    Group: Commands
+
+    wdog test:
+
+    Perform Watchdog timer test
+
+    Usage: wdog test &lt;service_period&gt; &lt;number_of_services&gt;
+    &lt;init_timeout&gt; &lt;timeout&gt;
+
+    It requires the following arguments:
+    - service_period       The time in seconds to wait before servicing the WDT timer. The range is 0 to 20 seconds.
+    - number_of_services   The number of times to service the WDT timer. It should be a positive number less than 256.
+    - init_timeout         Timeout in milliseconds. In the hardware there are only 16 timeout values possible.
+    The init timeout will be selected such that the configured timeout is at
+    least as long as the desired time out.
+    - timeout              Timeout in milliseconds. In the hardware there are only 16 timeout values possible.
+    The timeout will be selected such that the configured timeout is at least
+    as long as the desired time out.
+
+    The supported timeout in hardware corresponds to 2 ^ (n + 16) clock ticks
+    where n can be from 0 to 15. For example, if the WDT clock is 100 MHz and
+    n = 14, it will give approximately 10000 milli seconds or 10 seconds
+    timeout.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,6 +57,11 @@
 #define MAX_SERVICE_TIME    20
 #define MAX_SERVICE_NUM     255
 
+/*
+    Struct: wdt_test_t
+
+    Type used by the Watchdog Timer cli commands, holding service, nservice, init_timeout and timeout. Declared as wdt_opts in cli_wdt.c.
+*/
 typedef struct
 {
     uint32_t service;
@@ -67,6 +73,9 @@ typedef struct
 wdt_test_t wdt_opts;
 wdt_handle_t wdt_handle;
 
+/*
+    Function: wdt_test_callback
+*/
 void wdt_test_callback( void *puser_context )
 {
     (void) puser_context;
@@ -75,6 +84,9 @@ void wdt_test_callback( void *puser_context )
         ;
 }
 
+/*
+    Function: wdt_test
+*/
 void wdt_test( void *params )
 {
     int retval = 0;
@@ -130,6 +142,12 @@ void wdt_test( void *params )
 end: vTaskSuspend(NULL);
 }
 
+/*
+    Function: cmd_wdt
+
+    Implements the wdog command of the CLI sample: perform watchdog timer
+    operations.
+*/
 BaseType_t cmd_wdt( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

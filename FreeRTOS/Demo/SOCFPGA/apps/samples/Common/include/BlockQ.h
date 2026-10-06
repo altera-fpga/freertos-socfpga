@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Block Q
+
+    Declares the Block Q interface: 2 functions.
+
+    They are vStartBlockingQueueTasks and xAreBlockingQueuesStillRunning.
+*/
+
 #ifndef BLOCK_Q_H
 #define BLOCK_Q_H
 

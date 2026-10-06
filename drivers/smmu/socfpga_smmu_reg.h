@@ -6,6 +6,16 @@
  * SMMU register definitions
  */
 
+/*
+    File: SMMU Registers
+
+    SMMU register definitions.
+
+    The definitions fall into the S_TCU_*, SMMU_PMCG_*, SMMU_S_*,
+    SMMU_IDR0_*, SMMU_PRIQ_* and SMMU_EVENTQ_* families, plus 29 smaller
+    groups.
+*/
+
 #ifndef _SOCFPGA_SMMU_REG_H_
 #define _SOCFPGA_SMMU_REG_H_
 

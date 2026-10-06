@@ -6,6 +6,15 @@
  * Header file for QSPI low level driver
  */
 
+/*
+    File: QSPI Low-Level Driver
+
+    Header file for QSPI low level driver.
+
+    The functions fall into the qspi_set_*, qspi_flashcmd_*, qspi_enable_*,
+    qspi_flash_* and qspi_get_* families, plus 7 smaller groups.
+*/
+
 #ifndef __SOCFPGA_QSPI_LL_H__
 #define __SOCFPGA_QSPI_LL_H__
 

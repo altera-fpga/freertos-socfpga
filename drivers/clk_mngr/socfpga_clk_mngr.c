@@ -6,6 +6,12 @@
  * HAL driver implementation for Clock manager
  */
 
+/*
+    File: Clock Manager Driver Implementation
+
+    HAL driver implementation for Clock manager.
+*/
+
 #include <errno.h>
 #include "socfpga_clk_mngr_reg.h"
 #include "socfpga_sys_mngr_reg.h"
@@ -15,9 +21,12 @@
 
 #define CLK_SUCCESS    0U
 #define CLK_ERROR      1U
-/**
- * @brief Read Source VCO clock for given block
- */
+/*
+    Function: pclk_mngr_get_src_ref_clk
+
+    Read Source VCO clock for given block
+*/
+
 static uint32_t pclk_mngr_get_src_ref_clk(uint32_t pll_glob_reg_val)
 {
     uint32_t src_clk_value = 0U, ref_clk_value = 0U, aref_clk_div;
@@ -60,9 +69,12 @@ static uint32_t pclk_mngr_get_src_ref_clk(uint32_t pll_glob_reg_val)
     return ref_clk_value;
 }
 
-/**
- * @brief Read Reference clock value of given PLL source
- */
+/*
+    Function: pclk_mngr_get_clk
+
+    Read Reference clock value of given PLL source
+*/
+
 static uint32_t pclk_mngr_get_clk(uint32_t clk_src_reg, uint32_t
         pll_channel_config_reg_main, uint32_t
         pll_channel_config_reg_peri)
@@ -115,9 +127,12 @@ static uint32_t pclk_mngr_get_clk(uint32_t clk_src_reg, uint32_t
     return ref_clk_val;
 }
 
-/**
- * @brief Read L3 Main Free clock
- */
+/*
+    Function: pclk_mngr_get_l3_main_free_clk
+
+    Read L3 Main Free clock
+*/
+
 static uint32_t pclk_mngr_get_l3_main_free_clk(void)
 {
     uint32_t l3_main_free_clk = 0U;
@@ -127,9 +142,12 @@ static uint32_t pclk_mngr_get_l3_main_free_clk(void)
     return l3_main_free_clk;
 }
 
-/**
- * @brief Read L4 SP clock
- */
+/*
+    Function: pclk_mngr_get_l4_sp_clk
+
+    Read L4 SP clock
+*/
+
 static uint32_t pclk_mngr_get_l4_sp_clk(void)
 {
     uint32_t l4_sp_clk, l4_sp_clk_div;
@@ -144,33 +162,45 @@ static uint32_t pclk_mngr_get_l4_sp_clk(void)
     return l4_sp_clk;
 }
 
-/**
- * @brief Read L4 Main clock
- */
+/*
+    Function: pclk_mngr_get_sp_timer_clk
+
+    Read L4 Main clock
+*/
+
 static uint32_t pclk_mngr_get_sp_timer_clk(void)
 {
     return pclk_mngr_get_l4_sp_clk();
 }
 
-/**
- * @brief Read L4 Sys Free clock
- */
+/*
+    Function: pclk_mngr_get_uart_clk
+
+    Read L4 Sys Free clock
+*/
+
 static uint32_t pclk_mngr_get_uart_clk(void)
 {
     return pclk_mngr_get_l4_sp_clk();
 }
 
-/**
- * @brief Read L4 Sys Free clock
- */
+/*
+    Function: pclk_mngr_get_i2c_clk
+
+    Read L4 Sys Free clock
+*/
+
 static uint32_t pclk_mngr_get_i2c_clk(void)
 {
     return pclk_mngr_get_l4_sp_clk();
 }
 
-/**
- * @brief Read L4 Sys Free clock
- */
+/*
+    Function: pclk_mngr_get_l4_sys_free_clk
+
+    Read L4 Sys Free clock
+*/
+
 static uint32_t pclk_mngr_get_l4_sys_free_clk(void)
 {
     uint32_t l4_sys_free_clk, l4_sys_free_clk_div;
@@ -187,25 +217,34 @@ static uint32_t pclk_mngr_get_l4_sys_free_clk(void)
     return l4_sys_free_clk;
 }
 
-/**
- * @brief Read WDT clock
- */
+/*
+    Function: pclk_mngr_get_wdt_clk
+
+    Read WDT clock
+*/
+
 static uint32_t pclk_mngr_get_wdt_clk(void)
 {
     return pclk_mngr_get_l4_sys_free_clk();
 }
 
-/**
- * @brief Read Osc1 Timer clock
- */
+/*
+    Function: pclk_mngr_get_osc1_timer_clk
+
+    Read Osc1 Timer clock
+*/
+
 static uint32_t pclk_mngr_get_osc1_timer_clk(void)
 {
     return pclk_mngr_get_l4_sys_free_clk();
 }
 
-/**
- * @brief Read QSPI clock
- */
+/*
+    Function: pclk_mngr_get_qspi_clk
+
+    Read QSPI clock
+*/
+
 static uint32_t pclk_mngr_get_qspi_clk(void)
 {
     uint32_t qspi_clk;
@@ -215,9 +254,12 @@ static uint32_t pclk_mngr_get_qspi_clk(void)
     return qspi_clk;
 }
 
-/**
- * @brief Read L4 Main clock
- */
+/*
+    Function: pclk_mngr_get_l4_main_clk
+
+    Read L4 Main clock
+*/
+
 static uint32_t pclk_mngr_get_l4_main_clk(void)
 {
     uint32_t l4_main_clk;
@@ -225,9 +267,12 @@ static uint32_t pclk_mngr_get_l4_main_clk(void)
     return l4_main_clk;
 }
 
-/**
- * @brief Read SSPI clock
- */
+/*
+    Function: pclk_mngr_get_sspi_clk
+
+    Read SSPI clock
+*/
+
 static uint32_t pclk_mngr_get_sspi_clk(void)
 {
     uint32_t sspi_clk;
@@ -235,9 +280,12 @@ static uint32_t pclk_mngr_get_sspi_clk(void)
     return sspi_clk;
 }
 
-/**
- * @brief Read L4 MP clock
- */
+/*
+    Function: pclk_mngr_get_l4_mp_clk
+
+    Read L4 MP clock
+*/
+
 static uint32_t pclk_mngr_get_l4_mp_clk(void)
 {
     uint32_t l4_mp_clk, l4_mp_clk_div;
@@ -252,9 +300,12 @@ static uint32_t pclk_mngr_get_l4_mp_clk(void)
     return l4_mp_clk;
 }
 
-/**
- * @brief Get SDMMC clock
- */
+/*
+    Function: pclk_mngr_get_sdmmc_clk
+
+    Get SDMMC clock
+*/
+
 static uint32_t pclk_mngr_get_sdmmc_clk(void)
 {
     uint32_t sdmmc_clk;
@@ -262,9 +313,12 @@ static uint32_t pclk_mngr_get_sdmmc_clk(void)
     return sdmmc_clk;
 }
 
-/**
- * @brief Get MPU clock
- */
+/*
+    Function: pclk_mngr_get_mpu_clk
+
+    Get MPU clock
+*/
+
 static uint32_t pclk_mngr_get_mpu_clk(void)
 {
     uint32_t mpu_clk = 0U;
@@ -274,9 +328,12 @@ static uint32_t pclk_mngr_get_mpu_clk(void)
     return mpu_clk;
 }
 
-/**
- * @brief Set L4 Sys Free clock divisor
- */
+/*
+    Function: pclk_mngr_set_l4_sys_free_clk_div
+
+    Set L4 Sys Free clock divisor
+*/
+
 static uint32_t pclk_mngr_set_l4_sys_free_clk_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -302,9 +359,12 @@ static uint32_t pclk_mngr_set_l4_sys_free_clk_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set L4 MP clock divisor
- */
+/*
+    Function: pclk_mngr_set_l4_mp_clk_div
+
+    Set L4 MP clock divisor
+*/
+
 static uint32_t pclk_mngr_set_l4_mp_clk_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -326,9 +386,12 @@ static uint32_t pclk_mngr_set_l4_mp_clk_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set L4 SP clock divisor
- */
+/*
+    Function: pclk_mngr_set_l4_sp_clk_div
+
+    Set L4 SP clock divisor
+*/
+
 static uint32_t pclk_mngr_set_l4_sp_clk_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -354,9 +417,12 @@ static uint32_t pclk_mngr_set_l4_sp_clk_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set Soft PHY clock divisor
- */
+/*
+    Function: pclk_mngr_set_soft_phy_div
+
+    Set Soft PHY clock divisor
+*/
+
 static uint32_t pclk_mngr_set_soft_phy_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -382,9 +448,12 @@ static uint32_t pclk_mngr_set_soft_phy_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set CCU clock divisor
- */
+/*
+    Function: pclk_mngr_set_ccu_div
+
+    Set CCU clock divisor
+*/
+
 static uint32_t pclk_mngr_set_ccu_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -406,9 +475,12 @@ static uint32_t pclk_mngr_set_ccu_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set MPU Peripheral clock divisor
- */
+/*
+    Function: pclk_mngr_set_mpu_periph_div
+
+    Set MPU Peripheral clock divisor
+*/
+
 static uint32_t pclk_mngr_set_mpu_periph_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -434,9 +506,12 @@ static uint32_t pclk_mngr_set_mpu_periph_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set CS clock divisor
- */
+/*
+    Function: pclk_mngr_set_cs_clk_div
+
+    Set CS clock divisor
+*/
+
 static uint32_t pclk_mngr_set_cs_clk_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -466,9 +541,12 @@ static uint32_t pclk_mngr_set_cs_clk_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set CS Trace clock divisor
- */
+/*
+    Function: pclk_mngr_set_cs_trace_clk_div
+
+    Set CS Trace clock divisor
+*/
+
 static uint32_t pclk_mngr_set_cs_trace_clk_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -498,9 +576,12 @@ static uint32_t pclk_mngr_set_cs_trace_clk_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Set CS PDBG clock divisor
- */
+/*
+    Function: pclk_mngr_set_cs_pdbg_clk_div
+
+    Set CS PDBG clock divisor
+*/
+
 static uint32_t pclk_mngr_set_cs_pdbg_clk_div(uint8_t divisor)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -530,9 +611,12 @@ static uint32_t pclk_mngr_set_cs_pdbg_clk_div(uint8_t divisor)
     return 0;
 }
 
-/**
- * @brief Get L4 Sys Free clock divisor
- */
+/*
+    Function: pclk_mngr_get_l4_sys_free_clk_div
+
+    Get L4 Sys Free clock divisor
+*/
+
 static uint8_t pclk_mngr_get_l4_sys_free_clk_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -553,9 +637,12 @@ static uint8_t pclk_mngr_get_l4_sys_free_clk_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get L4 MP clock divisor
- */
+/*
+    Function: pclk_mngr_get_l4_mp_clk_div
+
+    Get L4 MP clock divisor
+*/
+
 static uint8_t pclk_mngr_get_l4_mp_clk_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -572,9 +659,12 @@ static uint8_t pclk_mngr_get_l4_mp_clk_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get L4 SP clock divisor
- */
+/*
+    Function: pclk_mngr_get_l4_sp_clk_div
+
+    Get L4 SP clock divisor
+*/
+
 static uint8_t pclk_mngr_get_l4_sp_clk_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -595,9 +685,12 @@ static uint8_t pclk_mngr_get_l4_sp_clk_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get Soft PHY clock divisor
- */
+/*
+    Function: pclk_mngr_get_soft_phy_div
+
+    Get Soft PHY clock divisor
+*/
+
 static uint8_t pclk_mngr_get_soft_phy_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -618,9 +711,12 @@ static uint8_t pclk_mngr_get_soft_phy_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get CCU clock divisor
- */
+/*
+    Function: pclk_mngr_get_ccu_div
+
+    Get CCU clock divisor
+*/
+
 static uint8_t pclk_mngr_get_ccu_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -637,9 +733,12 @@ static uint8_t pclk_mngr_get_ccu_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get MPU Peripheral clock divisor
- */
+/*
+    Function: pclk_mngr_get_mpu_periph_div
+
+    Get MPU Peripheral clock divisor
+*/
+
 static uint8_t pclk_mngr_get_mpu_periph_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -660,9 +759,12 @@ static uint8_t pclk_mngr_get_mpu_periph_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get CS clock divisor
- */
+/*
+    Function: pclk_mngr_get_cs_clk_div
+
+    Get CS clock divisor
+*/
+
 static uint8_t pclk_mngr_get_cs_clk_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -687,9 +789,12 @@ static uint8_t pclk_mngr_get_cs_clk_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get CS Trace clock divisor
- */
+/*
+    Function: pclk_mngr_get_cs_trace_clk_div
+
+    Get CS Trace clock divisor
+*/
+
 static uint8_t pclk_mngr_get_cs_trace_clk_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);
@@ -714,9 +819,12 @@ static uint8_t pclk_mngr_get_cs_trace_clk_div(void)
     return -EINVAL;
 }
 
-/**
- * @brief Get CS PDBG clock divisor
- */
+/*
+    Function: pclk_mngr_get_cs_pdbg_clk_div
+
+    Get CS PDBG clock divisor
+*/
+
 static uint8_t pclk_mngr_get_cs_pdbg_clk_div(void)
 {
     uint32_t reg_val = RD_REG32(CLK_MNGR_BASE_ADDR + MAINPLL_CLK_MNGR_NOCDIV);

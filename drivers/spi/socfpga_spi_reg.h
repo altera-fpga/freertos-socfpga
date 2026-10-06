@@ -6,6 +6,12 @@
  * SoC FPGA SPI block register definitions
  */
 
+/*
+    File: SPI Registers
+
+    SoC FPGA SPI block register definitions.
+*/
+
 #ifndef __SOCFPGA_SPI_REG_H__
 #define __SOCFPGA_SPI_REG_H__
 
@@ -463,7 +469,5 @@
 /* Bit fields of RSVD_1 register */
 
 /* Bit fields of RSVD_2 register */
-
-
 
 #endif /* __SOCFPGA_SPI_REG_H__ */

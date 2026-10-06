@@ -24,44 +24,51 @@
  *
  */
 
-/******************************************************************************
- * NOTE 1:  This project provides two demo applications.  A simple blinky
- * style project, and a more comprehensive test and demo application.  The
- * mainUSE_SIMPLE_BLINKY_DEMO_ONLY setting in main.c is used to select
- * between the two.  See the notes on using mainUSE_SIMPLE_BLINKY_DEMO_ONLY
- * in main.c.  This file implements the simply blinky style version.
- *
- * NOTE 2:  This file only contains the source code that is specific to the
- * simple demo.  Generic functions, such FreeRTOS hook functions, and functions
- * required to configure the hardware are defined in main.c.
- ******************************************************************************
- *
- * main_blinky() does the following:
- * 1. Creates one queue.
- * 2. Creates two tasks.
- * 3. Then it starts the scheduler.
- *
- * The Queue Send Task:
- * The queue send task is implemented by the prvQueueSendTask() function in
- * this file. prvQueueSendTask() sits in a loop that causes it to repeatedly
- * block for 1000 milliseconds, before sending the value 100 to the queue that
- * was created within main_blinky(). Once the value is sent, the task loops
- * back around to block for another 1000 milliseconds...and so on.
- *
- * The Queue Receive Task:
- * The queue receive task is implemented by the prvQueueReceiveTask() function
- * in this file. prvQueueReceiveTask() sits in a loop where it repeatedly
- * blocks on attempts to read data from the queue that was created within
- * main_blinky(). When data is received, the task checks the value of the data
- * and if the value equals the expected 100, outputs a message to the UART.
- * The 'block time' parameter passed to the queue receive function specifies
- * that the task should be held in the Blocked state indefinitely to wait for
- * data to be available on the queue.  The queue receive task will only leave
- * the Blocked state when the queue send task writes to the queue. As the queue
- * send task writes to the queue every 1000 milliseconds, the queue receive
- * task leaves the Blocked state every 1000 milliseconds, and therefore outputs
- * a message every 1000 milliseconds.
- */
+/*
+    File: Main Blinky
+
+    NOTE 1: This project provides two demo applications.
+*/
+
+/*
+    ***************************************************************************
+    NOTE 1: This project provides two demo applications. A simple blinky style
+    project, and a more comprehensive test and demo application. The
+    mainUSE_SIMPLE_BLINKY_DEMO_ONLY setting in main.c is used to select
+    between the two. See the notes on using mainUSE_SIMPLE_BLINKY_DEMO_ONLY in
+    main.c. This file implements the simply blinky style version.
+
+    NOTE 2: This file only contains the source code that is specific to the
+    simple demo. Generic functions, such FreeRTOS hook functions, and
+    functions required to configure the hardware are defined in main.c.
+    *****************************************************************************
+
+    main_blinky() does the following:
+    1. Creates one queue.
+    2. Creates two tasks.
+    3. Then it starts the scheduler.
+
+    The Queue Send Task: The queue send task is implemented by the
+    prvQueueSendTask() function in this file. prvQueueSendTask() sits in a
+    loop that causes it to repeatedly block for 1000 milliseconds, before
+    sending the value 100 to the queue that was created within main_blinky().
+    Once the value is sent, the task loops back around to block for another
+    1000 milliseconds...and so on.
+
+    The Queue Receive Task: The queue receive task is implemented by the
+    prvQueueReceiveTask() function in this file. prvQueueReceiveTask() sits in
+    a loop where it repeatedly blocks on attempts to read data from the queue
+    that was created within main_blinky(). When data is received, the task
+    checks the value of the data and if the value equals the expected 100,
+    outputs a message to the UART. The 'block time' parameter passed to the
+    queue receive function specifies that the task should be held in the
+    Blocked state indefinitely to wait for data to be available on the queue.
+    The queue receive task will only leave the Blocked state when the queue
+    send task writes to the queue. As the queue send task writes to the queue
+    every 1000 milliseconds, the queue receive task leaves the Blocked state
+    every 1000 milliseconds, and therefore outputs a message every 1000
+    milliseconds.
+*/
 
 /* Kernel includes. */
 #include <stdio.h>
@@ -97,6 +104,15 @@ static QueueHandle_t xQueue = NULL;
 
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vApplicationTickHook
+
+    Tick hook, called by the kernel from the RTOS tick interrupt.
+
+    It runs in an interrupt context on every tick, so it must return quickly
+    and may only use the interrupt-safe API. FreeRTOS calls it only when
+    configUSE_TICK_HOOK is 1.
+*/
 void vApplicationTickHook( void )
 {
     /* This is called from RTOS tick handler
@@ -105,6 +121,13 @@ void vApplicationTickHook( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: main_blinky
+
+    Calls xQueueCreate.
+
+    It does not return; the body loops for the life of the task.
+*/
 void main_blinky( void )
 {
     /* Create the queue. */
@@ -142,6 +165,14 @@ void main_blinky( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvQueueSendTask
+
+    Calls xTaskGetTickCount.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvQueueSendTask( void * pvParameters )
 {
 TickType_t xNextWakeTime;
@@ -167,6 +198,14 @@ const uint32_t ulValueToSend = 100UL;
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvQueueReceiveTask
+
+    The tasks as described in the comments at the top of this file.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvQueueReceiveTask( void * pvParameters )
 {
 uint32_t ulReceivedValue;

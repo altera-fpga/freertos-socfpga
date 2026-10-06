@@ -25,14 +25,23 @@
  *
  * NOTE: Updating these values can affect bus stability; validate on target.
  */
-#define SS_SCL_HCNT_VAL    400U         /*!< SCL High count for standard speed I2C clock */
-#define SS_SCL_LCNT_VAL    470U         /*!< SCL Low count for standard speed I2C clock */
-#define FS_SCL_HCNT_VAL    60U          /*!< SCL High count for fast speed I2C clock */
-#define FS_SCL_LCNT_VAL    130U         /*!< SCL Low count for fast speed I2C clock */
+#define SS_SCL_HCNT_VAL    400U         /* SCL High count for standard speed I2C clock */
+#define SS_SCL_LCNT_VAL    470U         /* SCL Low count for standard speed I2C clock */
+#define FS_SCL_HCNT_VAL    60U          /* SCL High count for fast speed I2C clock */
+#define FS_SCL_LCNT_VAL    130U         /* SCL Low count for fast speed I2C clock */
 
-/**
- * @brief Enable I2C interrupt
- */
+/*
+    File: I2C Low-Level Driver Implementation
+
+    Implements the I2C low-level driver: 32 functions, 2 of them local to
+    this file.
+*/
+
+/*
+    Function: i2c_enable_interrupt
+
+    Enable I2C interrupt
+*/
 void i2c_enable_interrupt(uint32_t base_addr, uint32_t interrupt_req)
 {
     uint32_t val;
@@ -65,9 +74,11 @@ void i2c_enable_interrupt(uint32_t base_addr, uint32_t interrupt_req)
     WR_REG32(base_addr + I2C_INTR_MASK, val);
 }
 
-/**
- * @brief Disable I2C interrupt
- */
+/*
+    Function: i2c_disable_interrupt
+
+    Disable I2C interrupt
+*/
 void i2c_disable_interrupt(uint32_t base_addr, uint32_t interrupt_req)
 {
     uint32_t val;
@@ -99,9 +110,11 @@ void i2c_disable_interrupt(uint32_t base_addr, uint32_t interrupt_req)
     WR_REG32(base_addr + I2C_INTR_MASK, val);
 }
 
-/**
- * @brief Get I2C interrupt status
- */
+/*
+    Function: i2c_get_interrupt_status
+
+    Get I2C interrupt status
+*/
 uint32_t i2c_get_interrupt_status(uint32_t base_addr)
 {
     uint32_t res = I2C_NO_INT;
@@ -134,36 +147,69 @@ uint32_t i2c_get_interrupt_status(uint32_t base_addr)
     return res;
 }
 
+/*
+    Function: i2c_ll_get_raw_interrupt_status
+
+    Reads the I2C_RAW_INTR_STAT register.
+*/
 uint32_t i2c_ll_get_raw_interrupt_status(uint32_t base_addr)
 {
     return RD_REG32(base_addr + I2C_RAW_INTR_STAT);
 }
 
+/*
+    Function: i2c_ll_get_tx_abrt_source
+
+    Reads the I2C_TX_ABRT_SOURCE register.
+*/
 uint32_t i2c_ll_get_tx_abrt_source(uint32_t base_addr)
 {
     return RD_REG32(base_addr + I2C_TX_ABRT_SOURCE);
 }
 
+/*
+    Function: i2c_ll_clear_tx_abrt
+
+    Reads the I2C_CLR_TX_ABRT register, discarding the value.
+*/
 void i2c_ll_clear_tx_abrt(uint32_t base_addr)
 {
     (void)RD_REG32(base_addr + I2C_CLR_TX_ABRT);
 }
 
+/*
+    Function: i2c_ll_clear_rd_req
+
+    Reads the I2C_CLR_RD_REQ register, discarding the value.
+*/
 void i2c_ll_clear_rd_req(uint32_t base_addr)
 {
     (void)RD_REG32(base_addr + I2C_CLR_RD_REQ);
 }
 
+/*
+    Function: i2c_ll_clear_stop_det
+
+    Reads the I2C_CLR_STOP_DET register, discarding the value.
+*/
 void i2c_ll_clear_stop_det(uint32_t base_addr)
 {
     (void)RD_REG32(base_addr + I2C_CLR_STOP_DET);
 }
 
+/*
+    Function: i2c_ll_clear_rx_over
+
+    Reads the I2C_CLR_RX_OVER register, discarding the value.
+*/
 void i2c_ll_clear_rx_over(uint32_t base_addr)
 {
     (void)RD_REG32(base_addr + I2C_CLR_RX_OVER);
 }
 
+/*
+    Function: i2c_ll_config_slave
+*/
 void i2c_ll_config_slave(uint32_t base_addr,
         uint16_t slave_addr,
         bool is_10bit_addr,
@@ -217,6 +263,11 @@ void i2c_ll_config_slave(uint32_t base_addr,
     WR_REG32(base_addr + I2C_ENABLE, I2C_ENABLE_ENABLE_MASK);
 }
 
+/*
+    Function: i2c_read_status
+
+    Reads the I2C_STATUS register.
+*/
 uint32_t i2c_read_status(uint32_t base_addr)
 {
     uint32_t val;
@@ -225,9 +276,11 @@ uint32_t i2c_read_status(uint32_t base_addr)
     return val;
 }
 
-/**
- * @brief Clear I2C interrupt
- */
+/*
+    Function: i2c_clear_interrupt
+
+    Clear I2C interrupt
+*/
 void i2c_clear_interrupt(uint32_t base_addr)
 {
     /*
@@ -237,9 +290,11 @@ void i2c_clear_interrupt(uint32_t base_addr)
     (void)RD_REG32(base_addr + I2C_CLR_INTR);
 }
 
-/**
- * @brief Set target address
- */
+/*
+    Function: i2c_set_target_addr
+
+    Set target address
+*/
 void i2c_set_target_addr(uint32_t base_addr, uint16_t slave_addr)
 {
     uint32_t val;
@@ -260,9 +315,11 @@ void i2c_set_target_addr(uint32_t base_addr, uint16_t slave_addr)
     WR_REG32(base_addr + I2C_ENABLE, val);
 }
 
-/**
- * @brief Write data to the I2C FIFO
- */
+/*
+    Function: i2c_write_fifo
+
+    Write data to the I2C FIFO
+*/
 uint16_t i2c_write_fifo(uint32_t base_addr, uint8_t *const buf, uint32_t nbytes,
         bool no_stop_flag)
 {
@@ -293,9 +350,11 @@ uint16_t i2c_write_fifo(uint32_t base_addr, uint8_t *const buf, uint32_t nbytes,
     return nwr;
 }
 
-/**
- * @brief Enqueue read commands
- */
+/*
+    Function: i2c_enq_read_cmd
+
+    Enqueue read commands
+*/
 uint16_t i2c_enq_read_cmd(uint32_t base_addr, uint32_t nbytes, bool no_stop_flag)
 {
     uint32_t ncmd;
@@ -325,9 +384,11 @@ uint16_t i2c_enq_read_cmd(uint32_t base_addr, uint32_t nbytes, bool no_stop_flag
     return ncmd;
 }
 
-/**
- * @brief Read data from the I2C FIFO
- */
+/*
+    Function: i2c_read_fifo
+
+    Read data from the I2C FIFO
+*/
 uint16_t i2c_read_fifo(uint32_t base_addr, uint8_t *const buf, uint32_t nbytes)
 {
     uint32_t nrd;
@@ -346,9 +407,11 @@ uint16_t i2c_read_fifo(uint32_t base_addr, uint8_t *const buf, uint32_t nbytes)
     return nrd;
 }
 
-/**
- * @brief Configure I2C master parameters
- */
+/*
+    Function: i2c_config_master
+
+    Configure I2C master parameters
+*/
 uint32_t i2c_config_master(uint32_t base_addr, uint32_t speed)
 {
     uint32_t val;
@@ -390,9 +453,11 @@ uint32_t i2c_config_master(uint32_t base_addr, uint32_t speed)
     return 1;
 }
 
-/**
- * @brief Get I2C configuration parameters
- */
+/*
+    Function: i2c_get_config
+
+    Get I2C configuration parameters
+*/
 uint32_t i2c_get_config(uint32_t base_addr)
 {
     uint32_t baud = 0U;
@@ -414,30 +479,42 @@ uint32_t i2c_get_config(uint32_t base_addr)
     return baud;
 }
 
-/**
- * @brief Disable the I2C controller.
- */
+/*
+    Function: i2c_ll_disable_controller
+
+    Disable the I2C controller.
+*/
 void i2c_ll_disable_controller(uint32_t base_addr)
 {
     WR_REG32(base_addr + I2C_ENABLE, 0U);
 }
 
-/**
- * @brief Enable the I2C controller.
- */
+/*
+    Function: i2c_ll_enable_controller
+
+    Enable the I2C controller.
+*/
 void i2c_ll_enable_controller(uint32_t base_addr)
 {
     WR_REG32(base_addr + I2C_ENABLE, (1U << I2C_ENABLE_ENABLE_POS));
 }
 
-/**
- * @brief Set I2C interrupt mask.
- */
+/*
+    Function: i2c_ll_set_interrupt_mask
+
+    Set I2C interrupt mask.
+*/
 void i2c_ll_set_interrupt_mask(uint32_t base_addr, uint32_t mask)
 {
     WR_REG32(base_addr + I2C_INTR_MASK, mask);
 }
 
+/*
+    Function: i2c_ll_init_controller
+
+    Calls <i2c_ll_disable_controller>, WR_REG32, <i2c_ll_set_interrupt_mask>
+    and <i2c_ll_enable_controller>.
+*/
 static void i2c_ll_init_controller(uint32_t base_addr)
 {
     uint32_t val;
@@ -465,6 +542,12 @@ static void i2c_ll_init_controller(uint32_t base_addr)
     i2c_ll_enable_controller(base_addr);
 }
 
+/*
+    Function: i2c_ll_deinit_controller
+
+    Calls <i2c_ll_set_interrupt_mask>, <i2c_ll_disable_controller> and
+    RD_REG32.
+*/
 static void i2c_ll_deinit_controller(uint32_t base_addr)
 {
     /* Mask interrupts and disable controller */
@@ -475,36 +558,42 @@ static void i2c_ll_deinit_controller(uint32_t base_addr)
     (void)RD_REG32(base_addr + I2C_CLR_TX_ABRT);
 }
 
-/**
- * @brief Initializes I2C peripheral.
- *
- * Places the controller into a known master-default state:
- * - controller disabled while configuring
- * - master enabled, slave disabled
- * - standard-speed mode selected
- * - restart enabled
- * - all interrupts masked
- * - controller enabled
- */
+/*
+    Function: i2c_init
+
+    Initializes I2C peripheral.
+
+    Places the controller into a known master-default state:
+    - controller disabled while configuring
+    - master enabled, slave disabled
+    - standard-speed mode selected
+    - restart enabled
+    - all interrupts masked
+    - controller enabled
+*/
 void i2c_init(uint32_t base_addr)
 {
     i2c_ll_init_controller(base_addr);
 }
 
-/**
- * @brief Deinitializes I2C peripheral.
- *
- * Disables the controller and masks interrupts. Clears abort state so that
- * subsequent initializations do not start with TX FIFO in flushed condition.
- */
+/*
+    Function: i2c_deinit
+
+    Deinitializes I2C peripheral.
+
+    Disables the controller and masks interrupts. Clears abort state so that
+    subsequent initializations do not start with TX FIFO in flushed condition.
+*/
 void i2c_deinit(uint32_t base_addr)
 {
     i2c_ll_deinit_controller(base_addr);
 }
 
-/**
- * @brief Cancel current transaction
- */
+/*
+    Function: i2c_ll_cancel
+
+    Cancel current transaction
+*/
 void i2c_ll_cancel(uint32_t base_addr)
 {
     uint32_t val;
@@ -517,6 +606,11 @@ void i2c_ll_cancel(uint32_t base_addr)
     (void)RD_REG32(base_addr + I2C_CLR_TX_ABRT);
 }
 
+/*
+    Function: i2c_ll_tdma_enable
+
+    Sets the TDMAE bit in the I2C_DMA_CR register.
+*/
 void i2c_ll_tdma_enable(uint32_t base_addr)
 {
     uint32_t val;
@@ -526,6 +620,11 @@ void i2c_ll_tdma_enable(uint32_t base_addr)
     WR_REG32((base_addr + I2C_DMA_CR), val);
 }
 
+/*
+    Function: i2c_ll_rdma_enable
+
+    Sets the RDMAE bit in the I2C_DMA_CR register.
+*/
 void i2c_ll_rdma_enable(uint32_t base_addr)
 {
     uint32_t val;
@@ -535,6 +634,11 @@ void i2c_ll_rdma_enable(uint32_t base_addr)
     WR_REG32((base_addr + I2C_DMA_CR), val);
 }
 
+/*
+    Function: i2c_ll_tdma_disable
+
+    Clears the TDMAE bit in the I2C_DMA_CR register, and writes I2C_DMA_TDLR.
+*/
 void i2c_ll_tdma_disable(uint32_t base_addr)
 {
     uint32_t val;
@@ -545,6 +649,11 @@ void i2c_ll_tdma_disable(uint32_t base_addr)
     WR_REG32((base_addr + I2C_DMA_CR), val);
 }
 
+/*
+    Function: i2c_ll_rdma_disable
+
+    Clears the RDMAE bit in the I2C_DMA_CR register, and writes I2C_DMA_RDLR.
+*/
 void i2c_ll_rdma_disable(uint32_t base_addr)
 {
     uint32_t val;
@@ -555,6 +664,11 @@ void i2c_ll_rdma_disable(uint32_t base_addr)
     WR_REG32((base_addr + I2C_DMA_CR), val);
 }
 
+/*
+    Function: i2c_ll_set_tdlr
+
+    Writes the I2C_DMA_TDLR register.
+*/
 void i2c_ll_set_tdlr(uint32_t base_addr, uint32_t burst_size)
 {
     uint32_t val;
@@ -563,6 +677,11 @@ void i2c_ll_set_tdlr(uint32_t base_addr, uint32_t burst_size)
     WR_REG32((base_addr + I2C_DMA_TDLR), val);
 }
 
+/*
+    Function: i2c_ll_set_rdlr
+
+    Writes the I2C_DMA_RDLR register.
+*/
 void i2c_ll_set_rdlr(uint32_t base_addr, uint32_t burst_size)
 {
     uint32_t val;

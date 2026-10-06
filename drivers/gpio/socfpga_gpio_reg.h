@@ -6,6 +6,100 @@
  * This contains the register definitions for SoC FPGA GPIO
  */
 
+/*
+    File: GPIO Registers
+
+    This contains the register definitions for SoC FPGA GPIO.
+*/
+
+/*
+    Constants: GPIO constants
+
+    GPIO_SWPORTA_DR                                - Port A data register.
+    GPIO_SWPORTA_DDR                               - Port A Data Direction Register.
+    GPIO_INTEN                                     - Interrupt enable register.
+    GPIO_INTMASK                                   - Interrupt mask register.
+    GPIO_INTTYPE_LEVEL                             - Interrupt level.
+    GPIO_INT_POLARITY                              - Interrupt polarity.
+    GPIO_INTSTATUS                                 - Interrupt status.
+    GPIO_RAW_INTSTATUS                             - Raw interrupt status.
+    GPIO_DEBOUNCE                                  - Debounce enable.
+    GPIO_PORTA_EOI                                 - Port A clear interrupt register.
+    GPIO_EXT_PORTA                                 - Port A external port register.
+    GPIO_LS_SYNC                                   - Synchronization level.
+    GPIO_ID_CODE                                   - Value: 0x0064U.
+    GPIO_VER_ID_CODE                               - GPIO Component Version.
+    GPIO_CONFIG_REG2                               - GPIO Configuration Register 2.
+    GPIO_CONFIG_REG1                               - GPIO Configuration Register 1.
+    GPIO_SWPORTA_DR_MASK                           - Value: 0x00FFFFFFU.
+    GPIO_SWPORTA_DR_POS                            - Value: 0U.
+    GPIO_SWPORTA_DDR_MASK                          - Value: 0x00FFFFFFU.
+    GPIO_SWPORTA_DDR_POS                           - Value: 0U.
+    GPIO_INTEN_MASK                                - Value: 0x00FFFFFFU.
+    GPIO_INTEN_POS                                 - Value: 0U.
+    GPIO_INTMASK_MASK                              - Value: 0x00FFFFFFU.
+    GPIO_INTMASK_POS                               - Value: 0U.
+    GPIO_INTTYPE_LEVEL_MASK                        - Value: 0x00FFFFFFU.
+    GPIO_INTTYPE_LEVEL_POS                         - Value: 0U.
+    GPIO_INT_POLARITY_MASK                         - Value: 0x00FFFFFFU.
+    GPIO_INT_POLARITY_POS                          - Value: 0U.
+    GPIO_INTSTATUS_MASK                            - Value: 0x00FFFFFFU.
+    GPIO_INTSTATUS_POS                             - Value: 0U.
+    GPIO_RAW_INTSTATUS_MASK                        - Value: 0x00FFFFFFU.
+    GPIO_RAW_INTSTATUS_POS                         - Value: 0U.
+    GPIO_DEBOUNCE_MASK                             - Value: 0x00FFFFFFU.
+    GPIO_DEBOUNCE_POS                              - Value: 0U.
+    GPIO_PORTA_EOI_MASK                            - Value: 0x00FFFFFFU.
+    GPIO_PORTA_EOI_POS                             - Value: 0U.
+    GPIO_EXT_PORTA_MASK                            - Value: 0x00FFFFFFU.
+    GPIO_EXT_PORTA_POS                             - Value: 0U.
+    GPIO_LS_SYNC_MASK                              - Value: 0x00000001U.
+    GPIO_LS_SYNC_POS                               - Value: 0U.
+    GPIO_ID_CODE_MASK                              - Value: 0xFFFFFFFFU.
+    GPIO_ID_CODE_POS                               - Value: 0U.
+    GPIO_VER_ID_CODE_MASK                          - Value: 0xFFFFFFFFU.
+    GPIO_VER_ID_CODE_POS                           - Value: 0U.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_D_MASK      - Value: 0x000F8000U.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_D_POS       - Value: 15U.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_C_MASK      - Value: 0x00007C00U.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_C_POS       - Value: 10U.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_B_MASK      - Value: 0x000003E0U.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_B_POS       - Value: 5U.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_A_MASK      - Value: 0x0000001FU.
+    GPIO_CONFIG_REG2_ENCODED_ID_PWIDTH_A_POS       - Value: 0U.
+    GPIO_CONFIG_REG1_INTERRUPT_BOTH_EDGE_TYPE_MASK - Value: 0x00200000U.
+    GPIO_CONFIG_REG1_INTERRUPT_BOTH_EDGE_TYPE_POS  - Value: 21U.
+    GPIO_CONFIG_REG1_ENCODED_ID_WIDTH_MASK         - Value: 0x001F0000U.
+    GPIO_CONFIG_REG1_ENCODED_ID_WIDTH_POS          - Value: 16U.
+    GPIO_CONFIG_REG1_GPIO_ID_MASK                  - Value: 0x00008000U.
+    GPIO_CONFIG_REG1_GPIO_ID_POS                   - Value: 15U.
+    GPIO_CONFIG_REG1_ADD_ENCODED_PARAMS_MASK       - Value: 0x00004000U.
+    GPIO_CONFIG_REG1_ADD_ENCODED_PARAMS_POS        - Value: 14U.
+    GPIO_CONFIG_REG1_DEBOUNCE_MASK                 - Value: 0x00002000U.
+    GPIO_CONFIG_REG1_DEBOUNCE_POS                  - Value: 13U.
+    GPIO_CONFIG_REG1_PORTA_INTR_MASK               - Value: 0x00001000U.
+    GPIO_CONFIG_REG1_PORTA_INTR_POS                - Value: 12U.
+    GPIO_CONFIG_REG1_HW_PORTD_MASK                 - Value: 0x00000800U.
+    GPIO_CONFIG_REG1_HW_PORTD_POS                  - Value: 11U.
+    GPIO_CONFIG_REG1_HW_PORTC_MASK                 - Value: 0x00000400U.
+    GPIO_CONFIG_REG1_HW_PORTC_POS                  - Value: 10U.
+    GPIO_CONFIG_REG1_HW_PORTB_MASK                 - Value: 0x00000200U.
+    GPIO_CONFIG_REG1_HW_PORTB_POS                  - Value: 9U.
+    GPIO_CONFIG_REG1_HW_PORTA_MASK                 - Value: 0x00000100U.
+    GPIO_CONFIG_REG1_HW_PORTA_POS                  - Value: 8U.
+    GPIO_CONFIG_REG1_PORTD_SINGLE_CTL_MASK         - Value: 0x00000080U.
+    GPIO_CONFIG_REG1_PORTD_SINGLE_CTL_POS          - Value: 7U.
+    GPIO_CONFIG_REG1_PORTC_SINGLE_CTL_MASK         - Value: 0x00000040U.
+    GPIO_CONFIG_REG1_PORTC_SINGLE_CTL_POS          - Value: 6U.
+    GPIO_CONFIG_REG1_PORTB_SINGLE_CTL_MASK         - Value: 0x00000020U.
+    GPIO_CONFIG_REG1_PORTB_SINGLE_CTL_POS          - Value: 5U.
+    GPIO_CONFIG_REG1_PORTA_SINGLE_CTL_MASK         - Value: 0x00000010U.
+    GPIO_CONFIG_REG1_PORTA_SINGLE_CTL_POS          - Value: 4U.
+    GPIO_CONFIG_REG1_NUM_PORTS_MASK                - Value: 0x0000000CU.
+    GPIO_CONFIG_REG1_NUM_PORTS_POS                 - Value: 2U.
+    GPIO_CONFIG_REG1_APB_DATA_WIDTH_MASK           - Value: 0x00000003U.
+    GPIO_CONFIG_REG1_APB_DATA_WIDTH_POS            - Value: 0U.
+*/
 
 #ifndef __SOCFPGA_GPIO_REG_H__
 #define __SOCFPGA_GPIO_REG_H__
@@ -142,7 +236,5 @@
 #define GPIO_CONFIG_REG1_NUM_PORTS_POS                    2U
 #define GPIO_CONFIG_REG1_APB_DATA_WIDTH_MASK              0x00000003U
 #define GPIO_CONFIG_REG1_APB_DATA_WIDTH_POS               0U
-
-
 
 #endif /*  __SOCFPGA_GPIO_REG_H__ */

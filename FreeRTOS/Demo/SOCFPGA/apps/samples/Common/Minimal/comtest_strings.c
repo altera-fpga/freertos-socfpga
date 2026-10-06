@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Comtest Strings Implementation
+
+    Creates a task and a timer that operate on an interrupt driven serial port.
+*/
 
 /*
  * Creates a task and a timer that operate on an interrupt driven serial port.
@@ -157,6 +162,15 @@ void vStartComTestStringsTasks( UBaseType_t uxPriority,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvComTxTimerCallback
+
+    The callback function allocated to the transmit timer, as described in the
+    comments at the top of this file.
+
+    Parameters:
+        xTimer - Not used.
+*/
 static void prvComTxTimerCallback( TimerHandle_t xTimer )
 {
     TickType_t xTimeToWait;
@@ -193,6 +207,14 @@ static void prvComTxTimerCallback( TimerHandle_t xTimer )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vComRxTask
+
+    The receive task as described in the comments at the top of this file.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void vComRxTask( void * pvParameters )
 {
     BaseType_t xState = comtstWAITING_START_OF_STRING, xErrorOccurred = pdFALSE;

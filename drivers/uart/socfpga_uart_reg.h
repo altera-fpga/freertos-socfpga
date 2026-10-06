@@ -6,6 +6,12 @@
  * SoC FPGA UART register definitions
  */
 
+/*
+    File: UART Registers
+
+    SoC FPGA UART register definitions.
+*/
+
 #ifndef __SOCFPGA_UART_REG_H__
 #define __SOCFPGA_UART_REG_H__
 

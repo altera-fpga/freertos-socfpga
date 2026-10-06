@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Abort Delay
+
+    Declares the Abort Delay interface: 2 functions.
+
+    They are vCreateAbortDelayTasks and xAreAbortDelayTestTasksStillRunning.
+*/
+
 #ifndef ABORT_DELAY_H
 #define ABORT_DELAY_H
 

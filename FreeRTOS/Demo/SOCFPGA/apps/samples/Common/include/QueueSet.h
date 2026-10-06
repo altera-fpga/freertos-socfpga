@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Queue Set
+
+    Declares the Queue Set interface: 3 functions.
+
+    They are vQueueSetAccessQueueSetFromISR, vStartQueueSetTasks and
+    xAreQueueSetTasksStillRunning.
+*/
+
 #ifndef QUEUE_WAIT_MULTIPLE_H
 #define QUEUE_WAIT_MULTIPLE_H
 

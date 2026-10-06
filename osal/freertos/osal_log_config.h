@@ -1,3 +1,17 @@
+/*
+    File: OSAL Log Configuration
+
+    Build-time configuration for the OSAL Log: 3 definitions.
+*/
+
+/*
+    Constants: OSAL Log constants
+
+    LIBRARY_LOG_LEVEL - Expands to LOG_ERROR.
+    LIBRARY_LOG_NAME  - Value: "AGLX5".
+    SdkLog            - Expands to do { printf message; }while(0).
+*/
+
 #ifndef __OSAL_LOG_CONFIG__
 #define __OSAL_LOG_CONFIG__
 

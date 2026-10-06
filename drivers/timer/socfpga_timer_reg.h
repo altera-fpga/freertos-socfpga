@@ -6,6 +6,52 @@
  * This contains the register defintions for SoC FPGA timer
  */
 
+/*
+    File: Timer Registers
+
+    This contains the register defintions for SoC FPGA timer.
+*/
+
+/*
+    Constants: Timer constants
+
+    SPTIMER0_BASE_ADDR                               - Value: 0x10C03000U.
+    SPTIMER1_BASE_ADDR                               - Value: 0x10C03100U.
+    OSC1_TIMER0_BASE_ADDR                            - Value: 0x10D00000U.
+    OSC1_TIMER1_BASE_ADDR                            - Value: 0x10D00100U.
+    TIMER_TIMER1LOADCOUNT                            - Timer1 Load Count Register.
+    TIMER_TIMER1CURRENTVAL                           - Value: 0x0004U.
+    TIMER_TIMER1CONTROLREG                           - Timer1 Control Register.
+    TIMER_TIMER1EOI                                  - Timer1 End-of-Interrupt Register.
+    TIMER_TIMER1INTSTAT                              - Timer1 Interrupt Status Register.
+    TIMER_TIMERSINTSTAT                              - Timers Interrupt Status Register.
+    TIMER_TIMERSEOI                                  - Timers End-of-Interrupt Register.
+    TIMER_TIMERSRAWINTSTAT                           - Timers Raw Interrupt Status Register.
+    TIMER_TIMERSCOMPVERSION                          - Timers Component Version.
+    TIMER_TIMER1LOADCOUNT_TIMER1LOADCOUNT_MASK       - Value: 0xFFFFFFFFU.
+    TIMER_TIMER1LOADCOUNT_TIMER1LOADCOUNT_POS        - Value: 0U.
+    TIMER_TIMER1CURRENTVAL_TIMER1CURRENTVAL_MASK     - Value: 0xFFFFFFFFU.
+    TIMER_TIMER1CURRENTVAL_TIMER1CURRENTVAL_POS      - Value: 0U.
+    TIMER_TIMER1CONTROLREG_TIMER_INTERRUPT_MASK_MASK - Value: 0x00000004U.
+    TIMER_TIMER1CONTROLREG_TIMER_INTERRUPT_MASK_POS  - Value: 2U.
+    TIMER_TIMER1CONTROLREG_TIMER_MODE_MASK           - Value: 0x00000002U.
+    TIMER_TIMER1CONTROLREG_TIMER_MODE_POS            - Value: 1U.
+    TIMER_TIMER1CONTROLREG_TIMER_ENABLE_MASK         - Value: 0x00000001U.
+    TIMER_TIMER1CONTROLREG_TIMER_ENABLE_POS          - Value: 0U.
+    TIMER_TIMER1EOI_TIMER1EOI_MASK                   - Value: 0x00000001U.
+    TIMER_TIMER1EOI_TIMER1EOI_POS                    - Value: 0U.
+    TIMER_TIMER1INTSTAT_TIMER1INTSTAT_MASK           - Value: 0x00000001U.
+    TIMER_TIMER1INTSTAT_TIMER1INTSTAT_POS            - Value: 0U.
+    TIMER_TIMERSINTSTAT_TIMERSINTSTAT_MASK           - Value: 0x00000001U.
+    TIMER_TIMERSINTSTAT_TIMERSINTSTAT_POS            - Value: 0U.
+    TIMER_TIMERSEOI_TIMERSEOI_MASK                   - Value: 0x00000001U.
+    TIMER_TIMERSEOI_TIMERSEOI_POS                    - Value: 0U.
+    TIMER_TIMERSRAWINTSTAT_TIMERSRAWINTSTAT_MASK     - Value: 0x00000001U.
+    TIMER_TIMERSRAWINTSTAT_TIMERSRAWINTSTAT_POS      - Value: 0U.
+    TIMER_TIMERSCOMPVERSION_TIMERSCOMPVERSION_MASK   - Value: 0xFFFFFFFFU.
+    TIMER_TIMERSCOMPVERSION_TIMERSCOMPVERSION_POS    - Value: 0U.
+*/
+
 #ifndef __SOCFPGA_TIMER_REG_H__
 #define __SOCFPGA_TIMER_REG_H__
 

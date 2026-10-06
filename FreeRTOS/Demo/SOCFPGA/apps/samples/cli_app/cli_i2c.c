@@ -6,46 +6,46 @@
  * Implementation of CLI commands for I2C bus
  */
 
-/**
- * @defgroup cli_i2c I2C
- * @ingroup cli
- *
- * Perform I2C operations
- *
- * @details
- * It supports the following subcommands:
- * - i2c read &lt;instance&gt; &lt;target_address&gt; &lt;register_address&gt;
- * - i2c write &lt;instance&gt; &lt;target_address&gt; &lt;register_address&gt; &lt;data&gt;
- * - i2c help
- *
- * Typical usage:
- * - Use 'i2c read' command to perform write operations on an I2C device.
- * - Use 'i2c write' command to perform write operations on an I2C device.
- *
- * @section i2c_commands Commands
- * @subsection i2c_read i2c read
- * Read one byte of data from an I2C device <br>
- *
- * Usage: <br>
- * i2c read &lt;instance&gt; &lt;target_address&gt; &lt;register_address&gt; <br>
- *
- * It requires the following arguments:
- * - instance - The instance of the I2C bus. Valid range is 0 to 4. <br>
- * - target_address - The address of the I2C slave. Supports 7-bit address in hexadecimal format (e.g., 0x50). <br>
- * - register_address - The register address to read from. Hex value in the range 0x0000 to 0x3FFF. <br>
- *
- * @subsection i2c_write i2c write
- * Write a single byte of data to an I2C device <br>
- *
- * Usage: <br>
- * i2c write &lt;instance&gt; &lt;target_address&gt; &lt;register_address&gt; &lt;data&gt; <br>
- *
- * It requires the following arguments:
- * - instance - The instance of the I2C bus. Valid range is 0 to 4. <br>
- * - target_address - The address of the I2C slave. Supports 7-bit address in hexadecimal format (e.g., 0x50). <br>
- * - register_address - The register address to write to. Hex value in the range 0x0000 to 0x3FFF. <br>
- * - data - The data byte to write. Valid range is 0x00 to 0xFF. <br>
- */
+/*
+    File: I2C CLI Commands
+
+    Perform I2C operations
+
+    It supports the following subcommands:
+    - i2c read &lt;instance&gt; &lt;target_address&gt; &lt;register_address&gt;
+    - i2c write &lt;instance&gt; &lt;target_address&gt; &lt;register_address&gt; &lt;data&gt;
+    - i2c help
+
+    Typical usage:
+    - Use 'i2c read' command to perform write operations on an I2C device.
+    - Use 'i2c write' command to perform write operations on an I2C device.
+    Group: Commands
+
+    i2c read:
+
+    Read one byte of data from an I2C device
+
+    Usage: i2c read &lt;instance&gt; &lt;target_address&gt;
+    &lt;register_address&gt;
+
+    It requires the following arguments:
+    - instance - The instance of the I2C bus. Valid range is 0 to 4.
+    - target_address - The address of the I2C slave. Supports 7-bit address in hexadecimal format (e.g., 0x50).
+    - register_address - The register address to read from. Hex value in the range 0x0000 to 0x3FFF.
+
+    i2c write:
+
+    Write a single byte of data to an I2C device
+
+    Usage: i2c write &lt;instance&gt; &lt;target_address&gt;
+    &lt;register_address&gt; &lt;data&gt;
+
+    It requires the following arguments:
+    - instance - The instance of the I2C bus. Valid range is 0 to 4.
+    - target_address - The address of the I2C slave. Supports 7-bit address in hexadecimal format (e.g., 0x50).
+    - register_address - The register address to write to. Hex value in the range 0x0000 to 0x3FFF.
+    - data - The data byte to write. Valid range is 0x00 to 0xFF.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,6 +61,11 @@
 #include "cli_utils.h"
 #include "osal_log.h"
 
+/*
+    Function: cmd_i2c
+
+    Implements the i2c command of the CLI sample: perform i2c bus operations.
+*/
 BaseType_t cmd_i2c( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

@@ -6,6 +6,34 @@
  * Definitions used in SoC FPGA bridge sample app
  */
 
+/*
+    File: Bridge Sample
+
+    Definitions used in SoC FPGA bridge sample app.
+*/
+
+/*
+    Constants: LWH2F definitions
+
+    LWH2F_BASE              - Value: (0x20000000UL).
+    LWH2F_512M_SPAN         - Value: (0x20000000UL).
+    LWH2F_SYSID_ID_BASE     - Value: (0x00010000UL).
+    LWH2F_BUF0              - Value: (0x00020000UL).
+    LWH2F_LED_OFFSET        - Value: (0x00010080UL).
+    LWH2F_BUTTON_PIO_OFFSET - Value: (0x00010060UL).
+*/
+
+/*
+    Constants: H2F definitions
+
+    H2F_1G_BASE      - Value: (0x0040000000ULL).
+    H2F_1G_SPAN      - Value: (0x0040000000ULL).
+    H2F_15G_BASE     - Value: (0x0440000000ULL).
+    H2F_15G_SPAN     - Value: (0x03C0000000ULL).
+    H2F_240G_BASE    - Value: (0x4400000000ULL).
+    H2F_240G_SPAN    - Value: (0x3C00000000ULL).
+    H2F_OCRAM_OFFSET - Value: (0x00000000UL).
+*/
 
 #ifndef __BRIDGE_SAMPLE_H__
 #define __BRIDGE_SAMPLE_H__

@@ -7,6 +7,12 @@
  * Endpoints sub-module.
  */
 
+/*
+    File: xHCI Endpoints Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+*/
+
 #include "xhci_doorbell.h"
 #include "xhci.h"
 #include "xhci_endpoints.h"
@@ -14,10 +20,11 @@
 #include "osal_log.h"
 #include "socfpga_cache.h"
 
-/**
- * @brief Setup the TRB with the control transfer data. For xHCI, control transfer consists of 3 stages.
- *        ( Data stage is optional). All the 3 stages are populated in this api.
- */
+/*
+    Setup the TRB with the control transfer data. For xHCI, control transfer
+    consists of 3 stages. ( Data stage is optional). All the 3 stages are
+    populated in this api.
+*/
 void configure_setup_stage(struct xhci_data *xhci, void *buffer,
         usb_control_request_t *setup_req)
 {
@@ -108,9 +115,9 @@ void configure_setup_stage(struct xhci_data *xhci, void *buffer,
            EP_TRB_SEG_LENGTH * sizeof(xhci_trb_t));
 }
 
-/**
- * @brief Get the endpoint DCI from the endpoint address
- */
+/*
+    Get the endpoint DCI from the endpoint address
+*/
 uint8_t get_ep_dci(uint8_t ep_addr)
 {
     uint8_t ep_dir;
@@ -134,8 +141,11 @@ uint8_t get_ep_dci(uint8_t ep_addr)
 }
 
 /*
- * @brief Get the td_size as per the xHCI spec for the transfer
- */
+    Function: get_td_size
+
+    Get the td_size as per the xHCI spec for the transfer
+*/
+
 static uint32_t get_td_size(uint16_t bytes_trasnferred,
         uint16_t trb_transfer_len, uint32_t total_len,
         uint16_t mps, bool is_last_trb)
@@ -168,8 +178,11 @@ static uint32_t get_td_size(uint16_t bytes_trasnferred,
 }
 
 /*
- * @brief Populate endpoint transfer rings for bulk transfer
- */
+    Function: fill_endpoint_transfer_ring
+
+    Populate endpoint transfer rings for bulk transfer
+*/
+
 static void fill_endpoint_transfer_ring(struct ep_priv *ep_ctx, void *buffer,
         uint32_t len)
 {
@@ -289,9 +302,9 @@ static void fill_endpoint_transfer_ring(struct ep_priv *ep_ctx, void *buffer,
             EP_TRB_SEG_LENGTH * sizeof(xhci_trb_t));
 }
 
-/**
- * @brief Initiate an endpoint transfer on bulk endpoints
- */
+/*
+    Initiate an endpoint transfer on bulk endpoints
+*/
 bool endpoint_transfer(struct xhci_data *xhci, int ep_num, uint8_t dir,
         void *buffer, uint32_t buflen)
 {

@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Dynamic
+
+    Declares the Dynamic interface: 2 functions.
+
+    They are vStartDynamicPriorityTasks and
+    xAreDynamicPriorityTasksStillRunning.
+*/
+
 #ifndef DYNAMIC_MANIPULATION_H
 #define DYNAMIC_MANIPULATION_H
 

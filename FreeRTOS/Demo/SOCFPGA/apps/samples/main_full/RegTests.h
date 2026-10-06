@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Reg Tests
+
+    Declares the Reg Tests interface: 2 functions.
+
+    They are vStartRegisterTasks and xAreRegisterTasksStillRunning.
+*/
+
 #ifndef REG_TEST_H
 #define REG_TEST_H
 

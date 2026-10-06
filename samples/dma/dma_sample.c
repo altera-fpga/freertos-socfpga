@@ -15,34 +15,35 @@
 #include "socfpga_dma.h"
 #include "socfpga_cache.h"
 
-/**
- * @defgroup dma_sample DMA
- * @ingroup samples
- *
- * Sample Application for DMA
- *
- * @details
- * @section dma_desc Description
- * This sample application demonstrates the use of the DMA driver to perform
- * a memory-to-memory data transfer. It transfers a predefined block of data
- * from a source buffer to a destination buffer and verifies that the transfer
- * completed successfully by comparing the contents.
- *
- * @section dma_param Configurable Parameters
- * - Transfer size can be configured by changing the value of @c TRANSFER_SIZE macro.
- * - Number of blocks can be configured by changing the value of @c NUM_BLK macro.
- * - Instance and channel can be configured by changing the values in respective APIs.
- *
- * @section dma_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board.
- * 3. Output can be observed in the UART terminal.
- *
- * @section dma_result Expected Results
- * - The DMA controller initiates and completes a memory-to-memory transfer.
- * - The destination buffer contents match the source buffer.
- * - A message confirming successful transfer and verification is printed to the terminal.
- */
+/*
+    File: DMA Sample
+
+    Sample Application for DMA
+    Group: Description
+
+    This sample application demonstrates the use of the DMA driver to perform
+    a memory-to-memory data transfer. It transfers a predefined block of data
+    from a source buffer to a destination buffer and verifies that the
+    transfer completed successfully by comparing the contents.
+
+    Group: Configurable Parameters
+
+    - Transfer size can be configured by changing the value of TRANSFER_SIZE macro.
+    - Number of blocks can be configured by changing the value of NUM_BLK macro.
+    - Instance and channel can be configured by changing the values in respective APIs.
+
+    Group: How to Run
+
+    - Follow the common README instructions to build and flash the application.
+    - Run the application on the board.
+    - Output can be observed in the UART terminal.
+
+    Group: Expected Results
+
+    - The DMA controller initiates and completes a memory-to-memory transfer.
+    - The destination buffer contents match the source buffer.
+    - A message confirming successful transfer and verification is printed to the terminal.
+*/
 
 /* Test configurations */
 
@@ -57,8 +58,10 @@ osal_semaphore_def_t done_sem_mem;
 osal_semaphore_t done_sem;
 
 /*
- * @brief DMA done callback function
- */
+    Function: dma_done_callback
+
+    DMA done callback function
+*/
 
 void dma_done_callback(void *data)
 {
@@ -66,6 +69,9 @@ void dma_done_callback(void *data)
     osal_semaphore_post(done_sem);
 }
 
+/*
+    Function: dma_task
+*/
 void dma_task(void)
 {
 

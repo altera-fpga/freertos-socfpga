@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Death
+
+    Declares the Death interface: 2 functions.
+
+    They are vCreateSuicidalTasks and xIsCreateTaskStillRunning.
+*/
+
 #ifndef SUICIDE_TASK_H
 #define SUICIDE_TASK_H
 

@@ -6,6 +6,12 @@
  * HAL driver implementation for gpio
  */
 
+/*
+    File: GPIO Driver Implementation
+
+    Implements the GPIO driver: 17 functions, 11 of them local to this file.
+*/
+
 #include <stdbool.h>
 #include <string.h>
 #include "socfpga_gpio.h"
@@ -28,8 +34,11 @@ static struct gpio_descriptor gpio_descriptors[GPIO_MAX_INSTANCE];
 void gpio_irq_handler(void *data);
 
 /*
- * @brief Check if the pin is configured as gpio in pinmux
- */
+    Function: is_pin_gpio
+
+    Check if the pin is configured as gpio in pinmux
+*/
+
 static bool is_pin_gpio(uint32_t pin)
 {
     uint32_t val;
@@ -39,8 +48,11 @@ static bool is_pin_gpio(uint32_t pin)
 }
 
 /*
- * @brief Set the bit value in the given gpio block register
- */
+    Function: set_gpio_reg_bit
+
+    Set the bit value in the given gpio block register
+*/
+
 static void set_gpio_reg_bit(uint32_t reg, uint32_t pin, uint8_t val)
 {
     uint32_t reg_val;
@@ -56,8 +68,11 @@ static void set_gpio_reg_bit(uint32_t reg, uint32_t pin, uint8_t val)
 }
 
 /*
- * @brief Get the bit value in the given gpio block register
- */
+    Function: get_gpio_reg_bit
+
+    Get the bit value in the given gpio block register
+*/
+
 static uint8_t get_gpio_reg_bit(uint32_t reg, uint8_t pin)
 {
     uint32_t val;
@@ -71,8 +86,11 @@ static uint8_t get_gpio_reg_bit(uint32_t reg, uint8_t pin)
 }
 
 /*
- * @brief set the direction of gpio pin
- */
+    Function: gpio_set_direction
+
+    set the direction of gpio pin
+*/
+
 static void gpio_set_direction(gpio_pin_t pin, gpio_dir_t dir)
 {
     if (dir == GPIO_DIR_IN)
@@ -84,10 +102,11 @@ static void gpio_set_direction(gpio_pin_t pin, gpio_dir_t dir)
         set_gpio_reg_bit(GPIO_SWPORTA_DDR, (uint32_t)pin, 1U);
     }
 }
-
 /*
- * @brief handle the interrupt
- */
+    Function: gpio_irq_handler
+
+    handle the interrupt
+*/
 void gpio_irq_handler(void *data)
 {
     uint8_t gpio_inst = *(uint8_t *)data;
@@ -126,8 +145,11 @@ void gpio_irq_handler(void *data)
 }
 
 /*
- * @brief set the interrupt configuration
- */
+    Function: gpio_set_interrupt
+
+    set the interrupt configuration
+*/
+
 static bool gpio_set_interrupt(gpio_pin_t pin, gpio_int_t type)
 {
     socfpga_hpu_interrupt_t id;
@@ -195,8 +217,11 @@ static bool gpio_set_interrupt(gpio_pin_t pin, gpio_int_t type)
 }
 
 /*
- * @brief get the direction of the gpio pin
- */
+    Function: gpio_get_direction
+
+    get the direction of the gpio pin
+*/
+
 static uint8_t gpio_get_direction(gpio_pin_t pin)
 {
     uint8_t ret_val;
@@ -205,8 +230,11 @@ static uint8_t gpio_get_direction(gpio_pin_t pin)
 }
 
 /*
- * @brief get the interrupt configuration of the gpio pin
- */
+    Function: gpio_get_interrupt
+
+    get the interrupt configuration of the gpio pin
+*/
+
 
 static gpio_int_t gpio_get_interrupt(gpio_pin_t pin)
 {
@@ -245,9 +273,12 @@ static gpio_int_t gpio_get_interrupt(gpio_pin_t pin)
     return ret_val;
 }
 
-/**
- * @brief Get the reset instance for the GPIO peripheral
- */
+/*
+    Function: gpio_get_rst_instance
+
+    Get the reset instance for the GPIO peripheral
+*/
+
 static reset_periphrl_t gpio_get_rst_instance(gpio_pin_t pin)
 {
     reset_periphrl_t rst_instance = RST_PERIPHERAL_END;
@@ -267,8 +298,11 @@ static reset_periphrl_t gpio_get_rst_instance(gpio_pin_t pin)
 }
 
 /*
- * @brief read the current state of the gpio pin
- */
+    Function: gpio_read_state
+
+    read the current state of the gpio pin
+*/
+
 static uint8_t gpio_read_state(gpio_pin_t pin)
 {
     uint8_t ret_val;
@@ -277,8 +311,11 @@ static uint8_t gpio_read_state(gpio_pin_t pin)
 }
 
 /*
- * @brief write the sate of the gpio pin
- */
+    Function: gpio_write_state
+
+    write the sate of the gpio pin
+*/
+
 static void gpio_write_state(gpio_pin_t pin, uint8_t state)
 {
     set_gpio_reg_bit(GPIO_SWPORTA_DR, (uint32_t)pin, state);

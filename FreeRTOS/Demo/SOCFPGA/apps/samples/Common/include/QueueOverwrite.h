@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Queue Overwrite
+
+    Declares the Queue Overwrite interface: 3 functions.
+
+    They are vQueueOverwritePeriodicISRDemo, vStartQueueOverwriteTask and
+    xIsQueueOverwriteTaskStillRunning.
+*/
+
 #ifndef QUEUE_OVERWRITE_H
 #define QUEUE_OVERWRITE_H
 

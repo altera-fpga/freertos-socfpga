@@ -6,69 +6,69 @@
  * Implementation of CLI commands for I3C bus
  */
 
-/**
- * @defgroup cli_i3c I3C
- * @ingroup cli
- *
- * Perform operations on I3C bus
- *
- * @details
- * It supports the following commands:
- * - i3c list
- * - i3c attach &lt;instance&gt; &lt;device_id&gt;
- * - i3c write &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt; &lt;data&gt;...
- * - i3c read  &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt; &lt;size&gt;
- * - i3c help
- *
- * Typical usage:
- * - Use 'i3c list' once to get the slave device IDs.
- * - Use 'i3c attach' to attach the desired slave to the I3C bus.
- * - Use 'i3c write' to perform data write operations.
- * - Use 'i3c read' to perform data read operations.
- *
- * @section i3c_commands Commands
- * @subsection i3c_list i3c list
- * List I3C slave devices  <br>
- *
- * Usage:  <br>
- *   i3c list  <br>
- *
- * No arguments.  <br>
- *
- * @subsection i3c_attach i3c attach
- * Attach slave to I3C bus  <br>
- *
- * Usage:  <br>
- *   i3c attach &lt;instance&gt; &lt;device_id&gt;  <br>
- *
- * It requires the following arguments:
- * - instance -     The instance of the I3C driver. Valid values are 0 and 1.  <br>
- * - device_id -    The ID of the slave device. Use `i3c list` to get the ID.  <br>
- *
- * @subsection i3c_write i3c write
- * Write data to a given memory location  <br>
- *
- * Usage:  <br>
- *   i3c write &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt; &lt;data&gt;...  <br>
- *
- * It requires the following arguments:
- * - instance -        The instance of the I3C driver. Valid values are 0 and 1.  <br>
- * - device_id -       The ID of the slave device. Use `i3c list` to get the ID.  <br>
- * - target_address -  The address of the memory location (hex 0x00–0x3FFFF).  <br>
- * - data -            One or more data bytes to write (hex 0x00–0xFF).  <br>
- *
- * @subsection i3c_read i3c read
- * Read data from a given memory location  <br>
- *
- * Usage:  <br>
- *   i3c read &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt; &lt;size&gt;  <br>
- *
- * It requires the following arguments:
- * - instance -        The instance of the I3C driver. Valid values are 0 and 1.  <br>
- * - device_id -       The ID of the slave device. Use `i3c list` to get the ID.  <br>
- * - target_address -  The address of the memory location (hex 0x00–0x3FFFF).  <br>
- * - size -            Number of bytes to read.  <br>
- */
+/*
+    File: I3C CLI Commands
+
+    Perform operations on I3C bus
+
+    It supports the following commands:
+    - i3c list
+    - i3c attach &lt;instance&gt; &lt;device_id&gt;
+    - i3c write &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt; &lt;data&gt;...
+    - i3c read  &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt; &lt;size&gt;
+    - i3c help
+
+    Typical usage:
+    - Use 'i3c list' once to get the slave device IDs.
+    - Use 'i3c attach' to attach the desired slave to the I3C bus.
+    - Use 'i3c write' to perform data write operations.
+    - Use 'i3c read' to perform data read operations.
+    Group: Commands
+
+    i3c list:
+
+    List I3C slave devices
+
+    Usage: i3c list
+
+    No arguments.
+
+    i3c attach:
+
+    Attach slave to I3C bus
+
+    Usage: i3c attach &lt;instance&gt; &lt;device_id&gt;
+
+    It requires the following arguments:
+    - instance -     The instance of the I3C driver. Valid values are 0 and 1.
+    - device_id -    The ID of the slave device. Use `i3c list` to get the ID.
+
+    i3c write:
+
+    Write data to a given memory location
+
+    Usage: i3c write &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt;
+    &lt;data&gt;...
+
+    It requires the following arguments:
+    - instance -        The instance of the I3C driver. Valid values are 0 and 1.
+    - device_id -       The ID of the slave device. Use `i3c list` to get the ID.
+    - target_address -  The address of the memory location (hex 0x00–0x3FFFF).
+    - data -            One or more data bytes to write (hex 0x00–0xFF).
+
+    i3c read:
+
+    Read data from a given memory location
+
+    Usage: i3c read &lt;instance&gt; &lt;device_id&gt; &lt;target_address&gt;
+    &lt;size&gt;
+
+    It requires the following arguments:
+    - instance -        The instance of the I3C driver. Valid values are 0 and 1.
+    - device_id -       The ID of the slave device. Use `i3c list` to get the ID.
+    - target_address -  The address of the memory location (hex 0x00–0x3FFFF).
+    - size -            Number of bytes to read.
+*/
 
 
 #include <stdio.h>
@@ -127,6 +127,9 @@ struct i3c_device connected_devices[] =
 
 struct i3c_dev_list dev_list = {0};
 
+/*
+    Function: is_any_instance_initialized
+*/
 static int is_any_instance_initialized(void)
 {
     for (uint32_t i = 0U; i < I3C_NUM_INSTANCES; i++)
@@ -140,6 +143,11 @@ static int is_any_instance_initialized(void)
     return 0;
 }
 
+/*
+    Function: is_48bit_unsigned_hex
+
+    Calls strtoull.
+*/
 int is_48bit_unsigned_hex(const char *hex_str)
 {
     char *end;
@@ -152,6 +160,12 @@ int is_48bit_unsigned_hex(const char *hex_str)
     return val <= MAX_48BIT;
 }
 
+/*
+    Function: cmd_i3c
+
+    Implements the i3c command of the CLI sample: perform operations on i3c
+    bus.
+*/
 BaseType_t cmd_i3c( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

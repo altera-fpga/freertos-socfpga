@@ -6,39 +6,46 @@
  * Sample application for FCS
  */
 
-/**
- * @defgroup fcs_sample FCS
- * @ingroup samples
- *
- * Sample Application for FCS.
- *
- * @details
- * @section fcs_desc Description
- * This is a sample application to demonstrate some of the cryptographic functionalities provided by the SDM.
- * A cryptographic session is to be opened to perform the cryptographic functions.
- * If the functions require a key, it may be imported or created. The user can access these functions through the libFCS library.
- *
- * @section fcs_pre Prerequisites
- * All the required keys should be available in the sdmmc before running the sample.
- * The names of the corresponding keys and their corresponding key IDs should be changed in the sample.
- *
- * @section fcs_param Configurable Parameters
- * - All key names can be configured at their corresponding macros
- * - All key IDs can be configured at their corresponding macros
- * - Modes of operation can also be configured for ECC related cryptographic functions
- * - Input size can be configured in @c INPUT_DATA_SIZE macro
- * @note Ensure the correct key ID and modes are provided
- * @section fcs_howto How to Run
- * 1. Follow the common README for build and flashing instructions.
- * 2. Copy all the required key files to the SD card.
- * 3. Ensure key ID matches the keys in the SD card. Change the corresponding macros if it doesn't.
- * 4. Run the sample.
- *
- * @section fcs_res Expected Results
- * - The success/failure logs are displayed in the console.
- * @{
- */
-/** @} */
+/*
+    File: FCS Sample
+
+    Sample Application for FCS.
+    Group: Description
+
+    This is a sample application to demonstrate some of the cryptographic
+    functionalities provided by the SDM. A cryptographic session is to be
+    opened to perform the cryptographic functions. If the functions require a
+    key, it may be imported or created. The user can access these functions
+    through the libFCS library.
+
+    Group: Prerequisites
+
+    All the required keys should be available in the sdmmc before running the
+    sample. The names of the corresponding keys and their corresponding key
+    IDs should be changed in the sample.
+
+    Group: Configurable Parameters
+
+    - All key names can be configured at their corresponding macros
+    - All key IDs can be configured at their corresponding macros
+    - Modes of operation can also be configured for ECC related cryptographic functions
+    - Input size can be configured in INPUT_DATA_SIZE macro
+
+    Group: How to Run
+
+    - Follow the common README for build and flashing instructions.
+    - Copy all the required key files to the SD card.
+    - Ensure key ID matches the keys in the SD card. Change the corresponding macros if it doesn't.
+    - Run the sample.
+
+    Group: Expected Results
+
+    - The success/failure logs are displayed in the console.
+
+    Notes:
+
+        Ensure the correct key ID and modes are provided
+*/
 
 #include <stdint.h>
 
@@ -79,7 +86,12 @@
 static FF_Disk_t *disk_obj = NULL;
 static uint8_t mount_status = UNMOUNTED;
 
-/*Functions to read data from a file_name*/
+/*
+    Function: fat_mount
+
+    Functions to read data from a file_name
+*/
+
 static void fat_mount(const char *MountName)
 {
 
@@ -94,6 +106,11 @@ static void fat_mount(const char *MountName)
     }
 }
 
+/*
+    Function: fat_unmount
+
+    Calls FF_Unmount and FF_SDDiskDelete.
+*/
 static void fat_unmount(void)
 {
     if (disk_obj == NULL)
@@ -166,6 +183,9 @@ static uint32_t fat_read(const char *file_name, void *buffer)
     return bytes_read;
 }
 
+/*
+    Function: print_data
+*/
 static void print_data(char *data, int size)
 {
     int i;
@@ -184,7 +204,12 @@ static void print_data(char *data, int size)
     printf("\r\n");
 }
 
-/* Sample application of QSPI modification using FCS */
+/*
+    Function: fcs_qspi_sample
+
+    Sample application of QSPI modification using FCS
+*/
+
 static void fcs_qspi_sample()
 {
     int ret, i;
@@ -257,6 +282,9 @@ static void fcs_qspi_sample()
     }
     vPortFree(input_data);
 }
+/*
+    Function: fcs_sample_encryption
+*/
 static void fcs_sample_encryption(char *session_id)
 {
     int ret, i;
@@ -382,6 +410,9 @@ static void fcs_sample_encryption(char *session_id)
     vPortFree(key_buf);
 }
 
+/*
+    Function: fcs_sample_get_digest
+*/
 static void fcs_sample_get_digest(char *session_id)
 {
     char *key_buf, *input_data, *resp_data,
@@ -464,6 +495,9 @@ static void fcs_sample_get_digest(char *session_id)
     vPortFree(key_buf);
 }
 
+/*
+    Function: fcs_sample_ecdh
+*/
 static void fcs_sample_ecdh(char *session_id)
 {
     int ret;
@@ -539,6 +573,9 @@ static void fcs_sample_ecdh(char *session_id)
     vPortFree(key_buf);
 }
 
+/*
+    Function: fcs_sample_signing
+*/
 static void fcs_sample_signing(char *session_id)
 {
     int ret, i;
@@ -649,6 +686,9 @@ static void fcs_sample_signing(char *session_id)
     vPortFree(resp_data);
 }
 
+/*
+    Function: fcs_task
+*/
 void fcs_task()
 {
     int ret;

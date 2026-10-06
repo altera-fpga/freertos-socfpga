@@ -24,23 +24,81 @@
  * This file is part of the TinyUSB stack.
  */
 
-/** \ingroup Group_Common
- *  \defgroup Group_Compiler Compiler
- *  \brief Group_Compiler brief
- *  @{ */
+/*
+    File: Compiler
+
+    Defines 62 function-like macros and 59 constants, guarded by #ifdef so a
+    build selects the variant that suits its compiler and configuration.
+*/
+
+/*
+    Macros: Compiler macros
+
+    TU_TOKEN                      - Expands to x.
+    TU_STRING                     - Stringify without expand.
+    TU_XSTRING                    - Expand then stringify.
+    TU_STRCAT                     - Concat without expand.
+    TU_STRCAT3                    - Concat without expand.
+    TU_XSTRCAT                    - Expand then concat.
+    TU_XSTRCAT3                   - Expand then concat 3 tokens.
+    TU_INCLUDE_PATH               - Expands to TU_XSTRING( TU_TOKEN(_dir)TU_TOKEN(_file) ).
+    _TU_COUNTER_                  - Expands to a toolchain-specific definition.
+    TU_VERIFY_STATIC              - Expands to static_assert or _Static_assert or a multi-line definition, depending on the build.
+    tu_static                     - Expands to static __thread or static, depending on the build.
+    TU_RESERVED                   - For declaration of reserved field, make use of _TU_COUNTER_.
+    TU_LITTLE_ENDIAN              - Value: (0x12u).
+    TU_BIG_ENDIAN                 - Value: (0x21u).
+    TU_ARGS_NUM                   - Expands to _TU_NARG(_0, ##the arguments, _RSEQ_N()) or _TU_NARG(_0, the arguments, _RSEQ_N()), depending on the build.
+    _TU_NARG                      - Expands to _GET_NTH_ARG(the arguments).
+    _GET_NTH_ARG                  - Expands to N.
+    _RSEQ_N                       - Expands to a multi-line definition.
+    TU_ARGS_APPLY                 - Apply an macro X to each of the arguments with an separated of choice.
+    _TU_ARGS_APPLY_1              - Expands to _X(_a1).
+    _TU_ARGS_APPLY_2              - Expands to _X(_a1) _s _X(_a2).
+    _TU_ARGS_APPLY_3              - Expands to _X(_a1) _s _TU_ARGS_APPLY_2(_X, _s, _a2, _a3).
+    _TU_ARGS_APPLY_4              - Expands to _X(_a1) _s _TU_ARGS_APPLY_3(_X, _s, _a2, _a3, _a4).
+    _TU_ARGS_APPLY_5              - Expands to _X(_a1) _s _TU_ARGS_APPLY_4(_X, _s, _a2, _a3, _a4, _a5).
+    _TU_ARGS_APPLY_6              - Expands to _X(_a1) _s _TU_ARGS_APPLY_5(_X, _s, _a2, _a3, _a4, _a5, _a6).
+    _TU_ARGS_APPLY_7              - Expands to a call to _X.
+    _TU_ARGS_APPLY_8              - Expands to a call to _X.
+    TU_ATTR_ALIGNED               - Applies the aligned attribute, where the compiler supports it.
+    TU_ATTR_SECTION               - Applies the section attribute, where the compiler supports it.
+    TU_ATTR_PACKED                - Applies the packed attribute, where the compiler supports it.
+    TU_ATTR_WEAK                  - Applies the weak attribute, where the compiler supports it.
+    TU_ATTR_ALWAYS_INLINE         - Applies the always_inline attribute, where the compiler supports it.
+    TU_ATTR_DEPRECATED            - Warn if function with this attribute is used.
+    TU_ATTR_UNUSED                - Function/Variable is meant to be possibly unused.
+    TU_ATTR_USED                  - Function/Variable is meant to be used.
+    TU_ATTR_PACKED_BEGIN          - Expands to _Pragma("pack"), where the compiler supports it.
+    TU_ATTR_PACKED_END            - Expands to _Pragma("packoption"), where the compiler supports it.
+    TU_ATTR_BIT_FIELD_ORDER_BEGIN - Expands to _Pragma("bit_order right"), where the compiler supports it.
+    TU_ATTR_BIT_FIELD_ORDER_END   - Expands to _Pragma("bit_order"), where the compiler supports it.
+    TU_ATTR_FALLTHROUGH           - Defined per compiler or configuration.
+    TU_BYTE_ORDER                 - Expands to TU_LITTLE_ENDIAN or TU_BIG_ENDIAN, depending on the build.
+    TU_BSWAP16                    - Defined per compiler or configuration.
+    TU_BSWAP32                    - Defined per compiler or configuration.
+    tu_htons                      - Expands to (TU_BSWAP16(u16)) or (u16), depending on the build.
+    tu_ntohs                      - Expands to (TU_BSWAP16(u16)) or (u16), depending on the build.
+    tu_htonl                      - Expands to (TU_BSWAP32(u32)) or (u32), depending on the build.
+    tu_ntohl                      - Expands to (TU_BSWAP32(u32)) or (u32), depending on the build.
+    tu_htole16                    - Expands to (u16) or (TU_BSWAP16(u16)), depending on the build.
+    tu_le16toh                    - Expands to (u16) or (TU_BSWAP16(u16)), depending on the build.
+    tu_htole32                    - Expands to (u32) or (TU_BSWAP32(u32)), depending on the build.
+    tu_le32toh                    - Expands to (u32) or (TU_BSWAP32(u32)), depending on the build.
+*/
 
 #ifndef _TUSB_COMPILER_H_
 #define _TUSB_COMPILER_H_
 
 #define TU_TOKEN(x)           x
-#define TU_STRING(x)          #x                  ///< stringify without expand
-#define TU_XSTRING(x)         TU_STRING(x)        ///< expand then stringify
+#define TU_STRING(x)          #x                  // stringify without expand
+#define TU_XSTRING(x)         TU_STRING(x)        // expand then stringify
 
-#define TU_STRCAT(a, b)       a##b                ///< concat without expand
-#define TU_STRCAT3(a, b, c)   a##b##c             ///< concat without expand
+#define TU_STRCAT(a, b)       a##b                // concat without expand
+#define TU_STRCAT3(a, b, c)   a##b##c             // concat without expand
 
-#define TU_XSTRCAT(a, b)      TU_STRCAT(a, b)     ///< expand then concat
-#define TU_XSTRCAT3(a, b, c)  TU_STRCAT3(a, b, c) ///< expand then concat 3 tokens
+#define TU_XSTRCAT(a, b)      TU_STRCAT(a, b)     // expand then concat
+#define TU_XSTRCAT3(a, b, c)  TU_STRCAT3(a, b, c) // expand then concat 3 tokens
 
 #define TU_INCLUDE_PATH(_dir,_file) TU_XSTRING( TU_TOKEN(_dir)TU_TOKEN(_file) )
 
@@ -295,5 +353,3 @@
 #endif
 
 #endif /* _TUSB_COMPILER_H_ */
-
-/// @}

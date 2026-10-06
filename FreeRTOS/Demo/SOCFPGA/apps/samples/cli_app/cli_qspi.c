@@ -6,58 +6,67 @@
  * Implementation of CLI commands for QSPI flash
  */
 
-/**
- * @defgroup cli_qspi QSPI
- * @ingroup cli
- *
- * Perform flash operations on a flash device connected to QSPI bus
- *
- * @details
- * It supports the following commands:
- * - qspi erase &lt;instance&gt; &lt;address&gt; &lt;bytes&gt;
- * - qspi write &lt;instance&gt; &lt;address&gt; &lt;data&gt;...
- * - qspi read  &lt;instance&gt; &lt;address&gt; &lt;bytes&gt;
- * - qspi help
- *
- * Typical usage:
- * - Use 'qspi erase' command to erase the QSPI flash.
- * - Use 'qspi write' command to write data to the QSPI flash.
- * - Use 'qspi read' command to read data from the QSPI flash.
- *
- * @section qspi_commands Commands
- * @subsection qspi_erase qspi erase
- * Erase QSPI flash data  <br>
- *
- * Usage: <br>
- *   qspi erase &lt;instance&gt; &lt;address&gt; &lt;bytes&gt; <br>
- *
- * It requires the following arguments:
- * - instance -  Instance of the QSPI flash device.
- * - address -   Target memory address (hex or decimal).
- * - bytes -     Number of bytes to erase (positive integer).
- *
- * @subsection qspi_write qspi write
- * Write data to QSPI flash  <br>
- *
- * Usage: <br>
- *   qspi write &lt;instance&gt; &lt;address&gt; &lt;data&gt;... <br>
- *
- * It requires the following arguments:
- * - instance  Instance of the QSPI flash device.
- * - address   Target memory address (hex or decimal).
- * - data      One or more data values to write (each a positive integer).
- * <br>
- * @subsection qspi_read qspi read
- * Read data from QSPI flash
- *
- * Usage: <br>
- *   qspi read &lt;instance&gt; &lt;address&gt; &lt;bytes&gt;
- *
- * It requires the following arguments:
- * - instance  Instance of the QSPI flash device.
- * - address   Target memory address (hex or decimal).
- * - bytes     Number of bytes to read (positive integer).
- */
+/*
+    File: QSPI CLI Commands
+
+    Perform flash operations on a flash device connected to QSPI bus
+
+    It supports the following commands:
+    - qspi erase &lt;instance&gt; &lt;address&gt; &lt;bytes&gt;
+    - qspi write &lt;instance&gt; &lt;address&gt; &lt;data&gt;...
+    - qspi read  &lt;instance&gt; &lt;address&gt; &lt;bytes&gt;
+    - qspi help
+
+    Typical usage:
+    - Use 'qspi erase' command to erase the QSPI flash.
+    - Use 'qspi write' command to write data to the QSPI flash.
+    - Use 'qspi read' command to read data from the QSPI flash.
+    Group: Commands
+
+    qspi erase:
+
+    Erase QSPI flash data
+
+    Usage: qspi erase &lt;instance&gt; &lt;address&gt; &lt;bytes&gt;
+
+    It requires the following arguments:
+    - instance -  Instance of the QSPI flash device.
+    - address -   Target memory address (hex or decimal).
+    - bytes -     Number of bytes to erase (positive integer).
+
+    qspi write:
+
+    Write data to QSPI flash
+
+    Usage: qspi write &lt;instance&gt; &lt;address&gt; &lt;data&gt;...
+
+    It requires the following arguments:
+    - instance  Instance of the QSPI flash device.
+    - address   Target memory address (hex or decimal).
+    - data      One or more data values to write (each a positive integer).
+
+    qspi read:
+
+    Read data from QSPI flash
+
+    Usage: qspi read &lt;instance&gt; &lt;address&gt; &lt;bytes&gt;
+
+    It requires the following arguments:
+    - instance  Instance of the QSPI flash device.
+    - address   Target memory address (hex or decimal).
+    - bytes     Number of bytes to read (positive integer).
+*/
+
+/*
+    Constants: QSPI constants
+
+    READ_CMD      - Expands to ("read").
+    WRITE_CMD     - Expands to ("write").
+    ERASE_CMD     - Expands to ("erase").
+    SECTOR_SIZE   - Expands to (1024 * 4).
+    CLI_QSPI_OK   - Value: 0.
+    CLI_QSPI_FAIL - Value: 1.
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,6 +92,11 @@
 uint8_t wrbuf[ 256 ] = { 0 };
 uint8_t rdbuf[ 256 ] = { 0 };
 
+/*
+    Function: cmd_qspi
+
+    Implements the qspi command of the CLI sample: perform qspi operations.
+*/
 BaseType_t cmd_qspi( char *write_buffer, size_t write_buffer_len,
         const char *command_string )
 {

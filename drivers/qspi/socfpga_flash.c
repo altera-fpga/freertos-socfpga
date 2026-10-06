@@ -7,6 +7,12 @@
  */
 
 /*
+    File: QSPI Flash Driver Implementation
+
+    HAL driver implementation for Flash.
+*/
+
+/*
  * This the implementation of QSPI Flash driver for SoC FPGA. This flash driver has
  * a layered design as shown in the diagram below
  *
@@ -61,9 +67,14 @@
 #include "socfpga_flash.h"
 #include "socfpga_qspi.h"
 
-#define FLASH_MAX_WAIT_TIME    0xFFFFFFFFU        /*!< Maximum wait time for mutex lock. */
+#define FLASH_MAX_WAIT_TIME    0xFFFFFFFFU        /* Maximum wait time for mutex lock. */
 
-/*The Flash handle*/
+/*
+    Struct: flash_handle
+
+    The Flash handle
+*/
+
 struct flash_handle
 {
     uint8_t slave_select;
@@ -96,6 +107,9 @@ static struct flash_adapter *adapter_list[] =
     /*Add other adapters*/
 };
 
+/*
+    Function: flash_read_sfdp
+*/
 static int flash_read_sfdp(flash_handle_t pflash)
 {
     uint64_t sfdp_header_raw, param_header_raw;

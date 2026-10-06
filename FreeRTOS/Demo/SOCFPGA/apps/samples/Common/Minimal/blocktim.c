@@ -25,6 +25,13 @@
  */
 
 /*
+            File: Blocktim Implementation
+
+            Implements the Blocktim: 5 functions, 3 of them local to this
+            file.
+        */
+
+/*
  * This file contains some test scenarios that ensure tasks do not exit queue
  * send or receive functions prematurely.  A description of the tests is
  * included within the code.
@@ -120,6 +127,14 @@ void vCreateBlockTimeTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vPrimaryBlockTimeTestTask
+
+    The two test tasks. Their behaviour is commented within the functions.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void vPrimaryBlockTimeTestTask( void * pvParameters )
 {
     BaseType_t xItem, xData;
@@ -130,16 +145,25 @@ static void vPrimaryBlockTimeTestTask( void * pvParameters )
 
     for( ; ; )
     {
-        /*********************************************************************
-         * Test 0
-         *
-         * Basic vTaskDelay() and vTaskDelayUntil() tests. */
+        
+/*
+            Function: rvBasicDelayTests
+
+            ******************************************************************
+            Test 0
+
+            Basic vTaskDelay() and vTaskDelayUntil() tests.
+        */
         prvBasicDelayTests();
 
-        /*********************************************************************
-         * Test 1
-         *
-         * Simple block time wakeup test on queue receives. */
+        /*
+            Function: or
+
+            ******************************************************************
+            Test 1
+
+            Simple block time wakeup test on queue receives.
+        */
         for( xItem = 0; xItem < bktQUEUE_LENGTH; xItem++ )
         {
             /* The queue is empty. Attempt to read from the queue using a block
@@ -173,12 +197,16 @@ static void vPrimaryBlockTimeTestTask( void * pvParameters )
             }
         }
 
-        /*********************************************************************
-         *  Test 2
-         *
-         *  Simple block time wakeup test on queue sends.
-         *
-         *  First fill the queue.  It should be empty so all sends should pass. */
+        /*
+            Function: or
+
+            ******************************************************************
+            Test 2
+
+            Simple block time wakeup test on queue sends.
+
+            First fill the queue. It should be empty so all sends should pass.
+        */
         for( xItem = 0; xItem < bktQUEUE_LENGTH; xItem++ )
         {
             if( xQueueSend( xTestQueue, &xItem, bktDONT_BLOCK ) != pdPASS )
@@ -224,18 +252,22 @@ static void vPrimaryBlockTimeTestTask( void * pvParameters )
             }
         }
 
-        /*********************************************************************
-         * Test 3
-         *
-         * Wake the other task, it will block attempting to post to the queue.
-         * When we read from the queue the other task will wake, but before it
-         * can run we will post to the queue again.  When the other task runs it
-         * will find the queue still full, even though it was woken.  It should
-         * recognise that its block time has not expired and return to block for
-         * the remains of its block time.
-         *
-         * Wake the other task so it blocks attempting to post to the already
-         * full queue. */
+        /*
+            Variable: RunIndicator
+
+            ******************************************************************
+            Test 3
+
+            Wake the other task, it will block attempting to post to the
+            queue. When we read from the queue the other task will wake, but
+            before it can run we will post to the queue again. When the other
+            task runs it will find the queue still full, even though it was
+            woken. It should recognise that its block time has not expired and
+            return to block for the remains of its block time.
+
+            Wake the other task so it blocks attempting to post to the already
+            full queue.
+        */
         xRunIndicator = 0;
         vTaskResume( xSecondary );
 
@@ -300,13 +332,17 @@ static void vPrimaryBlockTimeTestTask( void * pvParameters )
         vTaskDelay( bktSHORT_WAIT );
         xRunIndicator = 0;
 
-        /*********************************************************************
-         * Test 4
-         *
-         * As per test 3 - but with the send and receive the other way around.
-         * The other task blocks attempting to read from the queue.
-         *
-         * Empty the queue.  We should find that it is full. */
+        /*
+            Function: or
+
+            ******************************************************************
+            Test 4
+
+            As per test 3 - but with the send and receive the other way
+            around. The other task blocks attempting to read from the queue.
+
+            Empty the queue. We should find that it is full.
+        */
         for( xItem = 0; xItem < bktQUEUE_LENGTH; xItem++ )
         {
             if( xQueueReceive( xTestQueue, &xData, bktDONT_BLOCK ) != pdPASS )
@@ -381,6 +417,9 @@ static void vPrimaryBlockTimeTestTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vSecondaryBlockTimeTestTask
+*/
 static void vSecondaryBlockTimeTestTask( void * pvParameters )
 {
     TickType_t xTimeWhenBlocking, xBlockedTime;
@@ -390,18 +429,26 @@ static void vSecondaryBlockTimeTestTask( void * pvParameters )
 
     for( ; ; )
     {
-        /*********************************************************************
-         * Test 0, 1 and 2
-         *
-         * This task does not participate in these tests. */
+        /*
+            Function: TaskSuspend
+
+            ******************************************************************
+            Test 0, 1 and 2
+
+            This task does not participate in these tests.
+        */
         vTaskSuspend( NULL );
 
-        /*********************************************************************
-         * Test 3
-         *
-         * The first thing we do is attempt to read from the queue.  It should be
-         * full so we block.  Note the time before we block so we can check the
-         * wake time is as per that expected. */
+        /*
+            Variable: TimeWhenBlocking
+
+            ******************************************************************
+            Test 3
+
+            The first thing we do is attempt to read from the queue. It should
+            be full so we block. Note the time before we block so we can check
+            the wake time is as per that expected.
+        */
         xTimeWhenBlocking = xTaskGetTickCount();
 
         /* We should unblock after bktTIME_TO_BLOCK having not sent anything to
@@ -435,10 +482,14 @@ static void vSecondaryBlockTimeTestTask( void * pvParameters )
         xRunIndicator = bktRUN_INDICATOR;
         vTaskSuspend( NULL );
 
-        /*********************************************************************
-         * Test 4
-         *
-         * As per test three, but with the send and receive reversed. */
+        /*
+            Variable: TimeWhenBlocking
+
+            ******************************************************************
+            Test 4
+
+            As per test three, but with the send and receive reversed.
+        */
         xTimeWhenBlocking = xTaskGetTickCount();
 
         /* We should unblock after bktTIME_TO_BLOCK having not received
@@ -473,6 +524,11 @@ static void vSecondaryBlockTimeTestTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvBasicDelayTests
+
+    Very basic tests to verify the block times are as expected.
+*/
 static void prvBasicDelayTests( void )
 {
     TickType_t xPreTime, xPostTime, x, xLastUnblockTime, xExpectedUnblockTime;

@@ -24,6 +24,11 @@
  *
  */
 
+/*
+    File: Q Peek Implementation
+
+    Tests the behaviour when data is peeked from a queue when there are multiple tasks blocked on the queue.
+*/
 
 /*
  * Tests the behaviour when data is peeked from a queue when there are
@@ -105,6 +110,9 @@ void vStartQueuePeekTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvHighestPriorityPeekTask
+*/
 static void prvHighestPriorityPeekTask( void * pvParameters )
 {
     QueueHandle_t xQueue = ( QueueHandle_t ) pvParameters;
@@ -213,6 +221,11 @@ static void prvHighestPriorityPeekTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvHighPriorityPeekTask
+
+    Calls xQueuePeek, uxQueueMessagesWaiting, vTaskSuspend and xQueueReceive.
+*/
 static void prvHighPriorityPeekTask( void * pvParameters )
 {
     QueueHandle_t xQueue = ( QueueHandle_t ) pvParameters;
@@ -267,6 +280,11 @@ static void prvHighPriorityPeekTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvMediumPriorityPeekTask
+
+    Calls xQueuePeek, uxQueueMessagesWaiting and vTaskSuspend.
+*/
 static void prvMediumPriorityPeekTask( void * pvParameters )
 {
     QueueHandle_t xQueue = ( QueueHandle_t ) pvParameters;
@@ -308,6 +326,13 @@ static void prvMediumPriorityPeekTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvLowPriorityPeekTask
+
+    The following three tasks are used to demonstrate the peeking behaviour.
+    Each task is given a different priority to demonstrate the order in which
+    tasks are woken as data is peeked from a queue.
+*/
 static void prvLowPriorityPeekTask( void * pvParameters )
 {
     QueueHandle_t xQueue = ( QueueHandle_t ) pvParameters;

@@ -17,21 +17,40 @@
 #define XHCI_COMMAND_DOORBELL    (0U << USB3_DB_DB_TARGET_POS)  /* !< Doorbell target for command ring */
 
 /*
- * @brief ring the XHCI host controller command doorbell
- */
+    File: xHCI Doorbell Driver
+
+    Declares the xHCI Doorbell driver interface: 3 functions and 3
+    constants.
+*/
+
+/*
+    Function: ring_xhci_host_db
+
+    ring the XHCI host controller command doorbell
+*/
 void ring_xhci_host_db(void);
 
 /*
- * @brief ring the XHCI host controller Endpoint 0 doorbell
- * @param[in] op_regs reference to operation register structure
- */
+    Function: ring_xhci_ep0_db
+
+    ring the XHCI host controller Endpoint 0 doorbell
+
+    Parameters:
+
+        op_regs - reference to operation register structure
+*/
 void ring_xhci_ep0_db(xhci_oper_reg_params_t *op_regs);
 
 /*
- * @brief ring the XHCI host controller doorbell
- * @param[in] op_regs reference to operation register structure
- * @param[in] db_target  doorbell target to ring
- */
+    Function: ring_xhci_ep_doorbell
+
+    ring the XHCI host controller doorbell
+
+    Parameters:
+
+        op_regs - reference to operation register structure
+        db_target - doorbell target to ring
+*/
 void ring_xhci_ep_doorbell(xhci_oper_reg_params_t *op_regs, uint8_t db_target);
 
 #endif  /* __XHCI_DOORBELL_H__ */

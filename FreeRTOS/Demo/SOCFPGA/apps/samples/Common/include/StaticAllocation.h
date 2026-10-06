@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Static Allocation
+
+    Declares the Static Allocation interface: 2 functions.
+
+    They are vStartStaticallyAllocatedTasks and
+    xAreStaticAllocationTasksStillRunning.
+*/
+
 #ifndef STATIC_ALLOCATION_H
 #define STATIC_ALLOCATION_H
 

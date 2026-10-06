@@ -24,7 +24,12 @@
  *
  */
 
+/*
+            File: Event Groups Demo Implementation
 
+            Implements the Event Groups demo: 10 functions, 7 of them local
+            to this file.
+        */
 
 /*
  * This file contains fairly comprehensive checks on the behaviour of event
@@ -202,6 +207,24 @@ void vStartEventGroupTasks( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTestMasterTask
+
+    NOTE: The tests implemented in this function are informal 'sanity' tests
+    only and are not part of the module tests that make use of the
+    mtCOVERAGE_TEST_MARKER macro within the event groups implementation. The
+    master test task. This task: 1) Calls prvSelectiveBitsTestMasterFunction()
+    to test the behaviour when two tasks are blocked on different bits in an
+    event group. The counterpart of this test is implemented by the
+    prvSelectiveBitsTestSlaveFunction() function (which is called by the two
+    tasks that block on the event group). 2) Calls
+    prvBitCombinationTestMasterFunction() to test the behaviour when just one
+    task is blocked on various combinations of bits within an event group. The
+    counterpart of this test is implemented within the 'test slave' task. 3)
+    Calls prvPerformTaskSyncTests() to test task synchronisation behaviour.
+
+    It calls <prvSelectiveBitsTestMasterFunction>.
+*/
 static void prvTestMasterTask( void * pvParameters )
 {
     BaseType_t xError;
@@ -265,6 +288,16 @@ static void prvTestMasterTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSyncTask
+
+    Two instances of prvSyncTask() are created. They start by calling
+    prvSelectiveBitsTestSlaveFunction() to act as slaves when the test master
+    is executing the prvSelectiveBitsTestMasterFunction() function. They then
+    loop to test the task synchronisation (rendezvous) behaviour.
+
+    It calls <prvSelectiveBitsTestSlaveFunction>.
+*/
 static void prvSyncTask( void * pvParameters )
 {
     EventBits_t uxSynchronisationBit, uxReturned;
@@ -338,6 +371,16 @@ static void prvSyncTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvTestSlaveTask
+
+    A helper task that enables the 'test master' task to perform several
+    behavioural tests. See the comments above the prvTestMasterTask()
+    prototype above.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static void prvTestSlaveTask( void * pvParameters )
 {
     EventBits_t uxReturned;
@@ -348,15 +391,20 @@ static void prvTestSlaveTask( void * pvParameters )
 
     for( ; ; )
     {
-        /**********************************************************************
-         * Part 1:  This section is the counterpart to the
-         * prvBitCombinationTestMasterFunction() function which is called by the
-         * test master task.
-         ***********************************************************************
-         *
-         * This task is controller by the 'test master' task (which is
-         * implemented by prvTestMasterTask()).  Suspend until resumed by the
-         * 'test master' task. */
+        
+/*
+            Function: TaskSuspend
+
+            *******************************************************************
+            Part 1: This section is the counterpart to the
+            prvBitCombinationTestMasterFunction() function which is called by
+            the test master task.
+            **********************************************************************
+
+            This task is controller by the 'test master' task (which is
+            implemented by prvTestMasterTask()). Suspend until resumed by the
+            'test master' task.
+        */
         vTaskSuspend( NULL );
 
         /* Wait indefinitely for one of the bits in ebCOMBINED_BITS to get
@@ -414,15 +462,18 @@ static void prvTestSlaveTask( void * pvParameters )
             xError = pdTRUE;
         }
 
-        /**********************************************************************
-         * Part 2:  This section is the counterpart to the
-         * prvPerformTaskSyncTests() function which is called by the
-         * test master task.
-         ***********************************************************************
-         *
-         *
-         * Once again wait for the 'test master' task to unsuspend this task
-         * when it is time for the next test. */
+        /*
+            Function: TaskSuspend
+
+            *******************************************************************
+            Part 2: This section is the counterpart to the
+            prvPerformTaskSyncTests() function which is called by the test
+            master task.
+            **********************************************************************
+
+            Once again wait for the 'test master' task to unsuspend this task
+            when it is time for the next test.
+        */
         vTaskSuspend( NULL );
 
         /* Now peform a synchronisation with all the other tasks.  At this point
@@ -502,6 +553,12 @@ static void prvTestSlaveTask( void * pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvPerformTaskSyncTests
+
+    The part of the test that uses all the tasks to test the task
+    synchronisation behaviour.
+*/
 static BaseType_t prvPerformTaskSyncTests( BaseType_t xError,
                                            TaskHandle_t xTestSlaveTaskHandle )
 {
@@ -697,6 +754,13 @@ static BaseType_t prvPerformTaskSyncTests( BaseType_t xError,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvBitCombinationTestMasterFunction
+
+    The part of the test that is performed between the 'test master' task and
+    the 'test slave' task to test the behaviour when the slave blocks on
+    various event bit combinations.
+*/
 static BaseType_t prvBitCombinationTestMasterFunction( BaseType_t xError,
                                                        TaskHandle_t xTestSlaveTaskHandle )
 {
@@ -819,6 +883,11 @@ static BaseType_t prvBitCombinationTestMasterFunction( BaseType_t xError,
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSelectiveBitsTestSlaveFunction
+
+    Calls xTaskGetCurrentTaskHandle, vTaskSuspend and xEventGroupWaitBits.
+*/
 static void prvSelectiveBitsTestSlaveFunction( void )
 {
     EventBits_t uxPendBits, uxReturned;
@@ -855,6 +924,13 @@ static void prvSelectiveBitsTestSlaveFunction( void )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: prvSelectiveBitsTestMasterFunction
+
+    Functions used in a test that blocks two tasks on various different bits
+    within an event group - then sets each bit in turn and checks that the
+    correct tasks unblock at the correct times.
+*/
 static BaseType_t prvSelectiveBitsTestMasterFunction( void )
 {
     BaseType_t xError = pdFALSE;

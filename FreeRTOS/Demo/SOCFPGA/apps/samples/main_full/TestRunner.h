@@ -27,11 +27,19 @@
 #ifndef TEST_RUNNER_H
 #define TEST_RUNNER_H
 
-/**
- * Start all the tests.
- *
- * Note that this function starts the scheduler and therefore, never returns.
- */
+/*
+    File: Test Runner
+
+    Declares the Test Runner interface: 1 function.
+*/
+
+/*
+    Function: vStartTests
+
+    Start all the tests.
+
+    Note that this function starts the scheduler and therefore, never returns.
+*/
 void vStartTests( void );
 
 #endif /* TEST_RUNNER_H */

@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Message Buffer Demo
+
+    Declares the Message Buffer demo interface: 2 functions.
+
+    They are vStartMessageBufferTasks and
+    xAreMessageBufferTasksStillRunning.
+*/
+
 #ifndef MESSAGE_BUFFER_TEST_H
 #define MESSAGE_BUFFER_TEST_H
 

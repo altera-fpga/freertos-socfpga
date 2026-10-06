@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Flop
+
+    Declares the Flop interface: 2 functions.
+
+    They are vStartMathTasks and xAreMathsTaskStillRunning.
+*/
+
 #ifndef FLOP_TASKS_H
 #define FLOP_TASKS_H
 

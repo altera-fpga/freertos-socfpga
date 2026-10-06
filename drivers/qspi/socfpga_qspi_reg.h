@@ -6,6 +6,163 @@
  * SoC FPGA QSPI register definitions
  */
 
+/*
+    File: QSPI Registers
+
+    SoC FPGA QSPI register definitions.
+*/
+
+/*
+    Constants: QSPI constants
+
+    PAGE_SIZE                         - Value: 256U.
+    QSPI_CSR_BASE_ADDRESS             - Value: 0x108D2000U.
+    QSPI_DATA_BASE                    - Value: 0x10900000U.
+    QSPI_DATA_END                     - Value: 0x109FFFFFU.
+    QSPI_CFG_OFFSET                   - Value: 0x0U.
+    QSPI_CFG                          - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_CFG_OFFSET.
+    QSPI_DEVRD_OFFSET                 - Value: 0x4U.
+    QSPI_DEVRD                        - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_DEVRD_OFFSET.
+    QSPI_DEVWR_OFFSET                 - Value: 0x8U.
+    QSPI_DEVWR                        - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_DEVWR_OFFSET.
+    QSPI_DELAY_OFFSET                 - Value: 0xCU.
+    QSPI_DELAY                        - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_DELAY_OFFSET.
+    QSPI_RDDATACAP_OFFSET             - Value: 0x10U.
+    QSPI_RDDATACAP                    - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_RDDATACAP_OFFSET.
+    QSPI_DEVSZ_OFFSET                 - Value: 0x14U.
+    QSPI_DEVSZ                        - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_DEVSZ_OFFSET.
+    QSPI_SRAMPART_OFFSET              - Value: 0x18U.
+    QSPI_SRAMPART                     - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_SRAMPART_OFFSET.
+    QSPI_INDADDRTRIG_OFFSET           - Value: 0x1CU.
+    QSPI_INDADDRTRIG                  - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDADDRTRIG_OFFSET.
+    QSPI_DMAPER_OFFSET                - DMA Peripheral Configuration Register.
+    QSPI_REMAPADDR_OFFSET             - Value: 0x24U.
+    QSPI_REMAPADDR                    - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_REMAPADDR_OFFSET.
+    QSPI_MODEBIT                      - Mode Bit Configuration Register.
+    QSPI_SRAMFILL_OFFSET              - Value: 0x2CU.
+    QSPI_SRAMFILL                     - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_SRAMFILL_OFFSET.
+    QSPI_TET                          - TX Threshold Register.
+    QSPI_RXT                          - RX Threshold Register.
+    QSPI_IRQSTAT_OFFSET               - Value: 0x40U.
+    QSPI_IRQSTAT                      - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_IRQSTAT_OFFSET.
+    QSPI_IRQMASK_OFFSET               - Value: 0x44U.
+    QSPI_IRQMASK                      - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_IRQMASK_OFFSET.
+    QSPI_LOWWRPROT                    - Lower Write Protection Register.
+    QSPI_UPPWRPROT                    - Upper Write Protection Register.
+    QSPI_WRPROT_OFFSET                - Value: 0x58U.
+    QSPI_WRPROT                       - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_WRPROT_OFFSET.
+    QSPI_INDRD_OFFSET                 - Value: 0x60U.
+    QSPI_INDRD                        - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDRD_OFFSET.
+    QSPI_INDRDWATER_OFFSET            - Value: 0x64U.
+    QSPI_INDRDWATER                   - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDRDWATER_OFFSET.
+    QSPI_INDRDSTADDR_OFFSET           - Value: 0x68U.
+    QSPI_INDRDSTADDR                  - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDRDSTADDR_OFFSET.
+    QSPI_INDRDCNT_OFFSET              - Value: 0x6CU.
+    QSPI_INDRDCNT                     - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDRDCNT_OFFSET.
+    QSPI_INDWR_OFFSET                 - Value: 0x70U.
+    QSPI_INDWR                        - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDWR_OFFSET.
+    QSPI_INDWRWATER_OFFSET            - Value: 0x74U.
+    QSPI_INDWRWATER                   - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDWRWATER_OFFSET.
+    QSPI_TXTHRESH_OFFSET              - Value: 0x30U.
+    QSPI_TXTHRESH                     - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_TXTHRESH_OFFSET.
+    QSPI_RXTHRESH_OFFSET              - Value: 0x34U.
+    QSPI_RXTHRESH                     - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_RXTHRESH_OFFSET.
+    QSPI_INDWRSTADDR_OFFSET           - Value: 0x78U.
+    QSPI_INDWRSTADDR                  - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDWRSTADDR_OFFSET.
+    QSPI_INDWRCNT_OFFSET              - Value: 0x7CU.
+    QSPI_INDWRCNT                     - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_INDWRCNT_OFFSET.
+    QSPI_FLASHCMD_OFFSET              - Value: 0x90U.
+    QSPI_FLASHCMD                     - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_FLASHCMD_OFFSET.
+    QSPI_FLASHCMDADDR_OFFSET          - Value: 0x94U.
+    QSPI_FLASHCMDADDR                 - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_FLASHCMDADDR_OFFSET.
+    QSPI_FLASHCMDRDDATALO_OFFSET      - Value: 0xA0U.
+    QSPI_FLASHCMDRDDATALO             - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_FLASHCMDRDDATALO_OFFSET.
+    QSPI_FLASHCMDRDDATAUP_OFFSET      - Value: 0xA4U.
+    QSPI_FLASHCMDRDDATAUP             - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_FLASHCMDRDDATAUP_OFFSET.
+    QSPI_FLASHCMDWRDATALO_OFFSET      - Value: 0xA8U.
+    QSPI_FLASHCMDWRDATALO             - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_FLASHCMDWRDATALO_OFFSET.
+    QSPI_FLASHCMDWRDATAUP_OFFSET      - Value: 0xACU.
+    QSPI_FLASHCMDWRDATAUP             - Expands to QSPI_CSR_BASE_ADDRESS + QSPI_FLASHCMDWRDATAUP_OFFSET.
+    QSPI_MODULEID_OFFSET              - Module ID Register.
+    QSPI_INDOPDONE_M                  - Value: 0x04U.
+    QSPI_XFERLVL_M                    - Value: 0x40U.
+    QSPI_SRAMFULL_M                   - Value: 0x1000U.
+    QSPI_XFERLVLBRCH                  - Value: 0x40U.
+    QSPI_SRAMFULL                     - Value: 0x1000U.
+    QSPI_FLASHCMD_EXECUTE_POS         - Value: 1U.
+    QSPI_FLASHCMD_EXECSTAT_POS        - Value: 2U.
+    QSPI_FLASHCMD_NUMDUMMYBYTES_POS   - Value: 7U.
+    QSPI_FLASHCMD_NUMDUMMYBYTES_MASK  - Expands to ((uint32_t) 0x1FU << QSPI_FLASHCMD_NUMDUMMYBYTES_POS).
+    QSPI_FLASHCMD_WR_DATA_BYTES_POS   - Value: 12U.
+    QSPI_FLASHCMD_WR_DATA_BYTES_MASK  - Expands to ((uint32_t) 7U << QSPI_FLASHCMD_WR_DATA_BYTES_POS).
+    QSPI_FLASHCMD_ENWRDATA_POS        - Value: 15U.
+    QSPI_FLASHCMD_ENWRDATA_MASK       - Expands to ((uint32_t) 1U << QSPI_FLASHCMD_ENWRDATA_POS).
+    QSPI_FLASHCMD_NUMADDRBYTES_POS    - Value: 16U.
+    QSPI_FLASHCMD_NUMADDRBYTES_MASK   - Expands to ((uint32_t) 3U << QSPI_FLASHCMD_NUMADDRBYTES_POS).
+    QSPI_FLASHCMD_ENMODEBIT_POS       - Value: 18U.
+    QSPI_FLASHCMD_ENMODEBIT_MASK      - Expands to ((uint32_t) 1U << QSPI_FLASHCMD_ENMODEBIT_POS).
+    QSPI_FLASHCMD_ENCMDADDR_POS       - Value: 19U.
+    QSPI_FLASHCMD_ENCMDADDR_MASK      - Expands to ((uint32_t) 1U << QSPI_FLASHCMD_ENCMDADDR_POS).
+    QSPI_FLASHCMD_RD_DATA_BYTES_POS   - Value: 20U.
+    QSPI_FLASHCMD_RD_DATA_BYTES_MASK  - Expands to ((uint32_t) 7U << QSPI_FLASHCMD_RD_DATA_BYTES_POS).
+    QSPI_FLASHCMD_ENRDDATA_POS        - Value: 23U.
+    QSPI_FLASHCMD_ENRDDATA_MASK       - Expands to ((uint32_t) 1U << QSPI_FLASHCMD_ENRDDATA_POS).
+    QSPI_FLASHCMD_CMDOPCODE_POS       - Value: 24U.
+    QSPI_FLASHCMD_CMDOPCODE_MASK      - Expands to ((uint32_t) 0xFFU << QSPI_FLASHCMD_CMDOPCODE_POS).
+    QSPI_DEVRD_INSTWIDTH_POS          - Value: 8U.
+    QSPI_DEVRD_INSTWIDTH_MASK         - Value: 0x3U.
+    QSPI_DEVRD_ADDRWIDTH_POS          - Value: 12U.
+    QSPI_DEVRD_ADDRWIDTH_MASK         - Value: 0x3U.
+    QSPI_DEVRD_DATAWIDTH_POS          - Value: 16U.
+    QSPI_DEVRD_DATAWIDTH_MASK         - Value: 0x3U.
+    QSPI_DEVRD_MODEBIT_POS            - Value: 20U.
+    QSPI_DEVRD_MODEBIT_MASK           - Value: 1U.
+    QSPI_DUMMY_DELAY_POS              - Value: 24U.
+    QSPI_DUMMY_DELAY_MASK             - Value: 0x1FU.
+    QSPI_SUBSECTOR_BYTES_POS          - Value: 16U.
+    QSPI_SUBSECTOR_BYTES_MASK         - Value: 0x1FU.
+    QSPI_PAGE_BYTES_POS               - Value: 4U.
+    QSPI_PAGE_BYTES_MASK              - Value: 0xFFFU.
+    QSPI_DEVSZ_NUM_ADDR_BYTES_MASK    - Value: 0xFU.
+    QSPI_NSS_DELAY_POS                - Value: 24U.
+    QSPI_NSS_DELAY_MASK               - Value: 0xFFU.
+    QSPI_BTWN_DELAY_POS               - Value: 16U.
+    QSPI_BTWN_DELAY_MASK              - Value: 0xFFU.
+    QSPI_AFTER_DELAY_POS              - Value: 8U.
+    QSPI_AFTER_DELAY_MASK             - Value: 0xFFU.
+    QSPI_INIT_DELAY_POS               - Value: 0U.
+    QSPI_INIT_DELAY_MASK              - Value: 0xFFU.
+    QSPI_BAUD_DIVISOR_POS             - Value: 19U.
+    QSPI_BAUD_DIVISOR_MASK            - Value: 0xFU.
+    QSPI_INDWR_START_POS              - Value: 0U.
+    QSPI_INDWR_START_MASK             - Value: 1U.
+    QSPI_INDRD_START_POS              - Value: 0U.
+    QSPI_INDRD_START_MASK             - Value: 1U.
+    QSPI_FLASHCMD_CMD_POS             - Value: 24U.
+    QSPI_INDWR_STATUS_MASK            - Value: 0x4U.
+    QSPI_INDRD_STATUS_MASK            - Value: 0x4U.
+    QSPI_INDRD_MULTIPLEOP_STATUS_POS  - Value: 5U.
+    QSPI_INDRD_MULTIPLEOP_STATUS_MASK - Value: 0x60U.
+    QSPI_INDWR_MULTIPLEOP_STATUS_POS  - Value: 5U.
+    QSPI_INDWR_MULTIPLEOP_STATUS_MASK - Value: 0x60U.
+    QSPI_CFG_IDLE_MASK                - Expands to ((uint32_t) 1U << 31U).
+    QSPI_CFG_IDLE_POS                 - Value: 31U.
+    QSPI_CFG_BAUDDIV_MASK             - Expands to (0UxFU << 19U).
+    QSPI_CFG_BAUDDIV_POS              - Value: 19U.
+    QSPI_CFG_ENDMA_MASK               - Expands to (1U << 15U).
+    QSPI_CFG_ENDMA_POS                - Value: 15U.
+    QSPI_CFG_WP_MASK                  - Expands to (1U << 14U).
+    QSPI_CFG_WP_POS                   - Value: 14U.
+    QSPI_CFG_PERCSLINES_MASK          - Expands to ((uint32_t) 0xFU << 10U).
+    QSPI_CFG_PERCSLINES_POS           - Value: 10U.
+    QSPI_CFG_ENLEGACYIP_MASK          - Expands to (1U << 8U).
+    QSPI_CFG_ENLEGACYIP_POS           - Value: 8U.
+    QSPI_CFG_ENDIRACC_MASK            - Expands to (1U << 7U).
+    QSPI_CFG_ENDIRACC_POS             - Value: 7U.
+    QSPI_CFG_EN_MASK                  - Expands to (1U << 0U).
+    QSPI_CFG_EN_POS                   - Value: 0U.
+*/
+
 #ifndef __SOCFPGA_QSPI_REG_H__
 #define __SOCFPGA_QSPI_REG_H__
 
@@ -219,9 +376,6 @@
 #define QSPI_INDRD_MULTIPLEOP_STATUS_MASK    0x60U
 #define QSPI_INDWR_MULTIPLEOP_STATUS_POS     5U
 #define QSPI_INDWR_MULTIPLEOP_STATUS_MASK    0x60U
-
-
-
 
 /* Bit Masks and Position for CFG Register */
 

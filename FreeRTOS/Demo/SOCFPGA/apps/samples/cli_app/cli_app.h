@@ -6,6 +6,11 @@
  * Header file for CLI application
  */
 
+/*
+    File: CLI Application
+
+    Header file for CLI application.
+*/
 
 #ifndef __CLI_APP_H__
 #define __CLI_APP_H__

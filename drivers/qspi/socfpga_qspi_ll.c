@@ -13,14 +13,26 @@
 #include "socfpga_qspi_reg.h"
 #include "socfpga_qspi_ll.h"
 
-/**
- * @brief Check whether the flash device is busy.
- *
- * @param NONE
- *
- * @return 0 if the device is idle.
- * @return 1 if the device is busy.
- */
+/*
+    File: QSPI Low-Level Driver Implementation
+
+    Implements the QSPI low-level driver: 49 functions.
+*/
+
+/*
+    Function: qspi_is_busy
+
+    Check whether the flash device is busy.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        0 if the device is idle.
+        1 if the device is busy.
+*/
 uint32_t qspi_is_busy(void)
 {
     uint32_t count = 0U;
@@ -46,13 +58,19 @@ uint32_t qspi_is_busy(void)
     return status;
 }
 
-/**
- * @brief Disable the QSPI controller.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_disable
+
+    Disable the QSPI controller.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_disable(void)
 {
     uint32_t cfg = RD_REG32(QSPI_CFG);
@@ -60,61 +78,91 @@ void qspi_disable(void)
     WR_REG32(QSPI_CFG, cfg);
 }
 
-/**
- * @brief Read the lower 4 bytes of response from flash.
- *
- * @param NONE
- *
- * @return data The lower 4 bytes of data.
- */
+/*
+    Function: qspi_flash_cmd_rddata0
+
+    Read the lower 4 bytes of response from flash.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        data The lower 4 bytes of data.
+*/
 uint32_t qspi_flash_cmd_rddata0(void)
 {
     return RD_REG32(QSPI_FLASHCMDRDDATALO);
 }
 
-/**
- * @brief Read the higher 4 bytes of response from flash.
- *
- * @param NONE
- *
- * @return data The higher 4 bytes of data.
- */
+/*
+    Function: qspi_flash_cmd_rddata1
+
+    Read the higher 4 bytes of response from flash.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        data The higher 4 bytes of data.
+*/
 uint32_t qspi_flash_cmd_rddata1(void)
 {
     return RD_REG32(QSPI_FLASHCMDRDDATAUP);
 }
 
-/**
- * @brief Write the lower 4 bytes of data to be sent to the flash device.
- *
- * @param[in] data The lower 4 bytes of data to be sent to the flash device.
- *
- * @return NONE
- */
+/*
+    Function: qspi_flash_cmd_wrdata0
+
+    Write the lower 4 bytes of data to be sent to the flash device.
+
+    Parameters:
+
+        data - The lower 4 bytes of data to be sent to the flash device.
+
+    Returns:
+
+        NONE
+*/
 void qspi_flash_cmd_wrdata0(uint32_t data)
 {
     WR_REG32(QSPI_FLASHCMDWRDATALO, data);
 }
 
-/**
- * @brief Write the higher 4 bytes of data to be sent to the flash device.
- *
- * @param[in] data The higher 4 bytes of data to be sent to the flash device.
- *
- * @return NONE
- */
+/*
+    Function: qspi_flash_cmd_wrdata1
+
+    Write the higher 4 bytes of data to be sent to the flash device.
+
+    Parameters:
+
+        data - The higher 4 bytes of data to be sent to the flash device.
+
+    Returns:
+
+        NONE
+*/
 void qspi_flash_cmd_wrdata1(uint32_t data)
 {
     WR_REG32(QSPI_FLASHCMDWRDATAUP, data);
 }
 
-/**
- * @brief Set the instruction width.
- *
- * @param[in] width The instruction width that has to be configured.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_instruction_width
+
+    Set the instruction width.
+
+    Parameters:
+
+        width - The instruction width that has to be configured.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_instruction_width(uint32_t width)
 {
     uint32_t devrd = RD_REG32(QSPI_DEVRD);
@@ -122,13 +170,19 @@ void qspi_set_instruction_width(uint32_t width)
     WR_REG32(QSPI_DEVRD, devrd);
 }
 
-/**
- * @brief Set the address width in the devrd register.
- *
- * @param[in] width The address width.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_addr_width
+
+    Set the address width in the devrd register.
+
+    Parameters:
+
+        width - The address width.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_addr_width(uint32_t width)
 {
     uint32_t devrd = RD_REG32(QSPI_DEVRD);
@@ -136,13 +190,19 @@ void qspi_set_addr_width(uint32_t width)
     WR_REG32(QSPI_DEVRD, devrd);
 }
 
-/**
- * @brief Set the data width in devrd register.
- *
- * @param[in] width The data width.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_data_width
+
+    Set the data width in devrd register.
+
+    Parameters:
+
+        width - The data width.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_data_width(uint32_t width)
 {
     uint32_t devrd = RD_REG32(QSPI_DEVRD);
@@ -150,13 +210,19 @@ void qspi_set_data_width(uint32_t width)
     WR_REG32(QSPI_DEVRD, devrd);
 }
 
-/**
- * @brief Enable or disable the mode bit in the devrd register.
- *
- * @param[in] enable 1 for enable and 0 for disable.
- *
- * @return NONE
- */
+/*
+    Function: qspi_enable_mode_bit
+
+    Enable or disable the mode bit in the devrd register.
+
+    Parameters:
+
+        enable - 1 for enable and 0 for disable.
+
+    Returns:
+
+        NONE
+*/
 void qspi_enable_mode_bit(uint32_t enable)
 {
     uint32_t devrd = RD_REG32(QSPI_DEVRD);
@@ -171,13 +237,19 @@ void qspi_enable_mode_bit(uint32_t enable)
     WR_REG32(QSPI_DEVRD, devrd);
 }
 
-/**
- * @brief Enable fast read mode.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_enable_fast_read_mode
+
+    Enable fast read mode.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_enable_fast_read_mode(void)
 {
     uint32_t devrd = RD_REG32(QSPI_DEVRD);
@@ -186,14 +258,20 @@ void qspi_enable_fast_read_mode(void)
     WR_REG32(QSPI_DEVRD, devrd);
 }
 
-/**
- * @brief Obtain a flash handle.
- *
- * @param[in] flash_dev Instance of the I3C controller.
- *
- * @return NULL if invalid argument is passed.
- * @return flash_handle_t if open is successful.
- */
+/*
+    Function: qspi_cfg_write_mode
+
+    Obtain a flash handle.
+
+    Parameters:
+
+        flash_dev - Instance of the I3C controller.
+
+    Returns:
+
+        NULL if invalid argument is passed.
+        flash_handle_t if open is successful.
+*/
 void qspi_cfg_write_mode(void)
 {
     uint32_t devwr = RD_REG32(QSPI_DEVWR);
@@ -202,13 +280,19 @@ void qspi_cfg_write_mode(void)
     WR_REG32(QSPI_DEVWR, devwr);
 }
 
-/**
- * @brief Configure the dummy delay.
- *
- * @param[in] dum_delay The dummy delay value.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_dummy_delay
+
+    Configure the dummy delay.
+
+    Parameters:
+
+        dum_delay - The dummy delay value.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_dummy_delay(uint8_t dum_delay)
 {
     uint32_t delay = RD_REG32(QSPI_DEVRD);
@@ -217,13 +301,19 @@ void qspi_set_dummy_delay(uint8_t dum_delay)
     WR_REG32(QSPI_DEVRD, delay);
 }
 
-/**
- * @brief Set the number of bytes per page.
- *
- * @param[in] page_bytes The number of bytes to be configured per page.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_bytes_per_page
+
+    Set the number of bytes per page.
+
+    Parameters:
+
+        page_bytes - The number of bytes to be configured per page.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_bytes_per_page(uint32_t page_bytes)
 {
     uint32_t devsz = RD_REG32(QSPI_DEVSZ);
@@ -231,13 +321,19 @@ void qspi_set_bytes_per_page(uint32_t page_bytes)
     WR_REG32(QSPI_DEVSZ, devsz);
 }
 
-/**
- * @brief Set the nss delay value in delay register.
- *
- * @param[in] nss_delay The nss delay value.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_nss_delay
+
+    Set the nss delay value in delay register.
+
+    Parameters:
+
+        nss_delay - The nss delay value.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_nss_delay(uint32_t nss_delay)
 {
     uint32_t delay = RD_REG32(QSPI_DELAY);
@@ -245,13 +341,19 @@ void qspi_set_nss_delay(uint32_t nss_delay)
     WR_REG32(QSPI_DELAY, delay);
 }
 
-/**
- * @brief Set the btwn delay value in delay register.
- *
- * @param[in] btwn_delay The btwn delay value.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_btwn_delay
+
+    Set the btwn delay value in delay register.
+
+    Parameters:
+
+        btwn_delay - The btwn delay value.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_btwn_delay(uint32_t btwn_delay)
 {
     uint32_t delay = RD_REG32(QSPI_DELAY);
@@ -259,13 +361,19 @@ void qspi_set_btwn_delay(uint32_t btwn_delay)
     WR_REG32(QSPI_DELAY, delay);
 }
 
-/**
- * @brief Set the after delay in the delay register.
- *
- * @param[in] after_delay The after delay value.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_after_delay
+
+    Set the after delay in the delay register.
+
+    Parameters:
+
+        after_delay - The after delay value.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_after_delay(uint32_t after_delay)
 {
     uint32_t delay = RD_REG32(QSPI_DELAY);
@@ -273,13 +381,19 @@ void qspi_set_after_delay(uint32_t after_delay)
     WR_REG32(QSPI_DELAY, delay);
 }
 
-/**
- * @brief Set the init delay in the delay register.
- *
- * @param[in] init_delay The init delay value.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_init_delay
+
+    Set the init delay in the delay register.
+
+    Parameters:
+
+        init_delay - The init delay value.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_init_delay(uint32_t init_delay)
 {
     uint32_t delay = RD_REG32(QSPI_DELAY);
@@ -287,25 +401,37 @@ void qspi_set_init_delay(uint32_t init_delay)
     WR_REG32(QSPI_DELAY, delay);
 }
 
-/**
- * @brief Set the remap address.
- *
- * @param[in] address The remap address to be configured.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_remap_address
+
+    Set the remap address.
+
+    Parameters:
+
+        address - The remap address to be configured.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_remap_address(uint32_t address)
 {
     WR_REG32(QSPI_REMAPADDR, address);
 }
 
-/**
- * @brief Set the baud divisor.
- *
- * @param[in] divisor The baud divisor factor.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_baud_divisor
+
+    Set the baud divisor.
+
+    Parameters:
+
+        divisor - The baud divisor factor.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_baud_divisor(uint32_t divisor)
 {
     uint32_t cfg = RD_REG32(QSPI_CFG);
@@ -313,13 +439,19 @@ void qspi_set_baud_divisor(uint32_t divisor)
     WR_REG32(QSPI_CFG, cfg);
 }
 
-/**
- * @brief Enable the qspi controller.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_enable
+
+    Enable the qspi controller.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_enable(void)
 {
     uint32_t cfg = RD_REG32(QSPI_CFG);
@@ -327,37 +459,55 @@ void qspi_enable(void)
     WR_REG32(QSPI_CFG, cfg);
 }
 
-/**
- * @brief Set the indirect read start address.
- *
- * @param[in] address The start address.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_indwrstaddr
+
+    Set the indirect read start address.
+
+    Parameters:
+
+        address - The start address.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_indwrstaddr(uint32_t address)
 {
     WR_REG32(QSPI_INDWRSTADDR, address);
 }
 
-/**
- * @brief Set the indirect write count.
- *
- * @param[in] n_bytes The number of bytes.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_indwrcnt
+
+    Set the indirect write count.
+
+    Parameters:
+
+        n_bytes - The number of bytes.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_indwrcnt(uint32_t n_bytes)
 {
     WR_REG32(QSPI_INDWRCNT, n_bytes);
 }
 
-/**
- * @brief Start the indirect write operation.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_start_indwr
+
+    Start the indirect write operation.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_start_indwr(void)
 {
     uint32_t indwr = RD_REG32(QSPI_INDWR);
@@ -365,61 +515,91 @@ void qspi_start_indwr(void)
     WR_REG32(QSPI_INDWR, indwr);
 }
 
-/**
- * @brief Set the indirect write water mark level.
- *
- * @param[in] level The write water mark level.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_indwrwater
+
+    Set the indirect write water mark level.
+
+    Parameters:
+
+        level - The write water mark level.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_indwrwater(uint32_t level)
 {
     WR_REG32(QSPI_INDWRWATER, level);
 }
 
-/**
- * @brief Set the indirect read water mark level.
- *
- * @param[in] level The read water mark level.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_indrdwater
+
+    Set the indirect read water mark level.
+
+    Parameters:
+
+        level - The read water mark level.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_indrdwater(uint32_t level)
 {
     WR_REG32(QSPI_INDRDWATER, level);
 }
 
-/**
- * @brief Set the indirect read start address.
- *
- * @param[in] address The start address for indirect read.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_indrdstaddr
+
+    Set the indirect read start address.
+
+    Parameters:
+
+        address - The start address for indirect read.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_indrdstaddr(uint32_t address)
 {
     WR_REG32(QSPI_INDRDSTADDR, address);
 }
 
-/**
- * @brief Set the indirect read count.
- *
- * @param[in] n_bytes The number of bytes for indirect read.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_indrdcnt
+
+    Set the indirect read count.
+
+    Parameters:
+
+        n_bytes - The number of bytes for indirect read.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_indrdcnt(uint32_t n_bytes)
 {
     WR_REG32(QSPI_INDRDCNT, n_bytes);
 }
 
-/**
- * @brief Start the indirect read operation.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_start_indrd
+
+    Start the indirect read operation.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_start_indrd(void)
 {
     uint32_t indrd = RD_REG32(QSPI_INDRD);
@@ -427,13 +607,19 @@ void qspi_start_indrd(void)
     WR_REG32(QSPI_INDRD, indrd);
 }
 
-/**
- * @brief Indicate that command is associated with an address.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_enablecmdaddr
+
+    Indicate that command is associated with an address.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_enablecmdaddr(void)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -441,13 +627,19 @@ void qspi_set_enablecmdaddr(void)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Set the number of address bytes required for the flash command address.
- *
- * @param[in] addr_bytes The number of bytes required.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_flashcmdaddrbytes
+
+    Set the number of address bytes required for the flash command address.
+
+    Parameters:
+
+        addr_bytes - The number of bytes required.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_flashcmdaddrbytes(uint32_t addr_bytes)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -455,25 +647,39 @@ void qspi_set_flashcmdaddrbytes(uint32_t addr_bytes)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Set the flash command address register.
- *
- * @param[in] address The address to be configured to the flash command address register.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_flashcmdaddr
+
+    Set the flash command address register.
+
+    Parameters:
+
+        address - The address to be configured to the flash command
+            address register.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_flashcmdaddr(uint32_t address)
 {
     WR_REG32(QSPI_FLASHCMDADDR, address);
 }
 
-/**
- * @brief Set the flash command in the flash command register.
- *
- * @param[in] cmd_opcode The opcode to be configured in the flash command register.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_flashcmd
+
+    Set the flash command in the flash command register.
+
+    Parameters:
+
+        cmd_opcode - The opcode to be configured in the flash command
+            register.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_flashcmd(uint32_t cmd_opcode)
 {
     uint32_t flashcmd = 0;
@@ -487,13 +693,19 @@ void qspi_set_flashcmd(uint32_t cmd_opcode)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Start the flash operation.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_flashcmd_exec
+
+    Start the flash operation.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_flashcmd_exec(void)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -501,13 +713,19 @@ void qspi_flashcmd_exec(void)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Enable read data from flash.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_flashcmd_read_data
+
+    Enable read data from flash.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_flashcmd_read_data(void)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -515,13 +733,19 @@ void qspi_flashcmd_read_data(void)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Enable the sending of data to the flash device.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_flashcmd_write_data
+
+    Enable the sending of data to the flash device.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_flashcmd_write_data(void)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -529,13 +753,19 @@ void qspi_flashcmd_write_data(void)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Set the number of bytes to be read from flash.
- *
- * @param[in] bytes The number of bytes.
- *
- * @return NONE
- */
+/*
+    Function: qspi_flashcmd_read_bytes
+
+    Set the number of bytes to be read from flash.
+
+    Parameters:
+
+        bytes - The number of bytes.
+
+    Returns:
+
+        NONE
+*/
 void qspi_flashcmd_read_bytes(uint32_t bytes)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -543,13 +773,19 @@ void qspi_flashcmd_read_bytes(uint32_t bytes)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Set the number of bytes to be written for command to be sent to flash.
- *
- * @param[in] bytes The number of bytes.
- *
- * @return NONE
- */
+/*
+    Function: qspi_flashcmd_write_bytes
+
+    Set the number of bytes to be written for command to be sent to flash.
+
+    Parameters:
+
+        bytes - The number of bytes.
+
+    Returns:
+
+        NONE
+*/
 void qspi_flashcmd_write_bytes(uint32_t bytes)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -557,13 +793,19 @@ void qspi_flashcmd_write_bytes(uint32_t bytes)
     WR_REG32(QSPI_FLASHCMD, flashcmd);
 }
 
-/**
- * @brief Read the status of the flash command operation from the flash command.
- *
- * @param NONE
- *
- * @return value in flash command register.
- */
+/*
+    Function: qspi_get_flashcmd_stat
+
+    Read the status of the flash command operation from the flash command.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        value in flash command register.
+*/
 uint32_t qspi_get_flashcmd_stat(void)
 {
     uint32_t flashcmd = RD_REG32(QSPI_FLASHCMD);
@@ -571,13 +813,19 @@ uint32_t qspi_get_flashcmd_stat(void)
     return flashcmd;
 }
 
-/**
- * @brief Configure the chip select.
- *
- * @param[in] cs The chip select.
- *
- * @return NONE
- */
+/*
+    Function: qspi_select_chip
+
+    Configure the chip select.
+
+    Parameters:
+
+        cs - The chip select.
+
+    Returns:
+
+        NONE
+*/
 void qspi_select_chip(uint32_t cs)
 {
     uint32_t cfg = RD_REG32(QSPI_CFG);
@@ -586,37 +834,55 @@ void qspi_select_chip(uint32_t cs)
     WR_REG32(QSPI_CFG, cfg);
 }
 
-/**
- * @brief Get the fill level of the SRAM.
- *
- * @param NONE
- *
- * @return level The fill level of the SRAM.
- */
+/*
+    Function: qspi_get_sramfill
+
+    Get the fill level of the SRAM.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        level The fill level of the SRAM.
+*/
 uint32_t qspi_get_sramfill(void)
 {
     return RD_REG32(QSPI_SRAMFILL);
 }
 
-/**
- * @brief Check the status of the indirect write operation.
- *
- * @param NONE
- *
- * @return status The status of the indirect write operation.
- */
+/*
+    Function: qspi_get_indwr_multiop_status
+
+    Check the status of the indirect write operation.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        status The status of the indirect write operation.
+*/
 uint32_t qspi_get_indwr_multiop_status(void)
 {
     return ((RD_REG32(QSPI_INDWR) & 0x60U) >> 5U);
 }
 
-/**
- * @brief Clear the indirect write operation done write status.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_clear_indwr_op_status
+
+    Clear the indirect write operation done write status.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_clear_indwr_op_status(void)
 {
     uint32_t cfg = RD_REG32(QSPI_INDWR);
@@ -624,13 +890,19 @@ void qspi_clear_indwr_op_status(void)
     WR_REG32(QSPI_INDWR, cfg);
 }
 
-/**
- * @brief Clear the indirect read operation done status.
- *
- * @param NONE
- *
- * @return NONE
- */
+/*
+    Function: qspi_clear_indrd_op_status
+
+    Clear the indirect read operation done status.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        NONE
+*/
 void qspi_clear_indrd_op_status(void)
 {
     uint32_t cfg = RD_REG32(QSPI_INDRD);
@@ -638,50 +910,74 @@ void qspi_clear_indrd_op_status(void)
     WR_REG32(QSPI_INDRD, cfg);
 }
 
-/**
- * @brief Get the value of a register.
- *
- * @param[in] reg The register whose value is to be obtained.
- *
- * @return The value within the register.
- */
+/*
+    Function: qspi_reg_get_data
+
+    Get the value of a register.
+
+    Parameters:
+
+        reg - The register whose value is to be obtained.
+
+    Returns:
+
+        The value within the register.
+*/
 uint32_t qspi_reg_get_data(uint32_t reg)
 {
     return RD_REG32(reg);
 }
 
-/**
- * @brief Obtain the interrupt status.
- *
- * @param NONE
- *
- * @return status Returns the value of the irqstat register.
- */
+/*
+    Function: qspi_get_int_status
+
+    Obtain the interrupt status.
+
+    Parameters:
+
+        NONE -
+
+    Returns:
+
+        status Returns the value of the irqstat register.
+*/
 uint32_t qspi_get_int_status(void)
 {
     uint32_t status = RD_REG32(QSPI_IRQSTAT);
     return status;
 }
 
-/**
- * @brief Set interrupt status (to clear).
- *
- * @param[in] status The value that has to be written to the irq register.
- *
- * @return NONE
- */
+/*
+    Function: qspi_set_int_status
+
+    Set interrupt status (to clear).
+
+    Parameters:
+
+        status - The value that has to be written to the irq register.
+
+    Returns:
+
+        NONE
+*/
 void qspi_set_int_status(uint32_t status)
 {
     WR_REG32(QSPI_IRQSTAT, status);
 }
 
-/**
- * @brief Enable the interrupt in irqmask register.
- *
- * @param[in] irqmask The mask for the interrupts that have to be enabled.
- *
- * @return NONE
- */
+/*
+    Function: qspi_enable_interrupt
+
+    Enable the interrupt in irqmask register.
+
+    Parameters:
+
+        irqmask - The mask for the interrupts that have to be enabled.
+
+    Returns:
+
+        NONE
+*/
 void qspi_enable_interrupt(uint32_t irqmask)
 {
     uint32_t temp_mask = RD_REG32(QSPI_IRQMASK);
@@ -689,13 +985,19 @@ void qspi_enable_interrupt(uint32_t irqmask)
     WR_REG32(QSPI_IRQMASK, temp_mask);
 }
 
-/**
- * @brief Disable the interrupt in irqmask register.
- *
- * @param[in] irqmask The mask for disabling the interrupt.
- *
- * @return NONE
- */
+/*
+    Function: qspi_disable_interrupt
+
+    Disable the interrupt in irqmask register.
+
+    Parameters:
+
+        irqmask - The mask for disabling the interrupt.
+
+    Returns:
+
+        NONE
+*/
 void qspi_disable_interrupt(uint32_t irqmask)
 {
 

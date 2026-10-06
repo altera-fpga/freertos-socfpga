@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Sp Flop
+
+    Creates eight tasks, each of which loops continuously performing a floating point calculation - using single precision variables.
+*/
+
+/*
  * Creates eight tasks, each of which loops continuously performing a floating
  * point calculation - using single precision variables.
  *
@@ -77,6 +83,9 @@ void vStartMathTasks( UBaseType_t uxPriority )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask1
+*/
 static portTASK_FUNCTION( vCompetingMathTask1, pvParameters )
 {
     volatile float f1, f2, f3, f4;
@@ -128,6 +137,9 @@ static portTASK_FUNCTION( vCompetingMathTask1, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask2
+*/
 static portTASK_FUNCTION( vCompetingMathTask2, pvParameters )
 {
     volatile float f1, f2, f3, f4;
@@ -181,6 +193,9 @@ static portTASK_FUNCTION( vCompetingMathTask2, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask3
+*/
 static portTASK_FUNCTION( vCompetingMathTask3, pvParameters )
 {
     volatile float * pfArray, fTotal1, fTotal2, fDifference, fPosition;
@@ -240,6 +255,9 @@ static portTASK_FUNCTION( vCompetingMathTask3, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vCompetingMathTask4
+*/
 static portTASK_FUNCTION( vCompetingMathTask4, pvParameters )
 {
     volatile float * pfArray, fTotal1, fTotal2, fDifference, fPosition;

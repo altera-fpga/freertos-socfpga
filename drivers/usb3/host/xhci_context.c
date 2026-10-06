@@ -8,6 +8,12 @@
  */
 
 /*
+    File: xHCI Context Driver Implementation
+
+    Low level driver implementation for SoC FPGA USB3.1 XHCI controller.
+*/
+
+/*
  * xHCI are data structures that are associated with a device which stores the state information.
  *
  * Following are the xHCI context structures
@@ -150,9 +156,9 @@ int init_xhci_context_params(struct xhci_data *xhci_ptr)
     return 0;
 }
 
-/**
- * @brief function to allocate memory for input context and initialize them to 0
- */
+/*
+    function to allocate memory for input context and initialize them to 0
+*/
 int alloc_input_device_context(struct xhci_data *xhci_ptr)
 {
     xhci_ptr->ip_ctx = (xhci_ip_device_context_t *)pvPortMallocCoherent(

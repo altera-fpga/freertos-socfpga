@@ -6,6 +6,12 @@
  * Driver implementation for QSPI
  */
 
+/*
+    File: QSPI Driver Implementation
+
+    Driver implementation for QSPI.
+*/
+
 #include <stdint.h>
 #include <stdio.h>
 #include "socfpga_qspi.h"
@@ -17,9 +23,9 @@
 #define DEFAULT_REMAP_ADDR    0U
 static uint32_t prev_bank_addr = 0x00;
 
-/**
- * @brief Enable interrupt
- */
+/*
+    Enable interrupt
+*/
 void qspi_enable_int(uint32_t type)
 {
     if (type == QSPI_INDDONE)
@@ -32,17 +38,17 @@ void qspi_enable_int(uint32_t type)
     }
 }
 
-/**
- * @brief Disable interrupt
- */
+/*
+    Disable interrupt
+*/
 void qspi_disable_int(uint32_t mask)
 {
     qspi_disable_interrupt(mask);
 }
 
-/**
- * @brief Set QSPI callback
- */
+/*
+    Set QSPI callback
+*/
 int32_t  qspi_set_callback(qspi_descriptor_t *qspi_handle, qspi_callback_t
         callback, void *puser_context)
 {
@@ -52,9 +58,9 @@ int32_t  qspi_set_callback(qspi_descriptor_t *qspi_handle, qspi_callback_t
 }
 
 
-/**
- * @brief QSPI ISR
- */
+/*
+    QSPI ISR
+*/
 #if QSPI_ENABLE_INT_MODE
 void qspi_isr(void *pparam){
 
@@ -152,9 +158,9 @@ void qspi_isr(void *pparam){
 }
 #endif
 
-/**
- * @brief Initialize QSPI interface
- */
+/*
+    Initialize QSPI interface
+*/
 int32_t qspi_init(qspi_descriptor_t *qspi_handle)
 {
 
@@ -205,9 +211,12 @@ int32_t qspi_init(qspi_descriptor_t *qspi_handle)
     return QSPI_OK;
 }
 
-/**
- * @brief Enable flash command send
- */
+/*
+    Function: qspi_flash_cmd_helper
+
+    Enable flash command send
+*/
+
 static int32_t qspi_flash_cmd_helper(void)
 {
     uint32_t count = 0U;
@@ -229,9 +238,9 @@ static int32_t qspi_flash_cmd_helper(void)
     return QSPI_OK;
 }
 
-/**
- * @brief Send flash command
- */
+/*
+    Send flash command
+*/
 int32_t qspi_send_flashcmd(uint32_t cmd)
 {
     uint32_t cs = 0U;
@@ -249,9 +258,9 @@ int32_t qspi_send_flashcmd(uint32_t cmd)
     return ret;
 }
 
-/**
- * @brief Read SFDP parametes from flash
- */
+/*
+    Read SFDP parametes from flash
+*/
 int32_t qspi_read_sfdp(uint32_t address, uint8_t size, uint32_t *data)
 {
     int32_t ret = QSPI_OK;
@@ -296,9 +305,9 @@ int32_t qspi_read_sfdp(uint32_t address, uint8_t size, uint32_t *data)
     return ret;
 }
 
-/**
- * @brief Send flash write command
- */
+/*
+    Send flash write command
+*/
 int32_t qspi_send_flash_writecmd(uint8_t cmd, uint8_t numbytes, uint32_t *data)
 {
     int32_t ret = QSPI_OK;
@@ -323,9 +332,9 @@ int32_t qspi_send_flash_writecmd(uint8_t cmd, uint8_t numbytes, uint32_t *data)
     return ret;
 }
 
-/**
- * @brief Send flash read command
- */
+/*
+    Send flash read command
+*/
 int32_t qspi_send_flash_readcmd(uint8_t cmd, uint8_t numbytes, uint32_t *data)
 {
     int32_t ret = QSPI_OK;
@@ -352,9 +361,9 @@ int32_t qspi_send_flash_readcmd(uint8_t cmd, uint8_t numbytes, uint32_t *data)
     return ret;
 }
 
-/**
- * @brief Wait for flash erase or program
- */
+/*
+    Wait for flash erase or program
+*/
 int32_t qspi_wait_for_eraseand_program(void)
 {
     int32_t ret;
@@ -412,9 +421,9 @@ int32_t qspi_wait_for_eraseand_program(void)
     return QSPI_OK;
 }
 
-/**
- * @brief Send command for QSPI sector erase
- */
+/*
+    Send command for QSPI sector erase
+*/
 int32_t qspi_erase(uint32_t address)
 {
 
@@ -475,9 +484,9 @@ int32_t qspi_erase(uint32_t address)
     return QSPI_OK;
 }
 
-/**
- * @brief Wait for QSPI erase and program
- */
+/*
+    Wait for QSPI erase and program
+*/
 int32_t qspi_write_finish(void)
 {
     uint32_t count = 0U, status = 0U;
@@ -506,9 +515,9 @@ int32_t qspi_write_finish(void)
     return QSPI_OK;
 }
 
-/**
- * @brief Select QPSI flash bank
- */
+/*
+    Select QPSI flash bank
+*/
 int32_t qspi_select_bank(uint32_t *bank_addr)
 {
     int32_t ret = qspi_send_flashcmd(QSPI_WRITE_ENABLE_CMD);
@@ -531,9 +540,9 @@ int32_t qspi_select_bank(uint32_t *bank_addr)
     return QSPI_OK;
 }
 
-/**
- * @brief Write indirectly to the QSPI flash page
- */
+/*
+    Write indirectly to the QSPI flash page
+*/
 int32_t qspi_page_write_indirect(uint32_t offset, uint8_t *data, uint32_t size,
         uint32_t *count)
 {
@@ -616,9 +625,9 @@ int32_t qspi_page_write_indirect(uint32_t offset, uint8_t *data, uint32_t size,
 #endif
 }
 
-/**
- * @brief Write in indirect mode to QSPI flash bank
- */
+/*
+    Write in indirect mode to QSPI flash bank
+*/
 int32_t qspi_bank_write_indirect(uint32_t bank_offset, uint8_t *data, uint32_t
         size, uint32_t *w_count)
 {
@@ -667,9 +676,9 @@ int32_t qspi_bank_write_indirect(uint32_t bank_offset, uint8_t *data, uint32_t
 #endif
 }
 
-/**
- * @brief Write indirectly to QSPI flash
- */
+/*
+    Write indirectly to QSPI flash
+*/
 int32_t qspi_indirect_write(uint32_t address, uint8_t *data, uint32_t size,
         uint32_t *w_count)
 {
@@ -726,9 +735,9 @@ int32_t qspi_indirect_write(uint32_t address, uint8_t *data, uint32_t size,
 #endif
 }
 
-/**
- * @brief Read data in indirect mode from QSPI flash
- */
+/*
+    Read data in indirect mode from QSPI flash
+*/
 #if QSPI_ENABLE_INT_MODE
 int32_t qspi_read_data(uint32_t size, uint8_t *data, uint32_t *count)
 {
@@ -788,9 +797,9 @@ int32_t qspi_read_data(uint32_t size, uint8_t *data, uint32_t *count)
     return QSPI_OK;
 }
 
-/**
- * @brief Read data indirectly form QSPI flash(used in ISR)
- */
+/*
+    Read data indirectly form QSPI flash(used in ISR)
+*/
 int32_t qspi_read_indirect(uint32_t address, uint8_t *data, uint32_t size,
         uint32_t *r_count)
 {
@@ -839,9 +848,9 @@ int32_t qspi_read_indirect(uint32_t address, uint8_t *data, uint32_t size,
 }
 #endif
 
-/**
- * @brief Read data indirectly form QSPI flash(to be not used in ISR)
- */
+/*
+    Read data indirectly form QSPI flash(to be not used in ISR)
+*/
 int32_t qspi_bank_read_indirect(uint32_t bank_offset, uint8_t *data, uint32_t
         size, uint32_t *rd_count)
 {
@@ -918,9 +927,9 @@ int32_t qspi_bank_read_indirect(uint32_t bank_offset, uint8_t *data, uint32_t
 #endif
 }
 
-/**
- * @brief Read directly from QSPI flash
- */
+/*
+    Read directly from QSPI flash
+*/
 int32_t qspi_indirect_read(uint32_t address, uint8_t *buffer, uint32_t size,
         uint32_t *r_count)
 {
@@ -976,9 +985,9 @@ int32_t qspi_indirect_read(uint32_t address, uint8_t *buffer, uint32_t size,
 #endif
 }
 
-/**
- * @brief Deinitialize QSPI interface
- */
+/*
+    Deinitialize QSPI interface
+*/
 int32_t qspi_deinit(void)
 {
 #if QSPI_ENABLE_INT_MODE

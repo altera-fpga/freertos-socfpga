@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Task Notify
+
+    Declares the Task Notify interface: 3 functions.
+
+    They are vStartTaskNotifyTask, xAreTaskNotificationTasksStillRunning and
+    xNotifyTaskFromISR.
+*/
+
 #ifndef TASK_NOTIFY_H
 #define TASK_NOTIFY_H
 

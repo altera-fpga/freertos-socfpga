@@ -6,10 +6,11 @@
  * Sample application for I3c
  */
 
-/**
- * @file i3c_sample.c
- * @brief Sample Application for I3C
- */
+/*
+    File: I3C Sample
+
+    Sample Application for I3C
+*/
 
 #include <FreeRTOS.h>
 #include <FreeRTOSConfig.h>
@@ -20,41 +21,44 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup i3c_sample I3C
- * @ingroup samples
- *
- * Sample Application for I3C
- *
- * @details
- * @section i3c_desc Description
- * This is a sample application to demonstrate the usage of I3C driver.
- * It uses two devices for the data transfer. The first is an I3C temperature sensor.
- * And the second is a legacy I2C EEPROM.
- * The sample uses LPS27HHW temperature sensor as the I3C slave. The application reads
- * temperature from the sensor for 10 iterations.
- * It performs writes and reads to the legacy I2C EEPROM device.
- *
- * @section i3c_pre Prerequisites
- * - A serial EEPROM with I2C interface may be connected to the I3C bus.
- * - If the I2C device is connected, the slave address shall be updated in this file.
- * - A LPS27HHW temperature sensor shall be connected to the I3C bus.
- *
- * @section i3c_param Configurable Parameters
- * - The connected_devices structure shall be initialized with the correct device properties
- * - The memory address to write and read back can be configured in @c EEPROM_START_ADDRESS macro.
- * - The number of bytes to transfer can be configured in @c NUM_TEST_BYTES macro.
- * - The I2C test can be disabled or enabled with macro @c ENABLE_I2C_I3C_TEST .
- *
- * @section i3c_how_to How to Run
- * 1. Follow the common README instructions to build and flash the application.
- * 2. Run the application on the board with the EEPROM connected.
- * 3. Observe the UART terminal for status messages.
- *
- * @section i3c_result Expected Results
- * - The write and read data to EEPROM are verified, and a success message is printed.
- * - Temperature in degree Celsius from the LPS27HHW sensor is printed 10 times.
- */
+/*
+    Group: I3C
+
+    Sample Application for I3C
+
+    Description:
+
+    This is a sample application to demonstrate the usage of I3C driver. It
+    uses two devices for the data transfer. The first is an I3C temperature
+    sensor. And the second is a legacy I2C EEPROM. The sample uses LPS27HHW
+    temperature sensor as the I3C slave. The application reads temperature
+    from the sensor for 10 iterations. It performs writes and reads to the
+    legacy I2C EEPROM device.
+
+    Prerequisites:
+
+    - A serial EEPROM with I2C interface may be connected to the I3C bus.
+    - If the I2C device is connected, the slave address shall be updated in this file.
+    - A LPS27HHW temperature sensor shall be connected to the I3C bus.
+
+    Configurable Parameters:
+
+    - The connected_devices structure shall be initialized with the correct device properties
+    - The memory address to write and read back can be configured in EEPROM_START_ADDRESS macro.
+    - The number of bytes to transfer can be configured in NUM_TEST_BYTES macro.
+    - The I2C test can be disabled or enabled with macro ENABLE_I2C_I3C_TEST .
+
+    How to Run:
+
+    1. Follow the common README instructions to build and flash the application.
+    2. Run the application on the board with the EEPROM connected.
+    3. Observe the UART terminal for status messages.
+
+    Expected Results:
+
+    - The write and read data to EEPROM are verified, and a success message is printed.
+    - Temperature in degree Celsius from the LPS27HHW sensor is printed 10 times.
+*/
 
 /* I2C test macro */
 #define ENABLE_I2C_I3C_TEST    1
@@ -126,8 +130,11 @@ struct i3c_device connected_devices[] =
 };
 
 /*
- * @brief Fill the buffer with a sequential pattern starting at start_num
- */
+    Function: fill_buffer
+
+    Fill the buffer with a sequential pattern starting at start_num
+*/
+
 static void fill_buffer(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 {
     uint32_t i;
@@ -138,8 +145,11 @@ static void fill_buffer(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 }
 
 /*
- * @brief Verify buffer for the expected pattern
- */
+    Function: verify_buffer
+
+    Verify buffer for the expected pattern
+*/
+
 static int verify_buffer(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 {
     int ret = 0;
@@ -158,6 +168,14 @@ static int verify_buffer(uint8_t *buf, uint32_t nbytes, uint8_t start_num)
 }
 
 #if ENABLE_I3C_IBI_SAMPLE
+/*
+    Function: i3c_ibi_callback
+
+    Calls osal_semaphore_post.
+
+    Parameters:
+        param - Not used.
+*/
 static void i3c_ibi_callback(uint8_t ibi_id_cb, uint8_t ibi_status_cb,
         const uint8_t *payload, uint8_t payload_len, void *param)
 {
@@ -182,16 +200,18 @@ static void i3c_ibi_callback(uint8_t ibi_id_cb, uint8_t ibi_status_cb,
 #endif
 
 /*
- * @brief Read from legacy I2C EEPROM.
- *
- *    For EEPROM read two transfer requests are to be sent. The first request is
- *    to write the desired offset. The second is the read transfer request.
- *    The first transfer request is a write operation which is indicated to the
- *    driver by setting 'read' flag of the request as false. The second transfer
- *    request is a read operation which is indicated to the driver by setting the
- *    'read' flag as true To indicate that this is a legacy I2C device the
- *    'is_i2c' flag is set.
- */
+    Function: eeprom_i3c_i2c_read
+
+    Read from legacy I2C EEPROM.
+
+    For EEPROM read two transfer requests are to be sent. The first request is
+    to write the desired offset. The second is the read transfer request. The
+    first transfer request is a write operation which is indicated to the
+    driver by setting 'read' flag of the request as false. The second transfer
+    request is a read operation which is indicated to the driver by setting
+    the 'read' flag as true To indicate that this is a legacy I2C device the
+    'is_i2c' flag is set.
+*/
 int eeprom_i3c_i2c_read(uint8_t reg_address, uint8_t *data, uint32_t num_bytes)
 {
 
@@ -220,14 +240,15 @@ int eeprom_i3c_i2c_read(uint8_t reg_address, uint8_t *data, uint32_t num_bytes)
 }
 
 /*
- * @brief Write to legacy I2C EEPROM.
- *
- *    For EEPROM write one transfer request is sufficient. The first
- *    two bytes of the transfer is used to indicate the offset and the rest
- *    is the data. For write operation the 'read' flag of the transfer is
- *    set as false. To indicate that this is a legacy I2C device 'is_i2c'
- *    flag is set.
- */
+    Function: eeprom_i3c_i2c_write
+
+    Write to legacy I2C EEPROM.
+
+    For EEPROM write one transfer request is sufficient. The first two bytes
+    of the transfer is used to indicate the offset and the rest is the data.
+    For write operation the 'read' flag of the transfer is set as false. To
+    indicate that this is a legacy I2C device 'is_i2c' flag is set.
+*/
 int eeprom_i3c_i2c_write(uint8_t reg_address, uint8_t *data, uint8_t num_bytes)
 {
     int32_t retval = 0;
@@ -253,15 +274,17 @@ int eeprom_i3c_i2c_write(uint8_t reg_address, uint8_t *data, uint8_t num_bytes)
 }
 
 /*
- *  @brief Read lps27hhw device register.
- *
- *    The lps27hhw sensor is an I3C slave. The I3C controller communicates with the
- *    sensor using the dynamic address allocated to the device by the I3C controller.
- *    The read operation is carried out using two transfer requests. The first one is
- *    a write request to send the register address. The second request is a read
- *    transaction to get the register value. To indicate that the device is not a
- *    legacy I2C device the 'is_i2c' flag is set as false.
- */
+    Function: lps27hhw_read_register
+
+    Read lps27hhw device register.
+
+    The lps27hhw sensor is an I3C slave. The I3C controller communicates with
+    the sensor using the dynamic address allocated to the device by the I3C
+    controller. The read operation is carried out using two transfer requests.
+    The first one is a write request to send the register address. The second
+    request is a read transaction to get the register value. To indicate that
+    the device is not a legacy I2C device the 'is_i2c' flag is set as false.
+*/
 int lps27hhw_read_register(uint8_t reg_address, uint8_t *data,
         uint8_t num_bytes)
 {
@@ -286,14 +309,17 @@ int lps27hhw_read_register(uint8_t reg_address, uint8_t *data,
 }
 
 /*
- * @brief Write to lps27hhw device.
- *
- *    The lps27hhw sensor is an I3C slave. The I3C controller communicates with the
- *    sensor using the dynamic address  allocated to the device by the I3C controller.
- *    The write operation is carried out using one write transfer request. This is a
- *    write request with register address and write data. To indicate that the
- *    device is not a legacy I2C device the 'is_i2c' flag is to be set as false.
- */
+    Function: lps27hhw_write_register
+
+    Write to lps27hhw device.
+
+    The lps27hhw sensor is an I3C slave. The I3C controller communicates with
+    the sensor using the dynamic address allocated to the device by the I3C
+    controller. The write operation is carried out using one write transfer
+    request. This is a write request with register address and write data. To
+    indicate that the device is not a legacy I2C device the 'is_i2c' flag is
+    to be set as false.
+*/
 int lps27hhw_write_register(uint8_t reg_address, uint8_t *data,
         uint8_t num_bytes)
 {
@@ -320,6 +346,9 @@ int lps27hhw_write_register(uint8_t reg_address, uint8_t *data,
     return retval;
 }
 
+/*
+    Function: i3c_task
+*/
 void i3c_task(void)
 {
     PRINT("Starting I3C sample application.");

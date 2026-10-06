@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Gen Q Test
+
+    Declares the Gen Q Test interface: 3 functions.
+
+    They are vMutexISRInteractionTest, vStartGenericQueueTasks and
+    xAreGenericQueueTasksStillRunning.
+*/
+
 #ifndef GEN_Q_TEST_H
 #define GEN_Q_TEST_H
 

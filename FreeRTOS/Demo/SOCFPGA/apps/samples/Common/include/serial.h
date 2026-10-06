@@ -24,11 +24,26 @@
  *
  */
 
+/*
+    File: Serial
+
+    Declares the Serial interface: 7 functions and 6 types.
+
+    They are vSerialClose, vSerialPutString, xSerialGetChar,
+    xSerialPortInit, xSerialPortInitMinimal, xSerialPutChar and
+    xSerialWaitForSemaphore.
+*/
+
 #ifndef SERIAL_COMMS_H
 #define SERIAL_COMMS_H
 
 typedef void * xComPortHandle;
 
+/*
+    Enum: eCOMPort
+
+    Values used by the Serial: serCOM1, serCOM2, serCOM3 and 4 more. Passed to vStartComTestTasks and xSerialPortInit.
+*/
 typedef enum
 {
     serCOM1,
@@ -41,6 +56,11 @@ typedef enum
     serCOM8
 } eCOMPort;
 
+/*
+    Enum: eParity
+
+    Values used by the Serial: serNO_PARITY, serODD_PARITY, serEVEN_PARITY and serMARK_PARITY. Passed to xSerialPortInit.
+*/
 typedef enum
 {
     serNO_PARITY,
@@ -50,12 +70,22 @@ typedef enum
     serSPACE_PARITY
 } eParity;
 
+/*
+    Enum: eStopBits
+
+    Values used by the Serial: serSTOP_1. Passed to xSerialPortInit.
+*/
 typedef enum
 {
     serSTOP_1,
     serSTOP_2
 } eStopBits;
 
+/*
+    Enum: eDataBits
+
+    Data values used by the Serial: serBITS_5, serBITS_6 and serBITS_7. Passed to xSerialPortInit.
+*/
 typedef enum
 {
     serBITS_5,
@@ -64,6 +94,11 @@ typedef enum
     serBITS_8
 } eDataBits;
 
+/*
+    Enum: eBaud
+
+    Values used by the Serial: ser50, ser75, ser110 and 13 more. Passed to vStartComTestTasks and xSerialPortInit.
+*/
 typedef enum
 {
     ser50,

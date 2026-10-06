@@ -6,6 +6,12 @@
  * QSPI HAL layer for RSU
  */
 
+/*
+    File: RSU QSPI Ops Library Implementation
+
+    QSPI HAL layer for RSU.
+*/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -20,6 +26,12 @@
 
 flash_handle_t rsu_rtos_qspi_handle = NULL;
 
+/*
+    Function: plat_qspi_read
+
+    Calls <cache_force_write_back>, <flash_read_sync> and
+    <cache_force_invalidate>.
+*/
 static RSU_OSAL_INT plat_qspi_read(RSU_OSAL_OFFSET offset, RSU_OSAL_VOID *data,
         RSU_OSAL_SIZE len)
 {
@@ -45,6 +57,11 @@ static RSU_OSAL_INT plat_qspi_read(RSU_OSAL_OFFSET offset, RSU_OSAL_VOID *data,
     return 0;
 }
 
+/*
+    Function: plat_qspi_write
+
+    Calls <cache_force_write_back> and <flash_write_sync>.
+*/
 static RSU_OSAL_INT plat_qspi_write(RSU_OSAL_OFFSET offset,
         const RSU_OSAL_VOID *data,
         RSU_OSAL_SIZE len)
@@ -69,6 +86,11 @@ static RSU_OSAL_INT plat_qspi_write(RSU_OSAL_OFFSET offset,
     return 0;
 }
 
+/*
+    Function: plat_qspi_erase
+
+    Calls <flash_erase_sectors>.
+*/
 static RSU_OSAL_INT plat_qspi_erase(RSU_OSAL_OFFSET offset, RSU_OSAL_SIZE len)
 {
     RSU_OSAL_INT status;
@@ -89,6 +111,11 @@ static RSU_OSAL_INT plat_qspi_erase(RSU_OSAL_OFFSET offset, RSU_OSAL_SIZE len)
     return 0;
 }
 
+/*
+    Function: plat_qspi_terminate
+
+    Calls <flash_close>.
+*/
 static RSU_OSAL_INT plat_qspi_terminate(RSU_OSAL_VOID)
 {
     if (flash_close(rsu_rtos_qspi_handle) != 0)

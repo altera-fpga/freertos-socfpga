@@ -6,6 +6,13 @@
  * Header file for xHCI implementation
  */
 
+/*
+    File: xHCI Driver
+
+    Declares the xHCI driver interface: 21 functions, 6 types and 12
+    constants.
+*/
+
 #ifndef __XHCI_H__
 #define __XHCI_H__
 
@@ -25,6 +32,11 @@
 #define XHCI_EVENT_RING_SEG_LENGTH   (512U)   /* !< Event Ring segment length */
 #define START_XHCI                   (1U)     /* !< Start the xHCI controller */
 
+/*
+    Enum: xhci_ep_type_t
+
+    Values used by the xHCI driver: BULK_OUT, INTERRUPT_OUT, CONTROL and 3 more. Passed to init_xhc_endpoint_context.
+*/
 typedef enum
 {
     ISO_OUT = 1,        /* !< Isochronous OUT EP */
@@ -36,49 +48,55 @@ typedef enum
     INTERRUPT_IN,       /* !< Interrupt IN EP */
 }xhci_ep_type_t;
 
-/**
- * @brief USB Standard Endpoint Descriptor.
- *
- * Describes an endpoint’s characteristics such as type, address, maximum packet size,
- * and polling interval. It is used during USB enumeration to inform the host of
- * endpoint capabilities.
- */
+/*
+    Struct: usb_endpoint_descriptor_t
+
+    USB Standard Endpoint Descriptor.
+
+    Describes an endpoint’s characteristics such as type, address, maximum
+    packet size, and polling interval. It is used during USB enumeration to
+    inform the host of endpoint capabilities.
+*/
 typedef struct
 {
-    uint8_t bLength;            /*!< Size of this descriptor in bytes */
-    uint8_t bDescriptorType;    /*!< ENDPOINT descriptor type (0x05) */
-    uint8_t bEndpointAddress;   /*!< The address of the endpoint on the USB device (bit 7 indicates direction: 0 = OUT, 1 = IN) */
-    uint8_t bmAttributes;       /*!< Endpoint attributes: transfer type (bits 0–1), synchronization type (bits 2–3), usage type (bits 4–5) */
-    uint16_t wMaxPacketSize;    /*!< Maximum packet size this endpoint is capable of sending or receiving */
-    uint8_t bInterval;          /*!< Interval for polling endpoint for data transfers (in frames or microframes, depending on transfer type) */
+    uint8_t bLength;            /* Size of this descriptor in bytes */
+    uint8_t bDescriptorType;    /* ENDPOINT descriptor type (0x05) */
+    uint8_t bEndpointAddress;   /* The address of the endpoint on the USB device (bit 7 indicates direction: 0 = OUT, 1 = IN) */
+    uint8_t bmAttributes;       /* Endpoint attributes: transfer type (bits 0–1), synchronization type (bits 2–3), usage type (bits 4–5) */
+    uint16_t wMaxPacketSize;    /* Maximum packet size this endpoint is capable of sending or receiving */
+    uint8_t bInterval;          /* Interval for polling endpoint for data transfers (in frames or microframes, depending on transfer type) */
 }/*! \cond */
 __attribute__ ((packed))
 /*! \endcond */ usb_endpoint_descriptor_t;
 
-/**
- * @brief Represents a standard USB control transfer setup packet.
- *
- * This structure defines the setup packet used in USB control transfers.
- * It corresponds to the standard USB setup packet format defined by the USB specification.
- */
+/*
+    Struct: usb_control_request_t
+
+    Represents a standard USB control transfer setup packet.
+
+    This structure defines the setup packet used in USB control transfers. It
+    corresponds to the standard USB setup packet format defined by the USB
+    specification.
+*/
 typedef struct
 {
-    uint8_t bmRequestType;   /*!< Characteristics of the request:
+    uint8_t bmRequestType;   /* Characteristics of the request:
                                  - Direction (bit 7)
                                  - Type (bits 5..6)
                                  - Recipient (bits 0..4) */
-    uint8_t bRequest;        /*!< Specific request code */
-    uint16_t wValue;         /*!< Word-sized field that varies according to request */
-    uint16_t wIndex;         /*!< Typically used to pass an index or offset (e.g., interface or endpoint) */
-    uint16_t wLength;        /*!< Number of bytes to transfer if there is a data stage */
+    uint8_t bRequest;        /* Specific request code */
+    uint16_t wValue;         /* Word-sized field that varies according to request */
+    uint16_t wIndex;         /* Typically used to pass an index or offset (e.g., interface or endpoint) */
+    uint16_t wLength;        /* Number of bytes to transfer if there is a data stage */
 }/*! \cond */
 __attribute__ ((packed))
 /*! \endcond */ usb_control_request_t;
 
 /*
- * @struct  xhci_cap_reg
- * @brief   structure to store xhci capability register parameters
- */
+    Struct: xhci_cap_reg_t
+
+    structure to store xhci capability register parameters
+*/
 typedef struct __attribute__ ((packed))
 {
     uint8_t caplength;                  /* !< caplength register */
@@ -122,10 +140,10 @@ typedef struct __attribute__ ((packed))
 } xhci_cap_reg_t;
 
 /*
- * @struct  xhci_oper_reg_params
- * @brief   stores xhci operational base, runtime tbase and doorbell base
- *           address
- */
+    Struct: xhci_oper_reg_params_t
+
+    stores xhci operational base, runtime tbase and doorbell base address
+*/
 typedef struct xhci_oper_reg_params
 {
     uint64_t xhci_op_base;      /* !< operation base offset */
@@ -137,9 +155,10 @@ typedef struct xhci_oper_reg_params
 #define SLOT_STATE_FIELD     59
 
 /*
- * @struct  ep_priv
- * @brief   stores endpoint specific parameters
- */
+    Struct: ep_priv
+
+    stores endpoint specific parameters
+*/
 struct ep_priv
 {
     xhci_trb_t *ep_tr_enq_ptr;          /* !< TR enqueue pointer */
@@ -151,8 +170,10 @@ struct ep_priv
 } __attribute__ ((packed));
 
 /*
- * struct to store MSC specific endpoint data
- */
+    Struct: msc_eps_params_t
+
+    Struct to store MSC specific endpoint data. Declared as msc_eps in xhci.h.
+*/
 typedef struct
 {
     struct ep_priv ep_in;      /* !< Endpoint IN specific parameters */
@@ -160,6 +181,11 @@ typedef struct
 
 }msc_eps_params_t;
 
+/*
+    Struct: xhci_device_data
+
+    Data for the xHCI driver, holding slot_id, dev_addr, dev_speed and rh_port. Passed to display_xhci_device_params and update_device_slot_id.
+*/
 struct xhci_device_data
 {
     uint8_t slot_id;        /* !< slot id of the device */
@@ -169,8 +195,10 @@ struct xhci_device_data
 };
 
 /*
- * @brief xhci controller structure
- */
+    Struct: xhci_data
+
+    xhci controller structure
+*/
 struct xhci_data
 {
     struct xhci_device_data dev_data;  /* !< device specific data */
@@ -189,172 +217,288 @@ struct xhci_data
     struct xhci_device_context_array *dcbaa; /* !< dcbaa pointer array */
 };
 
-/**
- * @brief  allocate xhci context memories
- * @param[in]  xhci_ptr -  reference of xhci hcd controller
- * @return
- *  0, on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: alloc_xhci_contexts
+
+    allocate xhci context memories
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+
+    Returns:
+
+        0, on successful allocation
+        errno, incase of failure
+*/
 int alloc_xhci_contexts(struct xhci_data *xhci_ptr);
 
-/**
- * @brief  update the output device context entry for the corresponding device
- * slot id
- * @param[in] xhci_ptr : reference to xhci hcd structure
- */
+/*
+    Function: update_dcbaa_entry
+
+    update the output device context entry for the corresponding device slot
+    id
+
+    Parameters:
+
+        xhci_ptr - : reference to xhci hcd structure
+*/
 void update_dcbaa_entry(struct xhci_data *xhci_ptr);
 
-/**
- * @brief  deallocate xhci context memories
- * @param[in]  xhci_ptr -  reference of xhci hcd controller
- */
+/*
+    Function: deallocate_xhci_context
+
+    deallocate xhci context memories
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+*/
 void deallocate_xhci_context(struct xhci_data *xhci_ptr);
 
-/**
- * @brief  allocate xhci input context
- * @param[in]  xhci_ptr -  reference of xhci hcd controller
- * @return
- *  0, on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: alloc_input_device_context
+
+    allocate xhci input context
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+
+    Returns:
+
+        0, on successful allocation
+        errno, incase of failure
+*/
 int alloc_input_device_context(struct xhci_data *xhci_ptr);
 
-/**
- * @brief : allocate xhci output device context
- * @param[in]  xhci_ptr -  reference of xhci hcd controller
- * @return
- *  0, on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: alloc_output_device_context
+
+    : allocate xhci output device context
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+
+    Returns:
+
+        0, on successful allocation
+        errno, incase of failure
+*/
 int alloc_output_device_context(struct xhci_data *xhci_ptr);
 
-/**
- * @brief initialize input device context data structure
- * @param[in]  xhci -  reference of xhci hcd controller
- * @return
- *  0, on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: init_input_device_context
+
+    initialize input device context data structure
+
+    Parameters:
+
+        xhci - - reference of xhci hcd controller
+
+    Returns:
+
+        0, on successful allocation
+        errno, incase of failure
+*/
 int init_input_device_context(struct xhci_data *xhci_ptr);
 
-/**
- * @brief allocate xhci device context base address array and store the base
- *         address array into DCBAA register
- * @param[in]  xhci_ptr -  reference of xhci hcd controller
- * @return
- *  0, on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: alloc_dcbaa
+
+    allocate xhci device context base address array and store the base address
+    array into DCBAA register
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+
+    Returns:
+
+        0, on successful allocation
+        errno, incase of failure
+*/
 int alloc_dcbaa(struct xhci_data *xhci_ptr);
 
-/**
- * @brief update xhci slot context data structure
- * @param[in]  xhci_ptr -  reference of xhci hcd controller
- */
+/*
+    Function: update_xhc_slot_context
+
+    update xhci slot context data structure
+
+    Parameters:
+
+        xhci_ptr - - reference of xhci hcd controller
+*/
 void update_xhc_slot_context(struct xhci_data *xhci_ptr);
 
-/**
- * @brief  initialize endpoint context data structure
- * @param[in]  xhci -  reference of xhci hcd controller
- * @param[in]  ep_type -  endpoint type  (bulk, control etc)
- * @return
- *  RET_SUCCESS, on successful allocation
- *  RET_FAIL, incase of failure
- */
+/*
+    Function: init_xhc_endpoint_context
+
+    initialize endpoint context data structure
+
+    Parameters:
+
+        xhci - - reference of xhci hcd controller
+        ep_type - - endpoint type (bulk, control etc)
+
+    Returns:
+
+        RET_SUCCESS, on successful allocation
+        RET_FAIL, incase of failure
+*/
 void init_xhc_endpoint_context(struct xhci_data *xhci, xhci_ep_type_t ep_type);
 
-/**
- * @brief  return the device address from the output context data structure
- * @param[in]  xhci -  reference of xhci hcd controller
- * @return device address
- */
+/*
+    Function: get_xhc_device_address
+
+    return the device address from the output context data structure
+
+    Parameters:
+
+        xhci - - reference of xhci hcd controller
+
+    Returns:
+
+        device address
+*/
 uint8_t get_xhc_device_address(struct xhci_data *xhci_ptr);
 
 /*XHCI capability register APIs*/
 
-/**
- * @brief  function to return the operational register parameters of xhci
- *        controller
- * @return operational register parameters
- */
+/*
+    Function: get_xhci_op_registers
+
+    function to return the operational register parameters of xhci controller
+
+    Returns:
+
+        operational register parameters
+*/
 xhci_oper_reg_params_t get_xhci_op_registers(void);
 
-/**
- * @brief  function to get the xhci capability parameters controller
- * @param[in]  xhci -  reference of xhci hcd controller
- * @return
- *  0, if operation is successful
- *  errno, on failure
- */
+/*
+    Function: get_xhc_cap_params
+
+    function to get the xhci capability parameters controller
+
+    Parameters:
+
+        xhci - - reference of xhci hcd controller
+
+    Returns:
+
+        0, if operation is successful
+        errno, on failure
+*/
 int get_xhc_cap_params(struct xhci_data *xhci);
 
-/**
- * @brief  function to check if the pointer address passed is byte aligned
- * @param[in]  ptr -  reference to xhci strucute
- * @return
- *  0, on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: init_xhc_event_ring
+
+    function to check if the pointer address passed is byte aligned
+
+    Parameters:
+
+        ptr - - reference to xhci strucute
+
+    Returns:
+
+        0, on successful allocation
+        errno, incase of failure
+*/
 int init_xhc_event_ring(struct xhci_data *xhci_ptr);
 
-/**
- * @brief Initialize xHCI context parameters.
- * @param[in] xhci_ptr reference xhci data structure
- * @return
- *  0, on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: init_xhci_context_params
+
+    Initialize xHCI context parameters.
+
+    Parameters:
+
+        xhci_ptr - reference xhci data structure
+
+    Returns:
+
+        0, on successful allocation
+        errno, incase of failure
+*/
 int init_xhci_context_params(struct xhci_data *xhci_ptr);
 
 /* Generic xhci APIS */
 
-/**
- * @brief  function to check if the pointer address passed is byte aligned
- * @param[in]  ptr -  pointer to be checked byte aligned or not
- * @param[in]  byte - pointer byte alignment size
- * @return
- *  0  on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: is_ptr_mem_aligned
+
+    function to check if the pointer address passed is byte aligned
+
+    Parameters:
+
+        ptr - - pointer to be checked byte aligned or not
+        byte - - pointer byte alignment size
+
+    Returns:
+
+        0 on successful allocation
+        errno, incase of failure
+*/
 int is_ptr_mem_aligned(uint64_t addr, uint32_t byte);
 
-/**
- * @brief  parse the endpoint descriptors
- * @param[in] xhci_ptr reference to xhci hcd structure
- * @param[in] desc endpoint descriptor
- * @return
- *  0 on successful allocation
- *  errno, incase of failure
- */
+/*
+    Function: xhci_parse_endpoint_descriptor
+
+    parse the endpoint descriptors
+
+    Parameters:
+
+        xhci_ptr - reference to xhci hcd structure
+        desc - endpoint descriptor
+
+    Returns:
+
+        0 on successful allocation
+        errno, incase of failure
+*/
 
 int xhci_parse_endpoint_descriptor(struct xhci_data *xhci_ptr,
         usb_endpoint_descriptor_t *desc);
 
-/**
- * @brief Display device info
- */
+/*
+    Function: display_xhci_device_params
+
+    Display device info
+*/
 void display_xhci_device_params(struct xhci_device_data *dev_data);
 
-/**
- * @brief  reset the xHCI controller
- * @return
- *  0, on success
- *  errno, on failure
- */
+/*
+    Function: xhci_reset
+
+    reset the xHCI controller
+
+    Returns:
+
+        0, on success
+        errno, on failure
+*/
 int xhci_reset(void);
 
-/**
- * @brief  start the xHCI controller
- */
+/*
+    Function: start_xhci_controller
+
+    start the xHCI controller
+*/
 void start_xhci_controller(void);
 
-/**
- * @brief Initialize the xHCI registers
- * @return
- *  true on successful initialization
- *  false incase of failure
- */
+/*
+    Function: xhci_init
+
+    Initialize the xHCI registers
+
+    Returns:
+
+        true on successful initialization
+        false incase of failure
+*/
 bool xhci_init(struct xhci_data *xhci);
 
 #endif  /*__XHCI_H__ */

@@ -39,15 +39,28 @@ uint32_t spi_get_base_addr(uint32_t instance, spi_role_t role);
 void spi_set_slave_output(uint32_t base_addr, bool enable);
 
 void spi_select_chip(uint32_t instance, uint32_t slave);
-/**
- * @brief Set SPI controller configuration.
- *
- * @param base_addr SPI base address.
- * @param freq         Requested SCLK frequency in Hz.
- * @param mode         SPI mode (CPOL/CPHA).
- *
- * @return 0 on success, negative errno on failure.
- */
+/*
+    File: SPI Low-Level Driver
+
+    Declares the SPI low-level driver interface: 21 functions and 12
+    constants.
+*/
+
+/*
+    Function: spi_set_config
+
+    Set SPI controller configuration.
+
+    Parameters:
+
+        base_addr - SPI base address.
+        freq - Requested SCLK frequency in Hz.
+        mode - SPI mode (CPOL/CPHA).
+
+    Returns:
+
+        0 on success, negative errno on failure.
+*/
 int32_t spi_set_config(uint32_t base_addr, uint32_t freq, spi_mode_t mode);
 void spi_get_config(uint32_t base_addr, uint32_t *freq, spi_mode_t *mode);
 void spi_set_transfermode(uint32_t base_addr, uint32_t mode);

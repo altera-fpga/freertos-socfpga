@@ -6,6 +6,13 @@
  * This contains the register definitions for SoC FPGA system manager
  */
 
+/*
+    File: System Manager Registers
+
+    This contains the register definitions for SoC FPGA system manager.
+
+    The definitions fall into the SYS_MNGR_* families.
+*/
 
 #ifndef __SOCFPGA_SYS_MNGR_REG_H__
 #define __SOCFPGA_SYS_MNGR_REG_H__

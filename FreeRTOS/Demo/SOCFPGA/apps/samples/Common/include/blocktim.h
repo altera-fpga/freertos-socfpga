@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Blocktim
+
+    Declares the Blocktim interface: 2 functions.
+
+    They are vCreateBlockTimeTasks and xAreBlockTimeTestTasksStillRunning.
+*/
+
 #ifndef BLOCK_TIME_TEST_H
 #define BLOCK_TIME_TEST_H
 

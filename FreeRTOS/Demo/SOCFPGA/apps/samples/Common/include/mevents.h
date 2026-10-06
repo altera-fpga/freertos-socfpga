@@ -24,6 +24,14 @@
  *
  */
 
+/*
+    File: Mevents
+
+    Declares the Mevents interface: 2 functions.
+
+    They are vStartMultiEventTasks and xAreMultiEventTasksStillRunning.
+*/
+
 #ifndef EVENTS_TEST_H
 #define EVENTS_TEST_H
 

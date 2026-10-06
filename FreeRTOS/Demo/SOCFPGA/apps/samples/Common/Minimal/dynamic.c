@@ -25,6 +25,12 @@
  */
 
 /*
+    File: Dynamic Implementation
+
+    The first test creates three tasks - two counter tasks (one continuous count and one limited count) and one controller.
+*/
+
+/*
  * The first test creates three tasks - two counter tasks (one continuous count
  * and one limited count) and one controller.  A "count" variable is shared
  * between all three tasks.  The two counter tasks should never be in a "ready"
@@ -170,9 +176,12 @@ void vStartDynamicPriorityTasks( void )
 /*-----------------------------------------------------------*/
 
 /*
- * Just loops around incrementing the shared variable until the limit has been
- * reached.  Once the limit has been reached it suspends itself.
- */
+    Function: vLimitedIncrementTask
+
+    Just loops around incrementing the shared variable until the limit has been
+    reached.  Once the limit has been reached it suspends itself.
+*/
+
 static portTASK_FUNCTION( vLimitedIncrementTask, pvParameters )
 {
     volatile uint32_t * pulCounter;
@@ -199,9 +208,12 @@ static portTASK_FUNCTION( vLimitedIncrementTask, pvParameters )
 /*-----------------------------------------------------------*/
 
 /*
- * Just keep counting the shared variable up.  The control task will suspend
- * this task when it wants.
- */
+    Function: vContinuousIncrementTask
+
+    Just keep counting the shared variable up.  The control task will suspend
+    this task when it wants.
+*/
+
 static portTASK_FUNCTION( vContinuousIncrementTask, pvParameters )
 {
     volatile uint32_t * pulCounter;
@@ -236,8 +248,11 @@ static portTASK_FUNCTION( vContinuousIncrementTask, pvParameters )
 /*-----------------------------------------------------------*/
 
 /*
- * Controller task as described above.
- */
+    Function: vCounterControlTask
+
+    Controller task as described above.
+*/
+
 static portTASK_FUNCTION( vCounterControlTask, pvParameters )
 {
     uint32_t ulLastCounter;
@@ -357,6 +372,14 @@ static portTASK_FUNCTION( vCounterControlTask, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vQueueSendWhenSuspendedTask
+
+    Calls vTaskSuspendAll, xQueueSend, xTaskResumeAll and vTaskDelay.
+
+    Parameters:
+        pvParameters - Not used.
+*/
 static portTASK_FUNCTION( vQueueSendWhenSuspendedTask, pvParameters )
 {
     static uint32_t ulValueToSend = ( uint32_t ) 0;
@@ -383,6 +406,9 @@ static portTASK_FUNCTION( vQueueSendWhenSuspendedTask, pvParameters )
 }
 /*-----------------------------------------------------------*/
 
+/*
+    Function: vQueueReceiveWhenSuspendedTask
+*/
 static portTASK_FUNCTION( vQueueReceiveWhenSuspendedTask, pvParameters )
 {
     uint32_t ulReceivedValue;

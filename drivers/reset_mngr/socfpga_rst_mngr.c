@@ -6,6 +6,15 @@
  * HAL driver implementation for reset manager
  */
 
+/*
+    File: Reset Manager Driver Implementation
+
+    HAL driver implementation for reset manager.
+
+    They are rstmgr_assert_reset, rstmgr_deassert_reset, rstmgr_toggle_reset
+    and rstmgr_get_reset_status.
+*/
+
 #include "socfpga_rst_mngr_reg.h"
 #include "socfpga_rst_mngr.h"
 #include "socfpga_defines.h"

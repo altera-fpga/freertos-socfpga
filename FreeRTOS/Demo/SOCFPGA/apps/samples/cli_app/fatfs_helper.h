@@ -6,9 +6,23 @@
  * Header file for helper functions for FAT commands
  */
 
+/*
+    File: FatFs Helper
+
+    Header file for helper functions for FAT commands.
+
+    They are FatFsInit, ff_ls, ff_mk_dir, ff_mount, ff_read, ff_rm,
+    ff_rm_dir, ff_un_mount and ff_write.
+*/
+
 #ifndef __FATFS_HELPER_H__
 #define __FATFS_HELPER_H__
 
+/*
+    Enum: disk_type_t
+
+    Values used by the FatFs Helper: DISK_TYPE_USB3 and DISK_TYPE_INVALID. Passed to ff_mount and ff_read.
+*/
 typedef enum
 {
     DISK_TYPE_SDMMC = 0,

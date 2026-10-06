@@ -4,6 +4,18 @@
  * SPDX-License-Identifier: MIT-0
  */
 
+/*
+    File: Platform Driver Implementation
+
+    Driver for the Platform: 1 function.
+*/
+
+/*
+    Constants: Platform constants
+
+    ALT_SYSMGR_SCRATCH_REG_POR_1_REVA_WORKAROUND_MASK - Agilex5 A0 workaround detection mask.
+*/
+
 #include <stdint.h>
 
 #include "socfpga_defines.h"

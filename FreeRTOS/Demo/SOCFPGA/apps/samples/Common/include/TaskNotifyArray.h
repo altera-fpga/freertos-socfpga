@@ -24,6 +24,15 @@
  *
  */
 
+/*
+    File: Task Notify Array
+
+    Declares the Task Notify Array interface: 3 functions.
+
+    They are vStartTaskNotifyArrayTask,
+    xAreTaskNotificationArrayTasksStillRunning and xNotifyArrayTaskFromISR.
+*/
+
 #ifndef TASK_NOTIFY_ARRAY_H
 #define TASK_NOTIFY_ARRAY_H
 

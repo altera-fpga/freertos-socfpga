@@ -24,35 +24,33 @@
 #include "osal.h"
 #include "osal_log.h"
 
-/**
- * @defgroup i2c_slave_dma_sample I2C
- * @ingroup samples
- *
- * Sample application for I2C slave loopback (DMA).
- *
- * @details
- * This sample configures I2C0 as master and I2C1 as slave, connected by the
- * FPGA fabric. The slave uses RDMA for master writes and WDMA for master reads.
- * The master performs synchronous transfers, while the slave uses async DMA
- * and a completion callback.
- *
- * System flow overview
- * - Load core.rbf to wire I2C0 <-> I2C1 in the FPGA fabric.
- * - Create two tasks:
- *   - Slave task sets I2C1 to slave mode, opens DMA, and arms RDMA/WDMA.
- *   - Master task sets I2C0 to master mode and performs write/read transfers.
- * - Each DMA phase is armed on the slave before the master starts the transfer.
- * - The DMA completion callback signals the slave task to advance.
- *
- * Prerequisites
- * - The FPGA bitstream (`/core.rbf`) must be present on the SD card.
- * - The bitstream must connect I2C0 <-> I2C1 for loopback.
- *
- * How to run
- * 1. Set `I2C_SAMPLE_ENABLE_SLAVE_DMA` to 1 in `samples/i2c/main.c`.
- * 2. Build and flash the application.
- * 3. Observe UART for per-iteration status messages.
- */
+/*
+    File: I2C Slave DMA Sample
+
+    Sample application for I2C slave loopback (DMA).
+
+    This sample configures I2C0 as master and I2C1 as slave, connected by the
+    FPGA fabric. The slave uses RDMA for master writes and WDMA for master
+    reads. The master performs synchronous transfers, while the slave uses
+    async DMA and a completion callback.
+
+    System flow overview
+    - Load core.rbf to wire I2C0 <-> I2C1 in the FPGA fabric.
+    - Create two tasks:
+      - Slave task sets I2C1 to slave mode, opens DMA, and arms RDMA/WDMA.
+      - Master task sets I2C0 to master mode and performs write/read transfers.
+    - Each DMA phase is armed on the slave before the master starts the transfer.
+    - The DMA completion callback signals the slave task to advance.
+
+    Prerequisites
+    - The FPGA bitstream (`/core.rbf`) must be present on the SD card.
+    - The bitstream must connect I2C0 <-> I2C1 for loopback.
+
+    How to run
+    1. Set `I2C_SAMPLE_ENABLE_SLAVE_DMA` to 1 in `samples/i2c/main.c`.
+    2. Build and flash the application.
+    3. Observe UART for per-iteration status messages.
+*/
 
 /*
  * A) Peripheral DMA limitation:
@@ -157,6 +155,11 @@ static volatile bool is_stop_xfers;
 static volatile bool is_slave_ok;
 static volatile bool is_master_ok;
 
+/*
+    Struct: dma_cb_ctx_t
+
+    Context for the I2C Slave DMA sample, holding done_sem and status. Declared as slave_cb_ctx in i2c_slave_dma_sample.c.
+*/
 typedef struct
 {
     osal_semaphore_t done_sem;
@@ -165,6 +168,9 @@ typedef struct
 
 static dma_cb_ctx_t slave_cb_ctx;
 
+/*
+    Function: handle_slave_dma_complete
+*/
 static void handle_slave_dma_complete(i2c_op_status_t status, void *param)
 {
     dma_cb_ctx_t *cb = (dma_cb_ctx_t *)param;
@@ -183,14 +189,24 @@ static void handle_slave_dma_complete(i2c_op_status_t status, void *param)
  * Application note:
  * - If you want a mixed DMA/IRQ design, replace these with real callbacks.
  */
-/* Stub for wr_requsted_cb: unused in DMA slave sample flow. */
+/*
+    Function: handle_stub_write_requested
+
+    Stub for wr_requsted_cb: unused in DMA slave sample flow.
+*/
+
 static void handle_stub_write_requested(i2c_handle_t handle, void *param)
 {
     (void)handle;
     (void)param;
 }
 
-/* Stub for wr_received_cb: unused in DMA slave sample flow. */
+/*
+    Function: handle_stub_write_received
+
+    Stub for wr_received_cb: unused in DMA slave sample flow.
+*/
+
 static void handle_stub_write_received(i2c_handle_t handle, uint8_t data, void *param)
 {
     (void)handle;
@@ -198,7 +214,12 @@ static void handle_stub_write_received(i2c_handle_t handle, uint8_t data, void *
     (void)param;
 }
 
-/* Stub for rd_requested_cb: unused in DMA slave sample flow. */
+/*
+    Function: handle_stub_read_requested
+
+    Stub for rd_requested_cb: unused in DMA slave sample flow.
+*/
+
 static void handle_stub_read_requested(i2c_handle_t handle, uint8_t *data, void *param)
 {
     (void)handle;
@@ -206,7 +227,12 @@ static void handle_stub_read_requested(i2c_handle_t handle, uint8_t *data, void 
     (void)param;
 }
 
-/* Stub for rd_processed_cb: unused in DMA slave sample flow. */
+/*
+    Function: handle_stub_read_processed
+
+    Stub for rd_processed_cb: unused in DMA slave sample flow.
+*/
+
 static void handle_stub_read_processed(i2c_handle_t handle, uint8_t *data, void *param)
 {
     (void)handle;
@@ -214,13 +240,21 @@ static void handle_stub_read_processed(i2c_handle_t handle, uint8_t *data, void 
     (void)param;
 }
 
-/* Stub for stop_cb: unused in DMA slave sample flow. */
+/*
+    Function: handle_stub_stop
+
+    Stub for stop_cb: unused in DMA slave sample flow.
+*/
+
 static void handle_stub_stop(i2c_handle_t handle, void *param)
 {
     (void)handle;
     (void)param;
 }
 
+/*
+    Function: fill_buf
+*/
 static void fill_buf(uint8_t *buf, uint32_t len, uint8_t seed)
 {
     uint32_t i;
@@ -231,6 +265,11 @@ static void fill_buf(uint8_t *buf, uint32_t len, uint8_t seed)
     }
 }
 
+/*
+    Function: load_bitstream
+
+    Calls <mmc_read_file> and <load_fpga_bitstream>.
+*/
 static int load_bitstream(void)
 {
     uint8_t *rbf;
@@ -257,6 +296,9 @@ static int load_bitstream(void)
     return 0;
 }
 
+/*
+    Function: i2c_slave_xfer_task
+*/
 static void i2c_slave_xfer_task(void *arg)
 {
     i2c_handle_t slave = NULL;
@@ -477,6 +519,9 @@ out:
     osal_task_delete();
 }
 
+/*
+    Function: i2c_master_xfer_task
+*/
 static void i2c_master_xfer_task(void *arg)
 {
     i2c_handle_t master = NULL;
@@ -617,6 +662,9 @@ out:
     osal_task_delete();
 }
 
+/*
+    Function: i2c_slave_dma_sample
+*/
 int i2c_slave_dma_sample(void)
 {
     bool master_task_ok;
@@ -681,6 +729,11 @@ int i2c_slave_dma_sample(void)
     return 0;
 }
 
+/*
+    Function: i2c_slave_dma_task
+
+    Calls <i2c_slave_dma_sample>.
+*/
 void i2c_slave_dma_task(void)
 {
     (void)i2c_slave_dma_sample();

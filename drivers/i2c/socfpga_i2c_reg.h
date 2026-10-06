@@ -6,6 +6,15 @@
  * Register definitions for SoC FPGA i2c block
  */
 
+/*
+    File: I2C Registers
+
+    Register definitions for SoC FPGA i2c block.
+
+    The definitions fall into the I2C_INTR_*, I2C_TX_*, I2C_CLR_*,
+    I2C_RAW_*, I2C_COMP_* and I2C_CON_* families, plus 22 smaller groups.
+*/
+
 #ifndef __SOCFPGA_I2C_REG_H__
 #define __SOCFPGA_I2C_REG_H__
 

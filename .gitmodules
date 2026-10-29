@@ -10,10 +10,10 @@
 	branch = socfpga_v2.14.0
 [submodule "fcs/libfcs"]
 	path = fcs/libfcs
-	url = https://github.com/altera-innersource/libraries.fpga.libfcs-dev.git
+	url = https://github.com/altera-fpga/libfcs
 [submodule "rsu/librsu"]
 	path = rsu/librsu
-	url = https://github.com/altera-innersource/libraries.fpga.unified-librsu-dev.git
+	url = https://github.com/altera-fpga/librsu
 [submodule "FreeRTOS/Fat-Fs"]
 	path = FreeRTOS/Fat-Fs
 	url = https://github.com/FreeRTOS/Lab-Project-FreeRTOS-FAT.git
